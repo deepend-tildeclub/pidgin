@@ -132,14 +132,14 @@ struct chat_connection {
 	aim_conn_t *conn;
 	int inpa;
 	int id;
-	GaimConnection *gc; /* i hate this. */
-	GaimConversation *conv; /* bah. */
+	PurpleConnection *gc; /* i hate this. */
+	PurpleConversation *conv; /* bah. */
 	int maxlen;
 	int maxvis;
 };
 
 struct oscar_direct_im {
-	GaimConnection *gc;
+	PurpleConnection *gc;
 	char name[80];
 	int watcher;
 	aim_conn_t *conn;
@@ -150,7 +150,7 @@ struct oscar_direct_im {
 };
 
 struct ask_direct {
-	GaimConnection *gc;
+	PurpleConnection *gc;
 	char *sn;
 	char ip[64];
 	fu8_t cookie[8];
@@ -180,7 +180,7 @@ struct buddyinfo {
 };
 
 struct name_data {
-	GaimConnection *gc;
+	PurpleConnection *gc;
 	gchar *name;
 	gchar *nick;
 };
@@ -215,73 +215,73 @@ static char *msgerrreason[] = {
 static int msgerrreasonlen = 25;
 
 /* All the libfaim->gaim callback functions */
-static int gaim_parse_auth_resp  (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_login      (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_auth_securid_request(aim_session_t *, aim_frame_t *, ...);
-static int gaim_handle_redirect  (aim_session_t *, aim_frame_t *, ...);
-static int gaim_info_change      (aim_session_t *, aim_frame_t *, ...);
-static int gaim_account_confirm  (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_oncoming   (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_offgoing   (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_incoming_im(aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_misses     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_clientauto (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_userinfo   (aim_session_t *, aim_frame_t *, ...);
-static int gaim_reqinfo_timeout  (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_motd       (aim_session_t *, aim_frame_t *, ...);
-static int gaim_chatnav_info     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_conv_chat_join        (aim_session_t *, aim_frame_t *, ...);
-static int gaim_conv_chat_leave       (aim_session_t *, aim_frame_t *, ...);
-static int gaim_conv_chat_info_update (aim_session_t *, aim_frame_t *, ...);
-static int gaim_conv_chat_incoming_msg(aim_session_t *, aim_frame_t *, ...);
-static int gaim_email_parseupdate(aim_session_t *, aim_frame_t *, ...);
-static int gaim_icon_error       (aim_session_t *, aim_frame_t *, ...);
-static int gaim_icon_parseicon   (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_auth_resp  (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_login      (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_auth_securid_request(aim_session_t *, aim_frame_t *, ...);
+static int purple_handle_redirect  (aim_session_t *, aim_frame_t *, ...);
+static int purple_info_change      (aim_session_t *, aim_frame_t *, ...);
+static int purple_account_confirm  (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_oncoming   (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_offgoing   (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_incoming_im(aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_misses     (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_clientauto (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_userinfo   (aim_session_t *, aim_frame_t *, ...);
+static int purple_reqinfo_timeout  (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_motd       (aim_session_t *, aim_frame_t *, ...);
+static int purple_chatnav_info     (aim_session_t *, aim_frame_t *, ...);
+static int purple_conv_chat_join        (aim_session_t *, aim_frame_t *, ...);
+static int purple_conv_chat_leave       (aim_session_t *, aim_frame_t *, ...);
+static int purple_conv_chat_info_update (aim_session_t *, aim_frame_t *, ...);
+static int purple_conv_chat_incoming_msg(aim_session_t *, aim_frame_t *, ...);
+static int purple_email_parseupdate(aim_session_t *, aim_frame_t *, ...);
+static int purple_icon_error       (aim_session_t *, aim_frame_t *, ...);
+static int purple_icon_parseicon   (aim_session_t *, aim_frame_t *, ...);
 static int oscar_icon_req        (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_msgack     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_ratechange (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_evilnotify (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_searcherror(aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_searchreply(aim_session_t *, aim_frame_t *, ...);
-static int gaim_bosrights        (aim_session_t *, aim_frame_t *, ...);
-static int gaim_connerr          (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_msgack     (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_ratechange (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_evilnotify (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_searcherror(aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_searchreply(aim_session_t *, aim_frame_t *, ...);
+static int purple_bosrights        (aim_session_t *, aim_frame_t *, ...);
+static int purple_connerr          (aim_session_t *, aim_frame_t *, ...);
 static int conninitdone_admin    (aim_session_t *, aim_frame_t *, ...);
 static int conninitdone_bos      (aim_session_t *, aim_frame_t *, ...);
 static int conninitdone_chatnav  (aim_session_t *, aim_frame_t *, ...);
 static int conninitdone_chat     (aim_session_t *, aim_frame_t *, ...);
 static int conninitdone_email    (aim_session_t *, aim_frame_t *, ...);
 static int conninitdone_icon     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_msgerr     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_mtn        (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_locaterights(aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_buddyrights(aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_locerr     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_icbm_param_info  (aim_session_t *, aim_frame_t *, ...);
-static int gaim_parse_genericerr (aim_session_t *, aim_frame_t *, ...);
-static int gaim_memrequest       (aim_session_t *, aim_frame_t *, ...);
-static int gaim_selfinfo         (aim_session_t *, aim_frame_t *, ...);
-static int gaim_offlinemsg       (aim_session_t *, aim_frame_t *, ...);
-static int gaim_offlinemsgdone   (aim_session_t *, aim_frame_t *, ...);
-static int gaim_icqalias         (aim_session_t *, aim_frame_t *, ...);
-static int gaim_icqinfo          (aim_session_t *, aim_frame_t *, ...);
-static int gaim_popup            (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_msgerr     (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_mtn        (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_locaterights(aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_buddyrights(aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_locerr     (aim_session_t *, aim_frame_t *, ...);
+static int purple_icbm_param_info  (aim_session_t *, aim_frame_t *, ...);
+static int purple_parse_genericerr (aim_session_t *, aim_frame_t *, ...);
+static int purple_memrequest       (aim_session_t *, aim_frame_t *, ...);
+static int purple_selfinfo         (aim_session_t *, aim_frame_t *, ...);
+static int purple_offlinemsg       (aim_session_t *, aim_frame_t *, ...);
+static int purple_offlinemsgdone   (aim_session_t *, aim_frame_t *, ...);
+static int purple_icqalias         (aim_session_t *, aim_frame_t *, ...);
+static int purple_icqinfo          (aim_session_t *, aim_frame_t *, ...);
+static int purple_popup            (aim_session_t *, aim_frame_t *, ...);
 #ifndef NOSSI
-static int gaim_ssi_parseerr     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_parserights  (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_parselist    (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_parseack     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_parseadd     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_authgiven    (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_authrequest  (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_authreply    (aim_session_t *, aim_frame_t *, ...);
-static int gaim_ssi_gotadded     (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_parseerr     (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_parserights  (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_parselist    (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_parseack     (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_parseadd     (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_authgiven    (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_authrequest  (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_authreply    (aim_session_t *, aim_frame_t *, ...);
+static int purple_ssi_gotadded     (aim_session_t *, aim_frame_t *, ...);
 #endif
 
 /* for DirectIM/image transfer */
-static int gaim_odc_initiate     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_odc_incoming     (aim_session_t *, aim_frame_t *, ...);
-static int gaim_odc_typing       (aim_session_t *, aim_frame_t *, ...);
-static int gaim_odc_update_ui    (aim_session_t *, aim_frame_t *, ...);
+static int purple_odc_initiate     (aim_session_t *, aim_frame_t *, ...);
+static int purple_odc_incoming     (aim_session_t *, aim_frame_t *, ...);
+static int purple_odc_typing       (aim_session_t *, aim_frame_t *, ...);
+static int purple_odc_update_ui    (aim_session_t *, aim_frame_t *, ...);
 
 /* for file transfer */
 static int oscar_sendfile_estblsh(aim_session_t *, aim_frame_t *, ...);
@@ -290,17 +290,18 @@ static int oscar_sendfile_ack    (aim_session_t *, aim_frame_t *, ...);
 static int oscar_sendfile_done   (aim_session_t *, aim_frame_t *, ...);
 
 /* for icons */
-static gboolean gaim_icon_timerfunc(gpointer data);
+static gboolean purple_icon_timerfunc(gpointer data);
 
 /* just because */
-static void oscar_callback(gpointer data, gint source, GaimInputCondition condition);
-static void oscar_direct_im_initiate(GaimConnection *gc, const char *who, const char *cookie);
-static void oscar_xfer_init_recv(GaimXfer *xfer);
+static void oscar_callback(gpointer data, gint source, PurpleInputCondition condition);
+static void oscar_direct_im_initiate(PurpleConnection *gc, const char *who, const char *cookie);
+static void oscar_xfer_init_recv(PurpleXfer *xfer);
 
 /* remove these at some point? */
 /* Because I don't like forward declarations?  I think that was why... */
-static void oscar_set_info(GaimConnection *gc, const char *text);
-static void oscar_set_away(GaimConnection *gc, const char *state, const char *message);
+static void oscar_set_info(PurpleConnection *gc, const char *text);
+static void oscar_set_away(PurpleConnection *gc, const char *state, const char *message);
+static void oscar_set_status(PurpleAccount *account, PurpleStatus *status);
 
 static void oscar_free_name_data(struct name_data *data) {
 	g_free(data->name);
@@ -384,7 +385,7 @@ oscar_encoding_to_utf8(const char *encoding, const char *text, int textlen)
 	gchar *utf8 = NULL;
 
 	if ((encoding == NULL) || encoding[0] == '\0') {
-		gaim_debug_info("oscar", "Empty encoding, assuming UTF-8\n");
+		purple_debug_info("oscar", "Empty encoding, assuming UTF-8\n");
 	} else if (!strcasecmp(encoding, "iso-8859-1")) {
 		utf8 = g_convert(text, textlen, "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
 	} else if (!strcasecmp(encoding, "ISO-8859-1-Windows-3.1-Latin-1")) {
@@ -392,7 +393,7 @@ oscar_encoding_to_utf8(const char *encoding, const char *text, int textlen)
 	} else if (!strcasecmp(encoding, "unicode-2-0")) {
 		utf8 = g_convert(text, textlen, "UTF-8", "UCS-2BE", NULL, NULL, NULL);
 	} else if (strcasecmp(encoding, "us-ascii") && strcmp(encoding, "utf-8")) {
-		gaim_debug_warning("oscar", "Unrecognized character encoding \"%s\", "
+		purple_debug_warning("oscar", "Unrecognized character encoding \"%s\", "
 						   "attempting to convert to UTF-8 anyway\n", encoding);
 		utf8 = g_convert(text, textlen, "UTF-8", encoding, NULL, NULL, NULL);
 	}
@@ -415,7 +416,7 @@ oscar_encoding_to_utf8(const char *encoding, const char *text, int textlen)
 }
 
 static gchar *
-gaim_plugin_oscar_convert_to_utf8(const fu8_t *data, fu16_t datalen, const char *charsetstr, gboolean fallback)
+purple_plugin_oscar_convert_to_utf8(const fu8_t *data, fu16_t datalen, const char *charsetstr, gboolean fallback)
 {
 	gchar *ret = NULL;
 	GError *err = NULL;
@@ -429,7 +430,7 @@ gaim_plugin_oscar_convert_to_utf8(const fu8_t *data, fu16_t datalen, const char 
 		else
 			ret = g_convert(data, datalen, "UTF-8", charsetstr, NULL, NULL, &err);
 		if (err != NULL) {
-			gaim_debug_warning("oscar", "Conversation from %s failed: %s.\n",
+			purple_debug_warning("oscar", "Conversation from %s failed: %s.\n",
 							   charsetstr, err->message);
 			g_error_free(err);
 		}
@@ -437,7 +438,7 @@ gaim_plugin_oscar_convert_to_utf8(const fu8_t *data, fu16_t datalen, const char 
 		if (g_utf8_validate(data, datalen, NULL))
 			ret = g_strndup(data, datalen);
 		else
-			gaim_debug_warning("oscar", "String is not valid UTF-8.\n");
+			purple_debug_warning("oscar", "String is not valid UTF-8.\n");
 	}
 
 	return ret;
@@ -447,17 +448,17 @@ gaim_plugin_oscar_convert_to_utf8(const fu8_t *data, fu16_t datalen, const char 
  * We try decoding using two different character sets.  The charset
  * specified in the IM determines the order in which we attempt to
  * decode.  We do this because there are lots of broken ICQ clients
- * that don't correctly send non-ASCII messages.  And if Gaim isn't
+ * that don't correctly send non-ASCII messages.  And if Purple isn't
  * able to deal with that crap, then people complain like banshees.
  * charsetstr1 is always set to what the correct encoding should be.
  */
 static gchar *
-gaim_plugin_oscar_decode_im_part(GaimAccount *account, const char *sourcesn, fu16_t charset, fu16_t charsubset, fu8_t *data, fu16_t datalen)
+purple_plugin_oscar_decode_im_part(PurpleAccount *account, const char *sourcesn, fu16_t charset, fu16_t charsubset, fu8_t *data, fu16_t datalen)
 {
 	gchar *ret = NULL;
 	const gchar *charsetstr1, *charsetstr2;
 
-	gaim_debug_info("oscar", "Parsing IM part, charset=0x%04hx, charsubset=0x%04hx, datalen=%hd\n", charset, charsubset, datalen);
+	purple_debug_info("oscar", "Parsing IM part, charset=0x%04hx, charsubset=0x%04hx, datalen=%hd\n", charset, charsubset, datalen);
 
 	if ((datalen == 0) || (data == NULL))
 		return NULL;
@@ -467,27 +468,27 @@ gaim_plugin_oscar_decode_im_part(GaimAccount *account, const char *sourcesn, fu1
 		charsetstr2 = "UTF-8";
 	} else if (charset == AIM_CHARSET_CUSTOM) {
 		if ((sourcesn != NULL) && isdigit(sourcesn[0]))
-			charsetstr1 = gaim_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+			charsetstr1 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
 		else
 			charsetstr1 = "ISO-8859-1";
 		charsetstr2 = "UTF-8";
 	} else if (charset == AIM_CHARSET_ASCII) {
 		/* Should just be "ASCII" */
 		charsetstr1 = "ASCII";
-		charsetstr2 = gaim_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr2 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
 	} else if (charset == 0x000d) {
 		/* Mobile AIM client on a Nokia 3100 and an LG VX6000 */
 		charsetstr1 = "ISO-8859-1";
-		charsetstr2 = gaim_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr2 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
 	} else {
 		/* Unknown, hope for valid UTF-8... */
 		charsetstr1 = "UTF-8";
-		charsetstr2 = gaim_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr2 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
 	}
 
-	ret = gaim_plugin_oscar_convert_to_utf8(data, datalen, charsetstr1, FALSE);
+	ret = purple_plugin_oscar_convert_to_utf8(data, datalen, charsetstr1, FALSE);
 	if (ret == NULL)
-		ret = gaim_plugin_oscar_convert_to_utf8(data, datalen, charsetstr2, TRUE);
+		ret = purple_plugin_oscar_convert_to_utf8(data, datalen, charsetstr2, TRUE);
 	if (ret == NULL)
 		ret = g_strdup(_("(There was an error receiving this message.  The buddy you are speaking to most likely has a buggy client.)"));
 
@@ -495,12 +496,12 @@ gaim_plugin_oscar_decode_im_part(GaimAccount *account, const char *sourcesn, fu1
 }
 
 static void
-gaim_plugin_oscar_convert_to_best_encoding(GaimConnection *gc, const char *destsn, const gchar *from,
+purple_plugin_oscar_convert_to_best_encoding(PurpleConnection *gc, const char *destsn, const gchar *from,
 										   gchar **msg, gsize *msglen,
 										   fu16_t *charset, fu16_t *charsubset)
 {
 	OscarData *od = gc->proto_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+	PurpleAccount *account = purple_connection_get_account(gc);
 	GError *err = NULL;
 	aim_userinfo_t *userinfo = NULL;
 	const gchar *charsetstr;
@@ -524,9 +525,9 @@ gaim_plugin_oscar_convert_to_best_encoding(GaimConnection *gc, const char *dests
 
 	if ((userinfo != NULL) && (userinfo->capabilities & AIM_CAPS_ICQUTF8))
 	{
-		GaimBuddy *b;
-		b = gaim_find_buddy(account, destsn);
-		if ((b != NULL) && (GAIM_BUDDY_IS_ONLINE(b)))
+		PurpleBuddy *b;
+		b = purple_find_buddy(account, destsn);
+		if ((b != NULL) && (PURPLE_BUDDY_IS_ONLINE(b)))
 		{
 			*msg = g_convert(from, strlen(from), "UCS-2BE", "UTF-8", NULL, msglen, NULL);
 			if (*msg != NULL)
@@ -544,7 +545,7 @@ gaim_plugin_oscar_convert_to_best_encoding(GaimConnection *gc, const char *dests
 	 */
 	charsetstr = "ISO-8859-1";
 	if ((destsn != NULL) && isdigit(destsn[0]))
-		charsetstr = gaim_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
 
 	*msg = g_convert(from, strlen(from), charsetstr, "UTF-8", NULL, msglen, NULL);
 	if (*msg != NULL) {
@@ -563,10 +564,10 @@ gaim_plugin_oscar_convert_to_best_encoding(GaimConnection *gc, const char *dests
 		return;
 	}
 
-	gaim_debug_error("oscar", "Error converting a Unicode message: %s\n", err->message);
+	purple_debug_error("oscar", "Error converting a Unicode message: %s\n", err->message);
 	g_error_free(err);
 
-	gaim_debug_error("oscar", "This should NEVER happen!  Sending UTF-8 text flagged as ASCII.\n");
+	purple_debug_error("oscar", "This should NEVER happen!  Sending UTF-8 text flagged as ASCII.\n");
 	*msg = g_strdup(from);
 	*msglen = strlen(*msg);
 	*charset = AIM_CHARSET_ASCII;
@@ -695,17 +696,17 @@ static void oscar_string_append(GString *str, char *newline, char *name, char *v
 {
 	gchar *utf8;
 
-	if (value && value[0] && (utf8 = gaim_utf8_try_convert(value))) {
+	if (value && value[0] && (utf8 = purple_utf8_try_convert(value))) {
 		g_string_append_printf(str, "%s<b>%s:</b> %s", newline, name, utf8);
 		g_free(utf8);
 	}
 }
 
-static void oscar_string_append_info(GaimConnection *gc, GString *str, char *newline, GaimBuddy *b, aim_userinfo_t *userinfo)
+static void oscar_string_append_info(PurpleConnection *gc, GString *str, char *newline, PurpleBuddy *b, aim_userinfo_t *userinfo)
 {
 	OscarData *od = gc->proto_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
-	GaimGroup *g = NULL;
+	PurpleAccount *account = purple_connection_get_account(gc);
+	PurpleGroup *g = NULL;
 	struct buddyinfo *bi = NULL;
 	char *tmp;
 
@@ -716,16 +717,16 @@ static void oscar_string_append_info(GaimConnection *gc, GString *str, char *new
 		userinfo = aim_locate_finduserinfo(od->sess, b->name);
 
 	if (b == NULL)
-		b = gaim_find_buddy(gc->account, userinfo->sn);
+		b = purple_find_buddy(gc->account, userinfo->sn);
 
 	if (b != NULL)
-		g = gaim_find_buddys_group(b);
+		g = purple_find_buddys_group(b);
 
 	if (userinfo != NULL)
-		bi = g_hash_table_lookup(od->buddyinfo, gaim_normalize(account, userinfo->sn));
+		bi = g_hash_table_lookup(od->buddyinfo, purple_normalize(account, userinfo->sn));
 
 	if (b != NULL) {
-		if (GAIM_BUDDY_IS_ONLINE(b)) {
+		if (PURPLE_BUDDY_IS_ONLINE(b)) {
 			if (isdigit(b->name[0])) {
 				tmp = oscar_icqstatus((b->uc & 0xffff0000) >> 16);
 				oscar_string_append(str, newline, _("Status"), tmp);
@@ -802,7 +803,7 @@ static char *extract_name(const char *name) {
 	return tmp;
 }
 
-static struct chat_connection *find_oscar_chat(GaimConnection *gc, int id) {
+static struct chat_connection *find_oscar_chat(PurpleConnection *gc, int id) {
 	GSList *g = ((OscarData *)gc->proto_data)->oscar_chats;
 	struct chat_connection *c = NULL;
 
@@ -817,7 +818,7 @@ static struct chat_connection *find_oscar_chat(GaimConnection *gc, int id) {
 	return c;
 }
 
-static struct chat_connection *find_oscar_chat_by_conn(GaimConnection *gc,
+static struct chat_connection *find_oscar_chat_by_conn(PurpleConnection *gc,
 							aim_conn_t *conn) {
 	GSList *g = ((OscarData *)gc->proto_data)->oscar_chats;
 	struct chat_connection *c = NULL;
@@ -833,8 +834,8 @@ static struct chat_connection *find_oscar_chat_by_conn(GaimConnection *gc,
 	return c;
 }
 
-static struct chat_connection *find_oscar_chat_by_conv(GaimConnection *gc,
-							GaimConversation *conv) {
+static struct chat_connection *find_oscar_chat_by_conv(PurpleConnection *gc,
+							PurpleConversation *conv) {
 	GSList *g = ((OscarData *)gc->proto_data)->oscar_chats;
 	struct chat_connection *c = NULL;
 
@@ -869,7 +870,7 @@ static struct oscar_direct_im *oscar_direct_im_find(OscarData *od, const char *w
 
 static void oscar_direct_im_destroy(OscarData *od, struct oscar_direct_im *dim)
 {
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "destroying Direct IM for %s.\n", dim->name);
 
 	od->direct_ims = g_slist_remove(od->direct_ims, dim);
@@ -878,7 +879,7 @@ static void oscar_direct_im_destroy(OscarData *od, struct oscar_direct_im *dim)
 		return;
 	}
 	if (dim->watcher)
-	gaim_input_remove(dim->watcher);
+	purple_input_remove(dim->watcher);
 	if (dim->conn) {
 		aim_conn_close(dim->conn);
 		aim_conn_kill(od->sess, &dim->conn);
@@ -889,10 +890,10 @@ static void oscar_direct_im_destroy(OscarData *od, struct oscar_direct_im *dim)
 /* the only difference between this and destroy is this writes a conv message */
 static void oscar_direct_im_disconnect(OscarData *od, struct oscar_direct_im *dim)
 {
-	GaimConversation *conv;
+	PurpleConversation *conv;
 	char buf[256];
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "%s disconnected Direct IM.\n", dim->name);
 
 	if (dim->connected)
@@ -900,12 +901,12 @@ static void oscar_direct_im_disconnect(OscarData *od, struct oscar_direct_im *di
 	else
 		g_snprintf(buf, sizeof buf, _("Direct IM with %s failed"), dim->name);
 
-	conv = gaim_find_conversation_with_account(dim->name, gaim_connection_get_account(dim->gc));
+	conv = purple_find_conversation_with_account(dim->name, purple_connection_get_account(dim->gc));
 	if (conv) {
-		gaim_conversation_write(conv, NULL, buf, GAIM_MESSAGE_SYSTEM, time(NULL));
-		gaim_conversation_update_progress(conv, 0);
+		purple_conversation_write(conv, NULL, buf, PURPLE_MESSAGE_SYSTEM, time(NULL));
+		purple_conversation_update_progress(conv, 0);
 	} else {
-		gaim_notify_error(dim->gc, NULL, _("Direct Connect failed"), buf);
+		purple_notify_error(dim->gc, NULL, _("Direct Connect failed"), buf);
 	}
 
 	oscar_direct_im_destroy(od, dim);
@@ -914,9 +915,9 @@ static void oscar_direct_im_disconnect(OscarData *od, struct oscar_direct_im *di
 }
 
 /* oops i made two of these. this one just calls the other one. */
-static void gaim_odc_disconnect(aim_session_t *sess, aim_conn_t *conn)
+static void purple_odc_disconnect(aim_session_t *sess, aim_conn_t *conn)
 {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 	struct oscar_direct_im *dim;
 	char *sn;
@@ -928,18 +929,18 @@ static void gaim_odc_disconnect(aim_session_t *sess, aim_conn_t *conn)
 }
 
 static void destroy_direct_im_request(struct ask_direct *d) {
-	gaim_debug_info("oscar", "Freeing DirectIM prompts.\n");
+	purple_debug_info("oscar", "Freeing DirectIM prompts.\n");
 
 	g_free(d->sn);
 	g_free(d);
 }
 
-/* this is just a gaim_proxy_connect cb that sets up the rest of the cbs */
-static void oscar_odc_callback(gpointer data, gint source, GaimInputCondition condition) {
+/* this is just a purple_proxy_connect cb that sets up the rest of the cbs */
+static void oscar_odc_callback(gpointer data, gint source, PurpleInputCondition condition) {
 	struct oscar_direct_im *dim = data;
-	GaimConnection *gc = dim->gc;
+	PurpleConnection *gc = dim->gc;
 	OscarData *od = gc->proto_data;
-	GaimConversation *conv;
+	PurpleConversation *conv;
 	char buf[256];
 	struct sockaddr name;
 	socklen_t name_len = 1;
@@ -952,7 +953,7 @@ static void oscar_odc_callback(gpointer data, gint source, GaimInputCondition co
 		return;
 	}
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		oscar_direct_im_destroy(od, dim);
 		return;
 	}
@@ -969,7 +970,7 @@ static void oscar_odc_callback(gpointer data, gint source, GaimInputCondition co
 			memcpy(cookie, tmp, 8);
 			oscar_direct_im_destroy(od, dim);
 			oscar_direct_im_initiate(gc, who, cookie);
-			gaim_debug_info("oscar", "asking direct im initiator to connect to us\n");
+			purple_debug_info("oscar", "asking direct im initiator to connect to us\n");
 			g_free(who);
 			return;
 		}
@@ -977,15 +978,15 @@ static void oscar_odc_callback(gpointer data, gint source, GaimInputCondition co
 
 	dim->conn->fd = source;
 	aim_conn_completeconnect(od->sess, dim->conn);
-	conv = gaim_conversation_new(GAIM_CONV_IM, dim->gc->account, dim->name);
+	conv = purple_conversation_new(PURPLE_CONV_IM, dim->gc->account, dim->name);
 
 	/* This is the best way to see if we're connected or not */
 	/* Is this really needed? */
 	if (getpeername(source, &name, &name_len) == 0) {
 		g_snprintf(buf, sizeof buf, _("Direct IM with %s established"), dim->name);
 		dim->connected = TRUE;
-		gaim_conversation_write(conv, NULL, buf, GAIM_MESSAGE_SYSTEM, time(NULL));
-		dim->watcher = gaim_input_add(dim->conn->fd, GAIM_INPUT_READ, oscar_callback, dim->conn);
+		purple_conversation_write(conv, NULL, buf, PURPLE_MESSAGE_SYSTEM, time(NULL));
+		dim->watcher = purple_input_add(dim->conn->fd, PURPLE_INPUT_READ, oscar_callback, dim->conn);
 	} else {
 		if (dim->donttryagain) {
 			oscar_direct_im_disconnect(od, dim);
@@ -998,7 +999,7 @@ static void oscar_odc_callback(gpointer data, gint source, GaimInputCondition co
 			memcpy(cookie, tmp, 8);
 			oscar_direct_im_destroy(od, dim);
 			oscar_direct_im_initiate(gc, who, cookie);
-			gaim_debug_info("oscar", "asking direct im initiator to connect to us\n");
+			purple_debug_info("oscar", "asking direct im initiator to connect to us\n");
 			g_free(who);
 			return;
 		}
@@ -1008,26 +1009,26 @@ static void oscar_odc_callback(gpointer data, gint source, GaimInputCondition co
 }
 
 static void accept_direct_im_request(struct ask_direct *d) {
-	GaimConnection *gc = d->gc;
+	PurpleConnection *gc = d->gc;
 	OscarData *od;
 	struct oscar_direct_im *dim;
 	char *host; int port = 5190;
 	int i, rc;
 	char *tmp;
-	GaimConversation *conv;
+	PurpleConversation *conv;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		destroy_direct_im_request(d);
 		return;
 	}
 
 	od = (OscarData *)gc->proto_data;
-	gaim_debug_info("oscar", "Accepted DirectIM.\n");
+	purple_debug_info("oscar", "Accepted DirectIM.\n");
 
 	dim = oscar_direct_im_find(od, d->sn);
 	if (dim && dim->connected) {
 		destroy_direct_im_request(d); /* 40 */ /* what does that 40 mean? */
-		gaim_debug_info("oscar", "Wait, we're already connected, ignoring DirectIM.\n");
+		purple_debug_info("oscar", "Wait, we're already connected, ignoring DirectIM.\n");
 		return;
 	}
 	dim = g_new0(struct oscar_direct_im, 1);
@@ -1044,13 +1045,13 @@ static void accept_direct_im_request(struct ask_direct *d) {
 	}
 
 	aim_conn_addhandler(od->sess, dim->conn, AIM_CB_FAM_OFT, AIM_CB_OFT_DIRECTIMINCOMING,
-				gaim_odc_incoming, 0);
+				purple_odc_incoming, 0);
 	aim_conn_addhandler(od->sess, dim->conn, AIM_CB_FAM_OFT, AIM_CB_OFT_DIRECTIMTYPING,
-				gaim_odc_typing, 0);
+				purple_odc_typing, 0);
 	aim_conn_addhandler(od->sess, dim->conn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_IMAGETRANSFER,
-			        gaim_odc_update_ui, 0);
+			        purple_odc_update_ui, 0);
 
-	gaim_debug_info("oscar", "ip is %s.\n", d->ip);
+	purple_debug_info("oscar", "ip is %s.\n", d->ip);
 	for (i = 0; i < (int)strlen(d->ip); i++) {
 		if (d->ip[i] == ':') {
 			port = atoi(&(d->ip[i+1]));
@@ -1060,12 +1061,12 @@ static void accept_direct_im_request(struct ask_direct *d) {
 	host = g_strndup(d->ip, i);
 	dim->conn->status |= AIM_CONN_STATUS_INPROGRESS;
 	dim->gpc_pend = TRUE;
-	rc = gaim_proxy_connect(gc->account, host, port, oscar_odc_callback, dim);
+	rc = purple_proxy_connect(gc->account, host, port, oscar_odc_callback, dim);
 
-	conv = gaim_conversation_new(GAIM_CONV_IM, dim->gc->account, d->sn);
+	conv = purple_conversation_new(PURPLE_CONV_IM, dim->gc->account, d->sn);
 	tmp = g_strdup_printf(_("Attempting to connect to %s at %s:%hu for Direct IM."), d->sn, host,
 	                      port);
-	gaim_conversation_write(conv, NULL, tmp, GAIM_MESSAGE_SYSTEM, time(NULL));
+	purple_conversation_write(conv, NULL, tmp, PURPLE_MESSAGE_SYSTEM, time(NULL));
 	g_free(tmp);
 
 	g_free(host);
@@ -1084,10 +1085,10 @@ static void accept_direct_im_request(struct ask_direct *d) {
 /*
  * We have just established a socket with the other dude, so set up some handlers.
  */
-static int gaim_odc_initiate(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_odc_initiate(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
-	GaimConversation *conv;
+	PurpleConversation *conv;
 	struct oscar_direct_im *dim;
 	char buf[256];
 	char *sn;
@@ -1104,22 +1105,22 @@ static int gaim_odc_initiate(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	sn = g_strdup(aim_odc_getsn(newconn));
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "DirectIM: initiate success to %s\n", sn);
 	dim = oscar_direct_im_find(od, sn);
 
-	conv = gaim_conversation_new(GAIM_CONV_IM, dim->gc->account, sn);
-	gaim_input_remove(dim->watcher);
+	conv = purple_conversation_new(PURPLE_CONV_IM, dim->gc->account, sn);
+	purple_input_remove(dim->watcher);
 	dim->conn = newconn;
-	dim->watcher = gaim_input_add(dim->conn->fd, GAIM_INPUT_READ, oscar_callback, dim->conn);
+	dim->watcher = purple_input_add(dim->conn->fd, PURPLE_INPUT_READ, oscar_callback, dim->conn);
 	dim->connected = TRUE;
 	g_snprintf(buf, sizeof buf, _("Direct IM with %s established"), sn);
 	g_free(sn);
-	gaim_conversation_write(conv, NULL, buf, GAIM_MESSAGE_SYSTEM, time(NULL));
+	purple_conversation_write(conv, NULL, buf, PURPLE_MESSAGE_SYSTEM, time(NULL));
 
-	aim_conn_addhandler(sess, newconn, AIM_CB_FAM_OFT, AIM_CB_OFT_DIRECTIMINCOMING, gaim_odc_incoming, 0);
-	aim_conn_addhandler(sess, newconn, AIM_CB_FAM_OFT, AIM_CB_OFT_DIRECTIMTYPING, gaim_odc_typing, 0);
-	aim_conn_addhandler(sess, newconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_IMAGETRANSFER, gaim_odc_update_ui, 0);
+	aim_conn_addhandler(sess, newconn, AIM_CB_FAM_OFT, AIM_CB_OFT_DIRECTIMINCOMING, purple_odc_incoming, 0);
+	aim_conn_addhandler(sess, newconn, AIM_CB_FAM_OFT, AIM_CB_OFT_DIRECTIMTYPING, purple_odc_typing, 0);
+	aim_conn_addhandler(sess, newconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_IMAGETRANSFER, purple_odc_update_ui, 0);
 
 	return 1;
 }
@@ -1129,13 +1130,13 @@ static int gaim_odc_initiate(aim_session_t *sess, aim_frame_t *fr, ...) {
  * update a progress bar, or to eat lots of dry cat food.  Wet cat food is
  * nasty, you sicko.
  */
-static int gaim_odc_update_ui(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_odc_update_ui(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	char *sn;
 	double percent;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
-	GaimConversation *c;
+	PurpleConversation *c;
 	struct oscar_direct_im *dim;
 
 	va_start(ap, fr);
@@ -1146,15 +1147,15 @@ static int gaim_odc_update_ui(aim_session_t *sess, aim_frame_t *fr, ...) {
 	if (!sn || !(dim = oscar_direct_im_find(od, sn)))
 		return 1;
 	if (dim->watcher) {
-		gaim_input_remove(dim->watcher);   /* Otherwise, the callback will callback */
+		purple_input_remove(dim->watcher);   /* Otherwise, the callback will callback */
 		/* The callback will callback? I don't get how that would happen here. */
 		dim->watcher = 0;
 	}
 
-	c = gaim_find_conversation_with_account(sn, gaim_connection_get_account(gc));
+	c = purple_find_conversation_with_account(sn, purple_connection_get_account(gc));
 	if (c != NULL)
-		gaim_conversation_update_progress(c, percent);
-	dim->watcher = gaim_input_add(dim->conn->fd, GAIM_INPUT_READ,
+		purple_conversation_update_progress(c, percent);
+	dim->watcher = purple_input_add(dim->conn->fd, PURPLE_INPUT_READ,
 				      oscar_callback, dim->conn);
 
 	return 1;
@@ -1168,7 +1169,7 @@ static int gaim_odc_update_ui(aim_session_t *sess, aim_frame_t *fr, ...) {
  * This function rips out all the data chunks and creates an imgstore for
  * each one.  In order to do this, it first goes through the IM and takes
  * out all the IMG tags.  When doing so, it rewrites the original IMG tag
- * with one compatible with the imgstore Gaim core code. For each one, we
+ * with one compatible with the imgstore Purple core code. For each one, we
  * then read in chunks of data from the end of the message and actually
  * create the img store using the given data.
  *
@@ -1189,9 +1190,9 @@ static int gaim_odc_update_ui(aim_session_t *sess, aim_frame_t *fr, ...) {
  *     <DATA ID="2" SIZE="65978">datadatadatadata</DATA>
  * </BINARY>
  */
-static int gaim_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
-	GaimConvImFlags imflags = 0;
+static int purple_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
+	PurpleMessageFlags imflags = 0;
 	gchar *utf8;
 	GString *newmsg = g_string_new("");
 	GSList *images = NULL;
@@ -1209,21 +1210,21 @@ static int gaim_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_end(ap);
 	msgend = msg + len;
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "Got DirectIM message from %s\n", sn);
 
 	if (isawaymsg)
-		imflags |= GAIM_CONV_IM_AUTO_RESP;
+		imflags |= PURPLE_CONV_IM_AUTO_RESP;
 
 	/* message has a binary trailer */
-	if ((binary = gaim_strcasestr(msg, "<binary>"))) {
+	if ((binary = purple_strcasestr(msg, "<binary>"))) {
 		GData *attribs;
 		const char *tmp, *start, *end, *last = NULL;
 
 		tmp = msg;
 
 		/* for each valid image tag... */
-		while (gaim_markup_find_tag("img", tmp, &start, &end, &attribs)) {
+		while (purple_markup_find_tag("img", tmp, &start, &end, &attribs)) {
 			const char *id, *src, *datasize;
 			const char *data = NULL;
 			char *tag = NULL;
@@ -1243,14 +1244,14 @@ static int gaim_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 				tag = g_strdup_printf("<data id=\"%s\" size=\"%s\">", id, datasize);
 
 			/* if we have a tag, find the start of the data */
-			if (tag && (data = gaim_strcasestr(binary, tag)))
+			if (tag && (data = purple_strcasestr(binary, tag)))
 				data += strlen(tag);
 
 			g_free(tag);
 
 			/* check the data is here and store it */
 			if (data + (size = atoi(datasize)) <= msgend)
-				imgid = gaim_imgstore_add(data, size, src);
+				imgid = purple_imgstore_add(data, size, src);
 
 			/*
 			 * XXX - The code below contains some calls to oscar_encoding_to_utf8
@@ -1292,7 +1293,7 @@ static int gaim_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 		/* set the flag if we caught any images */
 		if (images)
-			imflags |= GAIM_CONV_IM_IMAGES;
+			imflags |= PURPLE_CONV_IM_IMAGES;
 	} else {
 		g_string_append_len(newmsg, msg, len);
 	}
@@ -1310,7 +1311,7 @@ static int gaim_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 		for (tmp = images; tmp != NULL; tmp = tmp->next) {
 			id = GPOINTER_TO_INT(tmp->data);
-			gaim_imgstore_unref(id);
+			purple_imgstore_unref(id);
 		}
 
 		g_slist_free(images);
@@ -1319,11 +1320,11 @@ static int gaim_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_odc_typing(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_odc_typing(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	char *sn;
 	int typing;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 
 	va_start(ap, fr);
 	sn = va_arg(ap, char *);
@@ -1332,17 +1333,17 @@ static int gaim_odc_typing(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	if (typing == 0x0002) {
 		/* I had to leave this. It's just too funny. It reminds me of my sister. */
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "ohmigod! %s has started typing (DirectIM). He's going to send you a message! *squeal*\n", sn);
-		serv_got_typing(gc, sn, 0, GAIM_TYPING);
+		serv_got_typing(gc, sn, 0, PURPLE_TYPING);
 	} else if (typing == 0x0001)
-		serv_got_typing(gc, sn, 0, GAIM_TYPED);
+		serv_got_typing(gc, sn, 0, PURPLE_TYPED);
 	else
 		serv_got_typing_stopped(gc, sn);
 	return 1;
 }
 
-static int gaim_odc_send_im(aim_session_t *sess, aim_conn_t *conn, const char *message, GaimConvImFlags imflags) {
+static int purple_odc_send_im(aim_session_t *sess, aim_conn_t *conn, const char *message, PurpleMessageFlags imflags) {
 	char *buf;
 	size_t len;
 	int ret;
@@ -1355,8 +1356,8 @@ static int gaim_odc_send_im(aim_session_t *sess, aim_conn_t *conn, const char *m
 	last = message;
 
 	/* for each valid IMG tag... */
-	while (last && *last && gaim_markup_find_tag("img", last, &start, &end, &attribs)) {
-		GaimStoredImage *image = NULL;
+	while (last && *last && purple_markup_find_tag("img", last, &start, &end, &attribs)) {
+		PurpleStoredImage *image = NULL;
 		const char *id;
 
 		if (start - last) {
@@ -1366,11 +1367,11 @@ static int gaim_odc_send_im(aim_session_t *sess, aim_conn_t *conn, const char *m
 		id = g_datalist_get_data(&attribs, "id");
 
 		/* ... if it refers to a valid gaim image ... */
-		if (id && (image = gaim_imgstore_get(atoi(id)))) {
+		if (id && (image = purple_imgstore_get(atoi(id)))) {
 			/* ... append the message from start to the tag ... */
-			unsigned long size = gaim_imgstore_get_size(image);
-			const char *filename = gaim_imgstore_get_filename(image);
-			gpointer imgdata = gaim_imgstore_get_data(image);
+			unsigned long size = purple_imgstore_get_size(image);
+			const char *filename = purple_imgstore_get_filename(image);
+			gpointer imgdata = purple_imgstore_get_data(image);
 
 			oscar_id++;
 
@@ -1415,7 +1416,7 @@ static int gaim_odc_send_im(aim_session_t *sess, aim_conn_t *conn, const char *m
 
 
 	/* XXX - The last parameter below is the encoding.  Let Paco-Paco do something with it. */
-	if (imflags & GAIM_CONV_IM_AUTO_RESP)
+	if (imflags & PURPLE_CONV_IM_AUTO_RESP)
 		ret =  aim_odc_send_im(sess, conn, buf, len, 0, 1);
 	else
 		ret =  aim_odc_send_im(sess, conn, buf, len, 0, 0);
@@ -1427,7 +1428,7 @@ static int gaim_odc_send_im(aim_session_t *sess, aim_conn_t *conn, const char *m
 
 struct ask_do_dir_im {
 	char *who;
-	GaimConnection *gc;
+	PurpleConnection *gc;
 };
 
 static void oscar_cancel_direct_im(struct ask_do_dir_im *data) {
@@ -1445,7 +1446,7 @@ static void oscar_cancel_direct_im(struct ask_do_dir_im *data) {
  *
  * note that cookie is an 8 byte string that isn't NULL terminated
  */
-static void oscar_direct_im_initiate(GaimConnection *gc, const char *who, const char *cookie) {
+static void oscar_direct_im_initiate(PurpleConnection *gc, const char *who, const char *cookie) {
 	OscarData *od;
 	struct oscar_direct_im *dim;
 	int listenfd;
@@ -1457,10 +1458,10 @@ static void oscar_direct_im_initiate(GaimConnection *gc, const char *who, const 
 	if (dim) {
 		if (!(dim->connected)) {  /* We'll free the old, unconnected dim, and start over */
 			oscar_direct_im_disconnect(od, dim);
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "Gave up on old direct IM, trying again\n");
 		} else {
-			gaim_notify_error(gc, NULL, "DirectIM already open.", NULL);
+			purple_notify_error(gc, NULL, "DirectIM already open.", NULL);
 			return;
 		}
 	}
@@ -1468,35 +1469,35 @@ static void oscar_direct_im_initiate(GaimConnection *gc, const char *who, const 
 	dim->gc = gc;
 	g_snprintf(dim->name, sizeof dim->name, "%s", who);
 
-	listenfd = gaim_network_listen_range(5190, 5199);
-	ip = gaim_network_get_my_ip(od->conn ? od->conn->fd : -1);
+	listenfd = purple_network_listen_range(5190, 5199);
+	ip = purple_network_get_my_ip(od->conn ? od->conn->fd : -1);
 	if (listenfd >= 0)
-		dim->conn = aim_odc_initiate(od->sess, who, listenfd, gaim_network_ip_atoi(ip), gaim_network_get_port_from_fd(listenfd), cookie);
+		dim->conn = aim_odc_initiate(od->sess, who, listenfd, purple_network_ip_atoi(ip), purple_network_get_port_from_fd(listenfd), cookie);
 	if (dim->conn != NULL) {
 		char *tmp;
-		GaimConversation *conv;
+		PurpleConversation *conv;
 
 		od->direct_ims = g_slist_append(od->direct_ims, dim);
-		dim->watcher = gaim_input_add(dim->conn->fd, GAIM_INPUT_READ,
+		dim->watcher = purple_input_add(dim->conn->fd, PURPLE_INPUT_READ,
 						oscar_callback, dim->conn);
 		aim_conn_addhandler(od->sess, dim->conn, AIM_CB_FAM_OFT, AIM_CB_OFT_DIRECTIM_ESTABLISHED,
-					gaim_odc_initiate, 0);
+					purple_odc_initiate, 0);
 
-		conv = gaim_conversation_new(GAIM_CONV_IM, dim->gc->account, who);
+		conv = purple_conversation_new(PURPLE_CONV_IM, dim->gc->account, who);
 		tmp = g_strdup_printf(_("Asking %s to connect to us at %s:%hu for Direct IM."), who, ip,
-		                      gaim_network_get_port_from_fd(listenfd));
-		gaim_conversation_write(conv, NULL, tmp, GAIM_MESSAGE_SYSTEM, time(NULL));
+		                      purple_network_get_port_from_fd(listenfd));
+		purple_conversation_write(conv, NULL, tmp, PURPLE_MESSAGE_SYSTEM, time(NULL));
 		g_free(tmp);
 	} else {
-		gaim_notify_error(gc, NULL, _("Unable to open Direct IM"), NULL);
+		purple_notify_error(gc, NULL, _("Unable to open Direct IM"), NULL);
 		oscar_direct_im_destroy(od, dim);
 	}
 }
 
 static void oscar_direct_im(struct ask_do_dir_im *data) {
-	GaimConnection *gc = data->gc;
+	PurpleConnection *gc = data->gc;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		g_free(data->who);
 		g_free(data);
 		return;
@@ -1508,17 +1509,17 @@ static void oscar_direct_im(struct ask_do_dir_im *data) {
 }
 
 /* this is the right click menu cb thingy */
-static void oscar_ask_direct_im(GaimBlistNode *node, gpointer ignored) {
+static void oscar_ask_direct_im(PurpleBlistNode *node, gpointer ignored) {
 
-	GaimBuddy *buddy;
-	GaimConnection *gc;
+	PurpleBuddy *buddy;
+	PurpleConnection *gc;
 	gchar *buf;
 	struct ask_do_dir_im *data;
 
-	g_return_if_fail(GAIM_BLIST_NODE_IS_BUDDY(node));
+	g_return_if_fail(PURPLE_BLIST_NODE_IS_BUDDY(node));
 
-	buddy = (GaimBuddy *) node;
-	gc = gaim_account_get_connection(buddy->account);
+	buddy = (PurpleBuddy *) node;
+	gc = purple_account_get_connection(buddy->account);
 
 	data = g_new0(struct ask_do_dir_im, 1);
 	data->who = g_strdup(buddy->name);
@@ -1526,7 +1527,7 @@ static void oscar_ask_direct_im(GaimBlistNode *node, gpointer ignored) {
 	buf = g_strdup_printf(_("You have selected to open a Direct IM connection with %s."),
 			buddy->name);
 
-	gaim_request_action(gc, NULL, buf,
+	purple_request_action(gc, NULL, buf,
 			_("Because this reveals your IP address, it "
 			  "may be considered a privacy risk.  Do you "
 			  "wish to continue?"),
@@ -1540,75 +1541,75 @@ static void oscar_ask_direct_im(GaimBlistNode *node, gpointer ignored) {
  * End scary direct im stuff
  *****************************************************************************/
 
-static void oscar_callback(gpointer data, gint source, GaimInputCondition condition) {
+static void oscar_callback(gpointer data, gint source, PurpleInputCondition condition) {
 	aim_conn_t *conn = (aim_conn_t *)data;
 	aim_session_t *sess = aim_conn_getsess(conn);
-	GaimConnection *gc = sess ? sess->aux_data : NULL;
+	PurpleConnection *gc = sess ? sess->aux_data : NULL;
 	OscarData *od;
 
 	if (!gc) {
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "oscar callback for closed connection (1).\n");
 		return;
 	}
       
 	od = (OscarData *)gc->proto_data;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		/* oh boy. this is probably bad. i guess the only thing we 
 		 * can really do is return? */
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "oscar callback for closed connection (2).\n");
-		gaim_debug_misc("oscar", "gc = %p\n", gc);
+		purple_debug_misc("oscar", "gc = %p\n", gc);
 		return;
 	}
 
-	if (condition & GAIM_INPUT_READ) {
+	if (condition & PURPLE_INPUT_READ) {
 		if (conn->type == AIM_CONN_TYPE_LISTENER) {
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "got information on rendezvous listener\n");
 			if (aim_handlerendconnect(od->sess, conn) < 0) {
-				gaim_debug_error("oscar",
+				purple_debug_error("oscar",
 						   "connection error (rendezvous listener)\n");
 				aim_conn_kill(od->sess, &conn);
-				/* AAA - Don't we need to gaim_xfer_cancel here? --marv */
+				/* AAA - Don't we need to purple_xfer_cancel here? --marv */
 			}
 		} else {
 			if (aim_get_command(od->sess, conn) >= 0) {
 				aim_rxdispatch(od->sess);
 				if (od->killme) {
-					gaim_debug_error("oscar", "Waiting to be destroyed\n");
+					purple_debug_error("oscar", "Waiting to be destroyed\n");
 					return;
 				}
 			} else {
 				if ((conn->type == AIM_CONN_TYPE_BOS) ||
 					   !(aim_getconn_type(od->sess, AIM_CONN_TYPE_BOS))) {
-					gaim_debug_error("oscar",
+					purple_debug_error("oscar",
 							   "major connection error\n");
-					gaim_connection_error(gc, _("Disconnected."));
+					purple_connection_error(gc, _("Disconnected."));
 				} else if (conn->type == AIM_CONN_TYPE_CHAT) {
 					struct chat_connection *c = find_oscar_chat_by_conn(gc, conn);
-					GaimConversation *conv = gaim_find_chat(gc, c->id);
+					PurpleConversation *conv = purple_find_chat(gc, c->id);
 					char *buf;
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							   "disconnected from chat room %s\n", c->name);
 					c->conn = NULL;
 					if (c->inpa > 0)
-						gaim_input_remove(c->inpa);
+						purple_input_remove(c->inpa);
 					c->inpa = 0;
 					c->fd = -1;
 					aim_conn_kill(od->sess, &conn);
 					buf = g_strdup_printf(_("You have been disconnected from chat room %s."), c->name);
 					if (conv) 
-						gaim_conversation_write(conv, NULL, buf, GAIM_MESSAGE_ERROR, time(NULL));
+						purple_conversation_write(conv, NULL, buf, PURPLE_MESSAGE_ERROR, time(NULL));
 					else
-						gaim_notify_error(gc, NULL, buf, NULL);
+						purple_notify_error(gc, NULL, buf, NULL);
 					g_free(buf);
 				} else if (conn->type == AIM_CONN_TYPE_CHATNAV) {
 					if (od->cnpa > 0)
-						gaim_input_remove(od->cnpa);
+						purple_input_remove(od->cnpa);
 					od->cnpa = 0;
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							   "removing chatnav input watcher\n");
 					while (od->create_rooms) {
 						struct create_room *cr = od->create_rooms->data;
@@ -1616,38 +1617,38 @@ static void oscar_callback(gpointer data, gint source, GaimInputCondition condit
 						od->create_rooms =
 							g_slist_remove(od->create_rooms, cr);
 						g_free(cr);
-						gaim_notify_error(gc, NULL,
+						purple_notify_error(gc, NULL,
 										  _("Chat is currently unavailable"),
 										  NULL);
 					}
 					aim_conn_kill(od->sess, &conn);
 				} else if (conn->type == AIM_CONN_TYPE_AUTH) {
 					if (od->paspa > 0)
-						gaim_input_remove(od->paspa);
+						purple_input_remove(od->paspa);
 					od->paspa = 0;
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							   "removing authconn input watcher\n");
 					aim_conn_kill(od->sess, &conn);
 				} else if (conn->type == AIM_CONN_TYPE_EMAIL) {
 					if (od->emlpa > 0)
-						gaim_input_remove(od->emlpa);
+						purple_input_remove(od->emlpa);
 					od->emlpa = 0;
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							   "removing email input watcher\n");
 					aim_conn_kill(od->sess, &conn);
 				} else if (conn->type == AIM_CONN_TYPE_ICON) {
 					if (od->icopa > 0)
-						gaim_input_remove(od->icopa);
+						purple_input_remove(od->icopa);
 					od->icopa = 0;
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							   "removing icon input watcher\n");
 					aim_conn_kill(od->sess, &conn);
 				} else if (conn->type == AIM_CONN_TYPE_RENDEZVOUS) {
 					if (conn->subtype == AIM_CONN_SUBTYPE_OFT_DIRECTIM)
-						gaim_odc_disconnect(od->sess, conn);
+						purple_odc_disconnect(od->sess, conn);
 					aim_conn_kill(od->sess, &conn);
 				} else {
-					gaim_debug_error("oscar",
+					purple_debug_error("oscar",
 							   "holy crap! generic connection error! %hu\n",
 							   conn->type);
 					aim_conn_kill(od->sess, &conn);
@@ -1658,26 +1659,26 @@ static void oscar_callback(gpointer data, gint source, GaimInputCondition condit
 }
 
 static void oscar_debug(aim_session_t *sess, int level, const char *format, va_list va) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	gchar *s = g_strdup_vprintf(format, va);
 	gchar *buf;
 
-	buf = g_strdup_printf("%s %d: %s", gaim_account_get_username(gaim_connection_get_account(gc)), level, s);
-	gaim_debug_info("oscar", buf);
+	buf = g_strdup_printf("%s %d: %s", purple_account_get_username(purple_connection_get_account(gc)), level, s);
+	purple_debug_info("oscar", buf);
 	if (buf[strlen(buf)-1] != '\n')
-		gaim_debug_info(NULL, "\n");
+		purple_debug_info(NULL, "\n");
 	g_free(buf);
 	g_free(s);
 }
 
-static void oscar_login_connect(gpointer data, gint source, GaimInputCondition cond)
+static void oscar_login_connect(gpointer data, gint source, PurpleInputCondition cond)
 {
-	GaimConnection *gc = data;
+	PurpleConnection *gc = data;
 	OscarData *od;
 	aim_session_t *sess;
 	aim_conn_t *conn;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		close(source);
 		return;
 	}
@@ -1688,40 +1689,40 @@ static void oscar_login_connect(gpointer data, gint source, GaimInputCondition c
 	conn->fd = source;
 
 	if (source < 0) {
-		gaim_connection_error(gc, _("Couldn't connect to host"));
+		purple_connection_error(gc, _("Couldn't connect to host"));
 		return;
 	}
 
 	aim_conn_completeconnect(sess, conn);
-	gc->inpa = gaim_input_add(conn->fd, GAIM_INPUT_READ, oscar_callback, conn);
-	aim_request_login(sess, conn, gaim_account_get_username(gaim_connection_get_account(gc)));
+	gc->inpa = purple_input_add(conn->fd, PURPLE_INPUT_READ, oscar_callback, conn);
+	aim_request_login(sess, conn, purple_account_get_username(purple_connection_get_account(gc)));
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "Screen name sent, waiting for response\n");
-	gaim_connection_update_progress(gc, _("Screen name sent"), 1, OSCAR_CONNECT_STEPS);
+	purple_connection_update_progress(gc, _("Screen name sent"), 1, OSCAR_CONNECT_STEPS);
 	ck[1] = 0x65;
 }
 
-static void oscar_login(GaimAccount *account) {
+static void oscar_login(PurpleAccount *account) {
 	aim_session_t *sess;
 	aim_conn_t *conn;
-	GaimConnection *gc = gaim_account_get_connection(account);
+	PurpleConnection *gc = purple_account_get_connection(account);
 	OscarData *od = gc->proto_data = g_new0(OscarData, 1);
 
-	gaim_debug_misc("oscar", "oscar_login: gc = %p\n", gc);
+	purple_debug_misc("oscar", "oscar_login: gc = %p\n", gc);
 
-	if (!aim_snvalid(gaim_account_get_username(account))) {
+	if (!aim_snvalid(purple_account_get_username(account))) {
 		gchar *buf;
-		buf = g_strdup_printf(_("Unable to login: Could not sign on as %s because the screen name is invalid.  Screen names must either start with a letter and contain only letters, numbers and spaces, or contain only numbers."), gaim_account_get_username(account));
-		gaim_connection_error(gc, buf);
+		buf = g_strdup_printf(_("Unable to login: Could not sign on as %s because the screen name is invalid.  Screen names must either start with a letter and contain only letters, numbers and spaces, or contain only numbers."), purple_account_get_username(account));
+		purple_connection_error(gc, buf);
 		g_free(buf);
 	}
 
-	if (isdigit(*(gaim_account_get_username(account)))) {
+	if (isdigit(*(purple_account_get_username(account)))) {
 		od->icq = TRUE;
 	} else {
-		gc->flags |= GAIM_CONNECTION_HTML;
-		gc->flags |= GAIM_CONNECTION_AUTO_RESP;
+		gc->flags |= PURPLE_CONNECTION_HTML;
+		gc->flags |= PURPLE_CONNECTION_AUTO_RESP;
 	}
 	od->buddyinfo = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, oscar_free_buddyinfo);
 
@@ -1738,36 +1739,36 @@ static void oscar_login(GaimAccount *account) {
 
 	conn = aim_newconn(sess, AIM_CONN_TYPE_AUTH, NULL);
 	if (conn == NULL) {
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "internal connection error\n");
-		gaim_connection_error(gc, _("Unable to login to AIM"));
+		purple_connection_error(gc, _("Unable to login to AIM"));
 		return;
 	}
 
-	aim_conn_addhandler(sess, conn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, gaim_connerr, 0);
-	aim_conn_addhandler(sess, conn, 0x0017, 0x0007, gaim_parse_login, 0);
-	aim_conn_addhandler(sess, conn, 0x0017, 0x0003, gaim_parse_auth_resp, 0);
-	aim_conn_addhandler(sess, conn, AIM_CB_FAM_ATH, AIM_CB_ATH_SECURID_REQUEST, gaim_parse_auth_securid_request, 0);
+	aim_conn_addhandler(sess, conn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
+	aim_conn_addhandler(sess, conn, 0x0017, 0x0007, purple_parse_login, 0);
+	aim_conn_addhandler(sess, conn, 0x0017, 0x0003, purple_parse_auth_resp, 0);
+	aim_conn_addhandler(sess, conn, AIM_CB_FAM_ATH, AIM_CB_ATH_SECURID_REQUEST, purple_parse_auth_securid_request, 0);
 
 	conn->status |= AIM_CONN_STATUS_INPROGRESS;
-	if (gaim_proxy_connect(account, gaim_account_get_string(account, "server", FAIM_LOGIN_SERVER),
-			  gaim_account_get_int(account, "port", FAIM_LOGIN_PORT),
+	if (purple_proxy_connect(account, purple_account_get_string(account, "server", FAIM_LOGIN_SERVER),
+			  purple_account_get_int(account, "port", FAIM_LOGIN_PORT),
 			  oscar_login_connect, gc) < 0) {
-		gaim_connection_error(gc, _("Couldn't connect to host"));
+		purple_connection_error(gc, _("Couldn't connect to host"));
 		return;
 	}
 
-	gaim_connection_update_progress(gc, _("Connecting"), 0, OSCAR_CONNECT_STEPS);
+	purple_connection_update_progress(gc, _("Connecting"), 0, OSCAR_CONNECT_STEPS);
 	ck[0] = 0x5a;
 }
 
-static void oscar_close(GaimConnection *gc) {
+static void oscar_close(PurpleConnection *gc) {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	while (od->oscar_chats) {
 		struct chat_connection *n = od->oscar_chats->data;
 		if (n->inpa > 0)
-			gaim_input_remove(n->inpa);
+			purple_input_remove(n->inpa);
 		g_free(n->name);
 		g_free(n->show);
 		od->oscar_chats = g_slist_remove(od->oscar_chats, n);
@@ -1779,9 +1780,9 @@ static void oscar_close(GaimConnection *gc) {
 	}
 /* BBB */
 	while (od->file_transfers) {
-		GaimXfer *xfer;
-		xfer = (GaimXfer *)od->file_transfers->data;
-		gaim_xfer_cancel_local(xfer);
+		PurpleXfer *xfer;
+		xfer = (PurpleXfer *)od->file_transfers->data;
+		purple_xfer_cancel_local(xfer);
 	}
 	while (od->requesticon) {
 		char *sn = od->requesticon->data;
@@ -1802,36 +1803,36 @@ static void oscar_close(GaimConnection *gc) {
 	if (od->oldp)
 		g_free(od->oldp);
 	if (gc->inpa > 0)
-		gaim_input_remove(gc->inpa);
+		purple_input_remove(gc->inpa);
 	if (od->cnpa > 0)
-		gaim_input_remove(od->cnpa);
+		purple_input_remove(od->cnpa);
 	if (od->paspa > 0)
-		gaim_input_remove(od->paspa);
+		purple_input_remove(od->paspa);
 	if (od->emlpa > 0)
-		gaim_input_remove(od->emlpa);
+		purple_input_remove(od->emlpa);
 	if (od->icopa > 0)
-		gaim_input_remove(od->icopa);
+		purple_input_remove(od->icopa);
 	if (od->icontimer > 0)
-		gaim_timeout_remove(od->icontimer);
+		purple_timeout_remove(od->icontimer);
 	if (od->getblisttimer > 0)
-		gaim_timeout_remove(od->getblisttimer);
+		purple_timeout_remove(od->getblisttimer);
 	if (od->getinfotimer > 0)
-		gaim_timeout_remove(od->getinfotimer);
+		purple_timeout_remove(od->getinfotimer);
 	aim_session_kill(od->sess);
 	g_free(od->sess);
 	od->sess = NULL;
 	g_free(gc->proto_data);
 	gc->proto_data = NULL;
-	gaim_debug_info("oscar", "Signed off.\n");
+	purple_debug_info("oscar", "Signed off.\n");
 }
 
-static void oscar_bos_connect(gpointer data, gint source, GaimInputCondition cond) {
-	GaimConnection *gc = data;
+static void oscar_bos_connect(gpointer data, gint source, PurpleInputCondition cond) {
+	PurpleConnection *gc = data;
 	OscarData *od;
 	aim_session_t *sess;
 	aim_conn_t *bosconn;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		close(source);
 		return;
 	}
@@ -1842,14 +1843,14 @@ static void oscar_bos_connect(gpointer data, gint source, GaimInputCondition con
 	bosconn->fd = source;
 
 	if (source < 0) {
-		gaim_connection_error(gc, _("Could Not Connect"));
+		purple_connection_error(gc, _("Could Not Connect"));
 		return;
 	}
 
 	aim_conn_completeconnect(sess, bosconn);
-	gc->inpa = gaim_input_add(bosconn->fd, GAIM_INPUT_READ, oscar_callback, bosconn);
+	gc->inpa = purple_input_add(bosconn->fd, PURPLE_INPUT_READ, oscar_callback, bosconn);
 
-	gaim_connection_update_progress(gc,
+	purple_connection_update_progress(gc,
 			_("Connection established, cookie sent"), 4, OSCAR_CONNECT_STEPS);
 	ck[4] = 0x61;
 }
@@ -1861,7 +1862,7 @@ static void oscar_bos_connect(gpointer data, gint source, GaimInputCondition con
  * ninja.
  *
  * The series of events for a file send is:
- *  -Create xfer and call gaim_xfer_request (this happens in oscar_ask_sendfile)
+ *  -Create xfer and call purple_xfer_request (this happens in oscar_ask_sendfile)
  *  -User chooses a file and oscar_xfer_init is called.  It establishes a 
  *   listening socket, then asks the remote user to connect to us (and 
  *   gives them the file name, port, IP, etc.)
@@ -1873,8 +1874,8 @@ static void oscar_bos_connect(gpointer data, gint source, GaimInputCondition con
  *  -We get drunk because file transfer kicks ass.
  *
  * The series of events for a file receive is:
- *  -Create xfer and call gaim_xfer request (this happens in incomingim_chan2)
- *  -Gaim user selects file to name and location to save file to and 
+ *  -Create xfer and call purple_xfer request (this happens in incomingim_chan2)
+ *  -Purple user selects file to name and location to save file to and 
  *   oscar_xfer_init is called
  *  -It connects to the remote user using the IP they gave us earlier
  *  -After connecting, they send us an AIM_CB_OFT_PROMPT.  In reply, we send 
@@ -1883,14 +1884,14 @@ static void oscar_bos_connect(gpointer data, gint source, GaimInputCondition con
  *  -When they finish sending data we send an AIM_CB_OFT_DONE and then close 
  *   the connection.
  */
-static void oscar_sendfile_connected(gpointer data, gint source, GaimInputCondition condition);
+static void oscar_sendfile_connected(gpointer data, gint source, PurpleInputCondition condition);
 
 /*
  * Miscellaneous xfer functions
  */
-static GaimXfer *oscar_find_xfer_by_cookie(GSList *fts, const fu8_t *ck)
+static PurpleXfer *oscar_find_xfer_by_cookie(GSList *fts, const fu8_t *ck)
 {
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 
 	while (fts) {
@@ -1906,9 +1907,9 @@ static GaimXfer *oscar_find_xfer_by_cookie(GSList *fts, const fu8_t *ck)
 	return NULL;
 }
 
-static GaimXfer *oscar_find_xfer_by_conn(GSList *fts, aim_conn_t *conn)
+static PurpleXfer *oscar_find_xfer_by_conn(GSList *fts, aim_conn_t *conn)
 {
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 
 	while (fts) {
@@ -1924,16 +1925,16 @@ static GaimXfer *oscar_find_xfer_by_conn(GSList *fts, aim_conn_t *conn)
 	return NULL;
 }
 
-static void oscar_xfer_end(GaimXfer *xfer)
+static void oscar_xfer_end(PurpleXfer *xfer)
 {
 	struct aim_oft_info *oft_info = xfer->data;
-	GaimConnection *gc = oft_info->sess->aux_data;
+	PurpleConnection *gc = oft_info->sess->aux_data;
 	OscarData *od = gc->proto_data;
 
-	gaim_debug_info("oscar", "AAA - in oscar_xfer_end\n");
+	purple_debug_info("oscar", "AAA - in oscar_xfer_end\n");
 
-	if (gaim_xfer_get_type(xfer) == GAIM_XFER_RECEIVE) {
-		oft_info->fh.nrecvd = gaim_xfer_get_bytes_sent(xfer);
+	if (purple_xfer_get_type(xfer) == PURPLE_XFER_RECEIVE) {
+		oft_info->fh.nrecvd = purple_xfer_get_bytes_sent(xfer);
 		aim_oft_sendheader(oft_info->sess, AIM_CB_OFT_DONE, oft_info);
 	}
 
@@ -1950,24 +1951,24 @@ static void oscar_xfer_end(GaimXfer *xfer)
  * It gives up on the file transfer completely if it doesn't approve of the file transfer status
  */
 static gboolean oscar_clientip_timeout(gpointer data) {
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 	char *msg = NULL;
 	
-	gaim_debug_info("oscar","AAA - in oscar_clientip_timeout\n");
-	xfer = (GaimXfer*) data;
+	purple_debug_info("oscar","AAA - in oscar_clientip_timeout\n");
+	xfer = (PurpleXfer*) data;
 	if(xfer->data) {
 		oft_info = (struct aim_oft_info*) xfer->data;
 		
 		/* Check to see if the clientip has produced any results */
 		if(!oft_info->success) {
-			msg = g_strdup_printf(_("Transfer of file %s timed out."),gaim_xfer_get_filename(xfer));
-			gaim_xfer_conversation_write(xfer, msg, TRUE);
+			msg = g_strdup_printf(_("Transfer of file %s timed out."),purple_xfer_get_filename(xfer));
+			purple_xfer_conversation_write(xfer, msg, TRUE);
 			g_free(msg);
-			gaim_xfer_unref(xfer);
-			gaim_xfer_cancel_local(xfer);
+			purple_xfer_unref(xfer);
+			purple_xfer_cancel_local(xfer);
 		} else {
-			gaim_debug_info("oscar","connection successful; no action taken\n");
+			purple_debug_info("oscar","connection successful; no action taken\n");
 		}
 	}
 	return FALSE;
@@ -1980,17 +1981,17 @@ static gboolean oscar_clientip_timeout(gpointer data) {
  * BBB
  */
 static gboolean oscar_verifiedip_timeout(gpointer data) {
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 	
-	gaim_debug_info("oscar","AAA - in oscar_verifiedip_timeout\n");
-	xfer = (GaimXfer*) data;
+	purple_debug_info("oscar","AAA - in oscar_verifiedip_timeout\n");
+	xfer = (PurpleXfer*) data;
 	if(xfer->data) {
 		oft_info = (struct aim_oft_info*) xfer->data;
 		
 		/* Check to see if the verifiedip has produced any results */
 		if(!oft_info->success) {
-			/* gaim_xfer_conversation_write(xfer,
+			/* purple_xfer_conversation_write(xfer,
 				"Attempting file transfer via secondary IP address...", FALSE); */
 		
 			/* The verifiedip connection has worn out its welcome. Goodbye. */
@@ -1999,10 +2000,10 @@ static gboolean oscar_verifiedip_timeout(gpointer data) {
 			/* Try the file transfer again with the clientip */
 			g_free(xfer->remote_ip);
 			xfer->remote_ip = g_strdup(oft_info->clientip);
-			gaim_debug_info("oscar","attempting connection using clientip\n");
+			purple_debug_info("oscar","attempting connection using clientip\n");
 			oscar_xfer_init_recv(xfer);
 		} else {
-			gaim_debug_info("oscar","connection successful; no action taken\n");
+			purple_debug_info("oscar","connection successful; no action taken\n");
 		}
 	}
 	return FALSE;
@@ -2011,10 +2012,10 @@ static gboolean oscar_verifiedip_timeout(gpointer data) {
 /*
  * xfer functions used when receiving files
  */
-static void oscar_xfer_init_recv(GaimXfer *xfer)
+static void oscar_xfer_init_recv(PurpleXfer *xfer)
 {
 	struct aim_oft_info *oft_info;
-	GaimConnection *gc;
+	PurpleConnection *gc;
 	OscarData *od;
 
 	g_return_if_fail(xfer != NULL);
@@ -2024,20 +2025,20 @@ static void oscar_xfer_init_recv(GaimXfer *xfer)
 	gc = oft_info->sess->aux_data;
 	od = gc->proto_data;
 
-	gaim_debug_info("oscar", "AAA - in oscar_xfer_recv_init\n");
+	purple_debug_info("oscar", "AAA - in oscar_xfer_recv_init\n");
 	
 	/* Start a timer for this ip address
 	 * If the verifiedip fails, try the clientip
 	 * If clientip fails, declare the whole file transfer dead
 	 * This xfer reference will be released in oscar_clientip_timeout */
 	if(xfer->data) {
-		gaim_xfer_ref(xfer);
+		purple_xfer_ref(xfer);
 		/* If clientip & verifiedip are the same, we must prevent an infinite loop */
 		if(g_ascii_strcasecmp(xfer->remote_ip, oft_info->verifiedip) == 0
 			&& g_ascii_strcasecmp(oft_info->clientip, oft_info->verifiedip) != 0 ) {
-			gaim_timeout_add(FT_IP_TIMEOUT * 1000, oscar_verifiedip_timeout, xfer);
+			purple_timeout_add(FT_IP_TIMEOUT * 1000, oscar_verifiedip_timeout, xfer);
 		} else {
-			gaim_timeout_add(FT_IP_TIMEOUT * 1000, oscar_clientip_timeout, xfer);
+			purple_timeout_add(FT_IP_TIMEOUT * 1000, oscar_clientip_timeout, xfer);
 		}
 	}
 
@@ -2045,31 +2046,31 @@ static void oscar_xfer_init_recv(GaimXfer *xfer)
 	if (oft_info->conn) {
 		oft_info->conn->subtype = AIM_CONN_SUBTYPE_OFT_SENDFILE;
 		aim_conn_addhandler(od->sess, oft_info->conn, AIM_CB_FAM_OFT, AIM_CB_OFT_PROMPT, oscar_sendfile_prompt, 0);
-		oft_info->conn->fd = xfer->fd = gaim_proxy_connect(gaim_connection_get_account(gc),
+		oft_info->conn->fd = xfer->fd = purple_proxy_connect(purple_connection_get_account(gc),
 					xfer->remote_ip, xfer->remote_port, oscar_sendfile_connected, xfer);
 		if (xfer->fd == -1) {
-			gaim_xfer_error(GAIM_XFER_RECEIVE, xfer->who,
+			purple_xfer_error(PURPLE_XFER_RECEIVE, xfer->who,
 							_("Unable to establish file descriptor."));
-			gaim_xfer_cancel_local(xfer);
+			purple_xfer_cancel_local(xfer);
 		}
 	} else {
-		gaim_xfer_error(GAIM_XFER_RECEIVE, xfer->who,
+		purple_xfer_error(PURPLE_XFER_RECEIVE, xfer->who,
 						_("Unable to create new connection."));
-		gaim_xfer_cancel_local(xfer);
+		purple_xfer_cancel_local(xfer);
 		/* Try a different port? Ask them to connect to us? /join #gaim and whine? */
 	}
 
 }
 
-static void oscar_xfer_cancel_recv(GaimXfer *xfer)
+static void oscar_xfer_cancel_recv(PurpleXfer *xfer)
 {
 	struct aim_oft_info *oft_info = xfer->data;
-	GaimConnection *gc = oft_info->sess->aux_data;
+	PurpleConnection *gc = oft_info->sess->aux_data;
 	OscarData *od = gc->proto_data;
 
-	gaim_debug_info("oscar", "AAA - in oscar_xfer_cancel_recv\n");
+	purple_debug_info("oscar", "AAA - in oscar_xfer_cancel_recv\n");
 
-	if (gaim_xfer_get_status(xfer) != GAIM_XFER_STATUS_CANCEL_REMOTE)
+	if (purple_xfer_get_status(xfer) != PURPLE_XFER_STATUS_CANCEL_REMOTE)
 		aim_im_sendch2_sendfile_cancel(oft_info->sess, oft_info);
 
 	aim_conn_kill(oft_info->sess, &oft_info->conn);
@@ -2078,7 +2079,7 @@ static void oscar_xfer_cancel_recv(GaimXfer *xfer)
 	od->file_transfers = g_slist_remove(od->file_transfers, xfer);
 }
 
-static void oscar_xfer_ack_recv(GaimXfer *xfer, const char *buffer, size_t size)
+static void oscar_xfer_ack_recv(PurpleXfer *xfer, const char *buffer, size_t size)
 {
 	struct aim_oft_info *oft_info = xfer->data;
 
@@ -2090,56 +2091,56 @@ static void oscar_xfer_ack_recv(GaimXfer *xfer, const char *buffer, size_t size)
  * xfer functions used when sending files
  */
 
-static void oscar_xfer_init_send(GaimXfer *xfer)
+static void oscar_xfer_init_send(PurpleXfer *xfer)
 {
 	struct aim_oft_info *oft_info = xfer->data;
-	GaimConnection *gc = oft_info->sess->aux_data;
+	PurpleConnection *gc = oft_info->sess->aux_data;
 	OscarData *od = gc->proto_data;
 	int listenfd;
 
-	gaim_debug_info("oscar", "AAA - in oscar_xfer_send_init\n");
+	purple_debug_info("oscar", "AAA - in oscar_xfer_send_init\n");
 
 	xfer->filename = g_path_get_basename(xfer->local_filename);
 	strncpy(oft_info->fh.name, xfer->filename, 64);
 	oft_info->fh.name[63] = '\0';
-	oft_info->fh.totsize = gaim_xfer_get_size(xfer);
-	oft_info->fh.size = gaim_xfer_get_size(xfer);
+	oft_info->fh.totsize = purple_xfer_get_size(xfer);
+	oft_info->fh.size = purple_xfer_get_size(xfer);
 	oft_info->fh.checksum = aim_oft_checksum_file(xfer->local_filename);
 
 	/* Create a listening socket and an associated libfaim conn */
-	if ((listenfd = gaim_network_listen_range(5190, 5199)) < 0) {
-		gaim_xfer_cancel_local(xfer);
+	if ((listenfd = purple_network_listen_range(5190, 5199)) < 0) {
+		purple_xfer_cancel_local(xfer);
 		return;
 	}
-	xfer->local_port = gaim_network_get_port_from_fd(listenfd);
+	xfer->local_port = purple_network_get_port_from_fd(listenfd);
 	oft_info->port = xfer->local_port;
 	if (aim_sendfile_listen(od->sess, oft_info, listenfd) != 0) {
-		gaim_xfer_cancel_local(xfer);
+		purple_xfer_cancel_local(xfer);
 		return;
 	}
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "port is %hu, ip is %s\n",
 			   xfer->local_port, oft_info->clientip);
 	if (oft_info->conn) {
-		xfer->watcher = gaim_input_add(oft_info->conn->fd, GAIM_INPUT_READ, oscar_callback, oft_info->conn);
+		xfer->watcher = purple_input_add(oft_info->conn->fd, PURPLE_INPUT_READ, oscar_callback, oft_info->conn);
 		aim_im_sendch2_sendfile_ask(od->sess, oft_info);
 		aim_conn_addhandler(od->sess, oft_info->conn, AIM_CB_FAM_OFT, AIM_CB_OFT_ESTABLISHED, oscar_sendfile_estblsh, 0);
 	} else {
-		gaim_xfer_error(GAIM_XFER_SEND, xfer->who,
+		purple_xfer_error(PURPLE_XFER_SEND, xfer->who,
 						_("Unable to establish listener socket."));
-		gaim_xfer_cancel_local(xfer);
+		purple_xfer_cancel_local(xfer);
 	}
 }
 
-static void oscar_xfer_cancel_send(GaimXfer *xfer)
+static void oscar_xfer_cancel_send(PurpleXfer *xfer)
 {
 	struct aim_oft_info *oft_info = xfer->data;
-	GaimConnection *gc = oft_info->sess->aux_data;
+	PurpleConnection *gc = oft_info->sess->aux_data;
 	OscarData *od = gc->proto_data;
 
-	gaim_debug_info("oscar", "AAA - in oscar_xfer_cancel_send\n");
+	purple_debug_info("oscar", "AAA - in oscar_xfer_cancel_send\n");
 
-	if (gaim_xfer_get_status(xfer) != GAIM_XFER_STATUS_CANCEL_REMOTE)
+	if (purple_xfer_get_status(xfer) != PURPLE_XFER_STATUS_CANCEL_REMOTE)
 		aim_im_sendch2_sendfile_cancel(oft_info->sess, oft_info);
 
 	aim_conn_kill(oft_info->sess, &oft_info->conn);
@@ -2148,7 +2149,7 @@ static void oscar_xfer_cancel_send(GaimXfer *xfer)
 	od->file_transfers = g_slist_remove(od->file_transfers, xfer);
 }
 
-static void oscar_xfer_ack_send(GaimXfer *xfer, const char *buffer, size_t size)
+static void oscar_xfer_ack_send(PurpleXfer *xfer, const char *buffer, size_t size)
 {
 	struct aim_oft_info *oft_info = xfer->data;
 
@@ -2157,7 +2158,7 @@ static void oscar_xfer_ack_send(GaimXfer *xfer, const char *buffer, size_t size)
 	 * of as a transferring just a single file.  The rendezvous
 	 * establishes a connection between two computers, and then
 	 * those computers can use the same connection for transferring
-	 * multiple files.  So we don't want the Gaim core up and closing
+	 * multiple files.  So we don't want the Purple core up and closing
 	 * the socket all willy-nilly.  We want to do that in the oscar
 	 * prpl, whenever one side or the other says they're finished
 	 * using the connection.  There might be a better way to intercept
@@ -2168,15 +2169,15 @@ static void oscar_xfer_ack_send(GaimXfer *xfer, const char *buffer, size_t size)
 	 * If we're done sending, intercept the socket from the core ft code
 	 * and wait for the other guy to send the "done" OFT packet.
 	 */
-	if (gaim_xfer_get_bytes_remaining(xfer) <= 0) {
-		gaim_input_remove(xfer->watcher);
-		xfer->watcher = gaim_input_add(xfer->fd, GAIM_INPUT_READ, oscar_callback, oft_info->conn);
+	if (purple_xfer_get_bytes_remaining(xfer) <= 0) {
+		purple_input_remove(xfer->watcher);
+		xfer->watcher = purple_input_add(xfer->fd, PURPLE_INPUT_READ, oscar_callback, oft_info->conn);
 		xfer->fd = 0;
-		gaim_xfer_set_completed(xfer, TRUE);
+		purple_xfer_set_completed(xfer, TRUE);
 	}
 }
 
-static gboolean oscar_can_receive_file(GaimConnection *gc, const char *who) {
+static gboolean oscar_can_receive_file(PurpleConnection *gc, const char *who) {
 	gboolean can_receive = FALSE;
 	OscarData *od = gc->proto_data;
 
@@ -2190,10 +2191,10 @@ static gboolean oscar_can_receive_file(GaimConnection *gc, const char *who) {
 	return can_receive;
 }
 
-static void oscar_send_file(GaimConnection *gc, const char *who, const char *file) {
+static void oscar_send_file(PurpleConnection *gc, const char *who, const char *file) {
 
 	OscarData *od;
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 	const char *ip;
 
@@ -2202,47 +2203,47 @@ static void oscar_send_file(GaimConnection *gc, const char *who, const char *fil
 	/* You want to send a file to someone else, you're so generous */
 
 	/* Build the file transfer handle */
-	xfer = gaim_xfer_new(gc->account, GAIM_XFER_SEND, who);
+	xfer = purple_xfer_new(gc->account, PURPLE_XFER_SEND, who);
 
 	/* Create the oscar-specific data */
-	ip = gaim_network_get_my_ip(od->conn ? od->conn->fd : -1);
+	ip = purple_network_get_my_ip(od->conn ? od->conn->fd : -1);
 	oft_info = aim_oft_createinfo(od->sess, NULL, who, ip, 0, 0, 0, NULL);
 	xfer->data = oft_info;
 
 	 /* Setup our I/O op functions */
-	gaim_xfer_set_init_fnc(xfer, oscar_xfer_init_send);
-	gaim_xfer_set_end_fnc(xfer, oscar_xfer_end);
-	gaim_xfer_set_cancel_send_fnc(xfer, oscar_xfer_cancel_send);
-	gaim_xfer_set_request_denied_fnc(xfer, oscar_xfer_cancel_send);
-	gaim_xfer_set_ack_fnc(xfer, oscar_xfer_ack_send);
+	purple_xfer_set_init_fnc(xfer, oscar_xfer_init_send);
+	purple_xfer_set_end_fnc(xfer, oscar_xfer_end);
+	purple_xfer_set_cancel_send_fnc(xfer, oscar_xfer_cancel_send);
+	purple_xfer_set_request_denied_fnc(xfer, oscar_xfer_cancel_send);
+	purple_xfer_set_ack_fnc(xfer, oscar_xfer_ack_send);
 
 	/* Keep track of this transfer for later */
 	od->file_transfers = g_slist_append(od->file_transfers, xfer);
 
 	/* Now perform the request */
 	if (file)
-		gaim_xfer_request_accepted(xfer, file);
+		purple_xfer_request_accepted(xfer, file);
 	else
-		gaim_xfer_request(xfer);
+		purple_xfer_request(xfer);
 }
 
-static int gaim_parse_auth_resp(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_parse_auth_resp(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
-	GaimAccount *account = gc->account;
+	PurpleAccount *account = gc->account;
 	aim_conn_t *bosconn;
 	char *host; int port;
 	int i, rc;
 	va_list ap;
 	struct aim_authresp_info *info;
 
-	port = gaim_account_get_int(account, "port", FAIM_LOGIN_PORT);
+	port = purple_account_get_int(account, "port", FAIM_LOGIN_PORT);
 
 	va_start(ap, fr);
 	info = va_arg(ap, struct aim_authresp_info *);
 	va_end(ap);
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "inside auth_resp (Screen name: %s)\n", info->sn);
 
 	if (info->errorcode || !info->bosip || !info->cookielen || !info->cookie) {
@@ -2251,108 +2252,108 @@ static int gaim_parse_auth_resp(aim_session_t *sess, aim_frame_t *fr, ...) {
 		case 0x05:
 			/* Incorrect nick/password */
 			gc->wants_to_die = TRUE;
-			gaim_connection_error(gc, _("Incorrect nickname or password."));
+			purple_connection_error(gc, _("Incorrect nickname or password."));
 			break;
 		case 0x11:
 			/* Suspended account */
 			gc->wants_to_die = TRUE;
-			gaim_connection_error(gc, _("Your account is currently suspended."));
+			purple_connection_error(gc, _("Your account is currently suspended."));
 			break;
 		case 0x14:
 			/* service temporarily unavailable */
-			gaim_connection_error(gc, _("The AOL Instant Messenger service is temporarily unavailable."));
+			purple_connection_error(gc, _("The AOL Instant Messenger service is temporarily unavailable."));
 			break;
 		case 0x18:
 			/* connecting too frequently */
 			gc->wants_to_die = TRUE;
-			gaim_connection_error(gc, _("You have been connecting and disconnecting too frequently. Wait ten minutes and try again. If you continue to try, you will need to wait even longer."));
+			purple_connection_error(gc, _("You have been connecting and disconnecting too frequently. Wait ten minutes and try again. If you continue to try, you will need to wait even longer."));
 			break;
 		case 0x1c:
 			/* client too old */
 			gc->wants_to_die = TRUE;
-			g_snprintf(buf, sizeof(buf), _("The client version you are using is too old. Please upgrade at %s"), GAIM_WEBSITE);
-			gaim_connection_error(gc, buf);
+			g_snprintf(buf, sizeof(buf), _("The client version you are using is too old. Please upgrade at %s"), PURPLE_WEBSITE);
+			purple_connection_error(gc, buf);
 			break;
 		default:
-			gaim_connection_error(gc, _("Authentication failed"));
+			purple_connection_error(gc, _("Authentication failed"));
 			break;
 		}
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "Login Error Code 0x%04hx\n", info->errorcode);
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "Error URL: %s\n", info->errorurl);
 		od->killme = TRUE;
 		return 1;
 	}
 
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "Reg status: %hu\n", info->regstatus);
 
 	if (info->email) {
-		gaim_debug_misc("oscar", "Email: %s\n", info->email);
+		purple_debug_misc("oscar", "Email: %s\n", info->email);
 	} else {
-		gaim_debug_misc("oscar", "Email is NULL\n");
+		purple_debug_misc("oscar", "Email is NULL\n");
 	}
 	
-	gaim_debug_misc("oscar", "BOSIP: %s\n", info->bosip);
-	gaim_debug_info("oscar",
+	purple_debug_misc("oscar", "BOSIP: %s\n", info->bosip);
+	purple_debug_info("oscar",
 			   "Closing auth connection...\n");
 	aim_conn_kill(sess, &fr->conn);
 
 	bosconn = aim_newconn(sess, AIM_CONN_TYPE_BOS, NULL);
 	if (bosconn == NULL) {
-		gaim_connection_error(gc, _("Internal Error"));
+		purple_connection_error(gc, _("Internal Error"));
 		od->killme = TRUE;
 		return 0;
 	}
 
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, gaim_connerr, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
 	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNINITDONE, conninitdone_bos, 0);
-	aim_conn_addhandler(sess, bosconn, 0x0009, 0x0003, gaim_bosrights, 0);
+	aim_conn_addhandler(sess, bosconn, 0x0009, 0x0003, purple_bosrights, 0);
 	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ACK, AIM_CB_ACK_ACK, NULL, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_REDIRECT, gaim_handle_redirect, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_RIGHTSINFO, gaim_parse_locaterights, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_BUD, AIM_CB_BUD_RIGHTSINFO, gaim_parse_buddyrights, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_BUD, AIM_CB_BUD_ONCOMING, gaim_parse_oncoming, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_BUD, AIM_CB_BUD_OFFGOING, gaim_parse_offgoing, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_INCOMING, gaim_parse_incoming_im, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_ERROR, gaim_parse_locerr, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_MISSEDCALL, gaim_parse_misses, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_CLIENTAUTORESP, gaim_parse_clientauto, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_RATECHANGE, gaim_parse_ratechange, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_EVIL, gaim_parse_evilnotify, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOK, AIM_CB_LOK_ERROR, gaim_parse_searcherror, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOK, 0x0003, gaim_parse_searchreply, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_ERROR, gaim_parse_msgerr, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_MTN, gaim_parse_mtn, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_USERINFO, gaim_parse_userinfo, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_REQUESTINFOTIMEOUT, gaim_reqinfo_timeout, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_ACK, gaim_parse_msgack, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_MOTD, gaim_parse_motd, 0);
-	aim_conn_addhandler(sess, bosconn, 0x0004, 0x0005, gaim_icbm_param_info, 0);
-	aim_conn_addhandler(sess, bosconn, 0x0001, 0x0001, gaim_parse_genericerr, 0);
-	aim_conn_addhandler(sess, bosconn, 0x0003, 0x0001, gaim_parse_genericerr, 0);
-	aim_conn_addhandler(sess, bosconn, 0x0009, 0x0001, gaim_parse_genericerr, 0);
-	aim_conn_addhandler(sess, bosconn, 0x0001, 0x001f, gaim_memrequest, 0);
-	aim_conn_addhandler(sess, bosconn, 0x0001, 0x000f, gaim_selfinfo, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_REDIRECT, purple_handle_redirect, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_RIGHTSINFO, purple_parse_locaterights, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_BUD, AIM_CB_BUD_RIGHTSINFO, purple_parse_buddyrights, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_BUD, AIM_CB_BUD_ONCOMING, purple_parse_oncoming, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_BUD, AIM_CB_BUD_OFFGOING, purple_parse_offgoing, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_INCOMING, purple_parse_incoming_im, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_ERROR, purple_parse_locerr, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_MISSEDCALL, purple_parse_misses, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_CLIENTAUTORESP, purple_parse_clientauto, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_RATECHANGE, purple_parse_ratechange, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_EVIL, purple_parse_evilnotify, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOK, AIM_CB_LOK_ERROR, purple_parse_searcherror, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOK, 0x0003, purple_parse_searchreply, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_ERROR, purple_parse_msgerr, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_MTN, purple_parse_mtn, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_USERINFO, purple_parse_userinfo, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_LOC, AIM_CB_LOC_REQUESTINFOTIMEOUT, purple_reqinfo_timeout, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_MSG, AIM_CB_MSG_ACK, purple_parse_msgack, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_GEN, AIM_CB_GEN_MOTD, purple_parse_motd, 0);
+	aim_conn_addhandler(sess, bosconn, 0x0004, 0x0005, purple_icbm_param_info, 0);
+	aim_conn_addhandler(sess, bosconn, 0x0001, 0x0001, purple_parse_genericerr, 0);
+	aim_conn_addhandler(sess, bosconn, 0x0003, 0x0001, purple_parse_genericerr, 0);
+	aim_conn_addhandler(sess, bosconn, 0x0009, 0x0001, purple_parse_genericerr, 0);
+	aim_conn_addhandler(sess, bosconn, 0x0001, 0x001f, purple_memrequest, 0);
+	aim_conn_addhandler(sess, bosconn, 0x0001, 0x000f, purple_selfinfo, 0);
 	aim_conn_addhandler(sess, bosconn, 0x0001, 0x0021, oscar_icon_req,0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_OFFLINEMSG, gaim_offlinemsg, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_OFFLINEMSGCOMPLETE, gaim_offlinemsgdone, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_POP, 0x0002, gaim_popup, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_ALIAS, gaim_icqalias, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_INFO, gaim_icqinfo, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_OFFLINEMSG, purple_offlinemsg, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_OFFLINEMSGCOMPLETE, purple_offlinemsgdone, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_POP, 0x0002, purple_popup, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_ALIAS, purple_icqalias, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_ICQ, AIM_CB_ICQ_INFO, purple_icqinfo, 0);
 #ifndef NOSSI
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_ERROR, gaim_ssi_parseerr, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RIGHTSINFO, gaim_ssi_parserights, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_LIST, gaim_ssi_parselist, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_NOLIST, gaim_ssi_parselist, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_SRVACK, gaim_ssi_parseack, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_ADD, gaim_ssi_parseadd, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RECVAUTH, gaim_ssi_authgiven, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RECVAUTHREQ, gaim_ssi_authrequest, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RECVAUTHREP, gaim_ssi_authreply, 0);
-	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_ADDED, gaim_ssi_gotadded, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_ERROR, purple_ssi_parseerr, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RIGHTSINFO, purple_ssi_parserights, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_LIST, purple_ssi_parselist, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_NOLIST, purple_ssi_parselist, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_SRVACK, purple_ssi_parseack, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_ADD, purple_ssi_parseadd, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RECVAUTH, purple_ssi_authgiven, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RECVAUTHREQ, purple_ssi_authrequest, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_RECVAUTHREP, purple_ssi_authreply, 0);
+	aim_conn_addhandler(sess, bosconn, AIM_CB_FAM_SSI, AIM_CB_SSI_ADDED, purple_ssi_gotadded, 0);
 #endif
 
 	od->conn = bosconn;
@@ -2364,26 +2365,26 @@ static int gaim_parse_auth_resp(aim_session_t *sess, aim_frame_t *fr, ...) {
 	}
 	host = g_strndup(info->bosip, i);
 	bosconn->status |= AIM_CONN_STATUS_INPROGRESS;
-	rc = gaim_proxy_connect(gc->account, host, port, oscar_bos_connect, gc);
+	rc = purple_proxy_connect(gc->account, host, port, oscar_bos_connect, gc);
 	g_free(host);
 	if (rc < 0) {
-		gaim_connection_error(gc, _("Could Not Connect"));
+		purple_connection_error(gc, _("Could Not Connect"));
 		od->killme = TRUE;
 		return 0;
 	}
 	aim_sendcookie(sess, bosconn, info->cookielen, info->cookie);
-	gaim_input_remove(gc->inpa);
+	purple_input_remove(gc->inpa);
 
-	gaim_connection_update_progress(gc, _("Received authorization"), 3, OSCAR_CONNECT_STEPS);
+	purple_connection_update_progress(gc, _("Received authorization"), 3, OSCAR_CONNECT_STEPS);
 	ck[3] = 0x64;
 
 	return 1;
 }
 
 static void
-gaim_parse_auth_securid_request_yes_cb(gpointer user_data, const char *msg)
+purple_parse_auth_securid_request_yes_cb(gpointer user_data, const char *msg)
 {
-	GaimConnection *gc = user_data;
+	PurpleConnection *gc = user_data;
 	OscarData *od = gc->proto_data;
 	aim_session_t *sess = od->sess;
 
@@ -2391,41 +2392,41 @@ gaim_parse_auth_securid_request_yes_cb(gpointer user_data, const char *msg)
 }
 
 static void
-gaim_parse_auth_securid_request_no_cb(gpointer user_data, const char *value)
+purple_parse_auth_securid_request_no_cb(gpointer user_data, const char *value)
 {
-	GaimConnection *gc = user_data;
+	PurpleConnection *gc = user_data;
 	OscarData *od = gc->proto_data;
 
 	/* Disconnect */
 	gc->wants_to_die = TRUE;
-	gaim_connection_error(gc, _("The SecurID key entered is invalid."));
+	purple_connection_error(gc, _("The SecurID key entered is invalid."));
 	od->killme = TRUE;
 }
 
 static int
-gaim_parse_auth_securid_request(aim_session_t *sess, aim_frame_t *fr, ...)
+purple_parse_auth_securid_request(aim_session_t *sess, aim_frame_t *fr, ...)
 {
-	GaimConnection *gc = sess->aux_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	gchar *primary;
 
-	gaim_debug_info("oscar", "Got SecurID request\n");
+	purple_debug_info("oscar", "Got SecurID request\n");
 
-	primary = g_strdup_printf("Enter the SecurID for %s.", gaim_account_get_username(account));
-	gaim_request_input(gc, NULL, _("Enter SecurID"), primary,
+	primary = g_strdup_printf("Enter the SecurID for %s.", purple_account_get_username(account));
+	purple_request_input(gc, NULL, _("Enter SecurID"), primary,
 					   _("Enter the 6 digit number from the digital display."),
 					   FALSE, FALSE, NULL,
-					   _("OK"), G_CALLBACK(gaim_parse_auth_securid_request_yes_cb),
-					   _("Cancel"), G_CALLBACK(gaim_parse_auth_securid_request_no_cb),
+					   _("OK"), G_CALLBACK(purple_parse_auth_securid_request_yes_cb),
+					   _("Cancel"), G_CALLBACK(purple_parse_auth_securid_request_no_cb),
 					   gc);
 	g_free(primary);
 
 	return 1;
 }
 
-/* XXX - Should use gaim_url_fetch for the below stuff */
+/* XXX - Should use purple_url_fetch for the below stuff */
 struct pieceofcrap {
-	GaimConnection *gc;
+	PurpleConnection *gc;
 	unsigned long offset;
 	unsigned long len;
 	char *modname;
@@ -2434,7 +2435,7 @@ struct pieceofcrap {
 	unsigned int inpa;
 };
 
-static void damn_you(gpointer data, gint source, GaimInputCondition c)
+static void damn_you(gpointer data, gint source, PurpleInputCondition c)
 {
 	struct pieceofcrap *pos = data;
 	OscarData *od = pos->gc->proto_data;
@@ -2454,29 +2455,29 @@ static void damn_you(gpointer data, gint source, GaimInputCondition c)
 	if (in != '\n') {
 		char buf[256];
 		g_snprintf(buf, sizeof(buf), _("You may be disconnected shortly.  You may want to use TOC until "
-			"this is fixed.  Check %s for updates."), GAIM_WEBSITE);
-		gaim_notify_warning(pos->gc, NULL,
-							_("Gaim was unable to get a valid AIM login hash."),
+			"this is fixed.  Check %s for updates."), PURPLE_WEBSITE);
+		purple_notify_warning(pos->gc, NULL,
+							_("Purple was unable to get a valid AIM login hash."),
 							buf);
-		gaim_input_remove(pos->inpa);
+		purple_input_remove(pos->inpa);
 		close(pos->fd);
 		g_free(pos);
 		return;
 	}
 	read(pos->fd, m, 16);
 	m[16] = '\0';
-	gaim_debug_misc("oscar", "Sending hash: ");
+	purple_debug_misc("oscar", "Sending hash: ");
 	for (x = 0; x < 16; x++)
-		gaim_debug_misc(NULL, "%02hhx ", (unsigned char)m[x]);
+		purple_debug_misc(NULL, "%02hhx ", (unsigned char)m[x]);
 
-	gaim_debug_misc(NULL, "\n");
-	gaim_input_remove(pos->inpa);
+	purple_debug_misc(NULL, "\n");
+	purple_input_remove(pos->inpa);
 	close(pos->fd);
 	aim_sendmemblock(od->sess, pos->conn, 0, 16, m, AIM_SENDMEMBLOCK_FLAG_ISHASH);
 	g_free(pos);
 }
 
-static void straight_to_hell(gpointer data, gint source, GaimInputCondition cond) {
+static void straight_to_hell(gpointer data, gint source, PurpleInputCondition cond) {
 	struct pieceofcrap *pos = data;
 	gchar *buf;
 
@@ -2484,9 +2485,9 @@ static void straight_to_hell(gpointer data, gint source, GaimInputCondition cond
 
 	if (source < 0) {
 		buf = g_strdup_printf(_("You may be disconnected shortly.  You may want to use TOC until "
-			"this is fixed.  Check %s for updates."), GAIM_WEBSITE);
-		gaim_notify_warning(pos->gc, NULL,
-							_("Gaim was unable to get a valid AIM login hash."),
+			"this is fixed.  Check %s for updates."), PURPLE_WEBSITE);
+		purple_notify_warning(pos->gc, NULL,
+							_("Purple was unable to get a valid AIM login hash."),
 							buf);
 		g_free(buf);
 		if (pos->modname)
@@ -2501,14 +2502,14 @@ static void straight_to_hell(gpointer data, gint source, GaimInputCondition cond
 	g_free(buf);
 	if (pos->modname)
 		g_free(pos->modname);
-	pos->inpa = gaim_input_add(pos->fd, GAIM_INPUT_READ, damn_you, pos);
+	pos->inpa = purple_input_add(pos->fd, PURPLE_INPUT_READ, damn_you, pos);
 	return;
 }
 
 /* size of icbmui.ocm, the largest module in AIM 3.5 */
 #define AIM_MAX_FILE_SIZE 98304
 
-int gaim_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
+int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	struct pieceofcrap *pos;
 	fu32_t offset, len;
@@ -2520,12 +2521,12 @@ int gaim_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	modname = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "offset: %u, len: %u, file: %s\n",
 			   offset, len, (modname ? modname : "aim.exe"));
 
 	if (len == 0) {
-		gaim_debug_misc("oscar", "len is 0, hashing NULL\n");
+		purple_debug_misc("oscar", "len is 0, hashing NULL\n");
 		aim_sendmemblock(sess, fr->conn, offset, len, NULL,
 				AIM_SENDMEMBLOCK_FLAG_ISREQUEST);
 		return 1;
@@ -2551,7 +2552,7 @@ int gaim_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 		buf[i++] = (len >> 8) & 0xff;
 		buf[i++] = (len >> 16) & 0xff;
 		buf[i++] = (len >> 24) & 0xff;
-		gaim_debug_misc("oscar", "len + offset is invalid, "
+		purple_debug_misc("oscar", "len + offset is invalid, "
 		           "hashing request\n");
 		aim_sendmemblock(sess, command->conn, offset, i, buf, AIM_SENDMEMBLOCK_FLAG_ISREQUEST);
 		g_free(buf);
@@ -2567,26 +2568,26 @@ int gaim_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	pos->len = len;
 	pos->modname = modname ? g_strdup(modname) : NULL;
 
-	if (gaim_proxy_connect(pos->gc->account, "gaim.sourceforge.net", 80, straight_to_hell, pos) != 0) {
+	if (purple_proxy_connect(pos->gc->account, "gaim.sourceforge.net", 80, straight_to_hell, pos) != 0) {
 		char buf[256];
 		if (pos->modname)
 			g_free(pos->modname);
 		g_free(pos);
 		g_snprintf(buf, sizeof(buf), _("You may be disconnected shortly.  You may want to use TOC until "
-			"this is fixed.  Check %s for updates."), GAIM_WEBSITE);
-		gaim_notify_warning(pos->gc, NULL,
-							_("Gaim was unable to get a valid login hash."),
+			"this is fixed.  Check %s for updates."), PURPLE_WEBSITE);
+		purple_notify_warning(pos->gc, NULL,
+							_("Purple was unable to get a valid login hash."),
 							buf);
 	}
 
 	return 1;
 }
 
-static int gaim_parse_login(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_parse_login(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
-	GaimAccount *ac = gaim_connection_get_account(gc);
+	PurpleAccount *account = purple_connection_get_account(gc);
+	PurpleAccount *ac = purple_connection_get_account(gc);
 #if 0
 	struct client_info_s info = {"gaim", 7, 3, 2003, "us", "en", 0x0004, 0x0000, 0x04b};
 #endif
@@ -2599,30 +2600,30 @@ static int gaim_parse_login(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	if (od->icq) {
 		struct client_info_s info = CLIENTINFO_ICQ_KNOWNGOOD;
-		aim_send_login(sess, fr->conn, gaim_account_get_username(ac),
-					   gaim_account_get_password(account), &info, key);
+		aim_send_login(sess, fr->conn, purple_account_get_username(ac),
+					   purple_account_get_password(account), &info, key);
 	} else {
 		struct client_info_s info = CLIENTINFO_AIM_KNOWNGOOD;
-		aim_send_login(sess, fr->conn, gaim_account_get_username(ac),
-					   gaim_account_get_password(account), &info, key);
+		aim_send_login(sess, fr->conn, purple_account_get_username(ac),
+					   purple_account_get_password(account), &info, key);
 	}
 
-	gaim_connection_update_progress(gc, _("Password sent"), 2, OSCAR_CONNECT_STEPS);
+	purple_connection_update_progress(gc, _("Password sent"), 2, OSCAR_CONNECT_STEPS);
 	ck[2] = 0x6c;
 
 	return 1;
 }
 
 static int conninitdone_chat(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	struct chat_connection *chatcon;
 	static int id = 1;
 
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, 0x0001, gaim_parse_genericerr, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_USERJOIN, gaim_conv_chat_join, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_USERLEAVE, gaim_conv_chat_leave, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_ROOMINFOUPDATE, gaim_conv_chat_info_update, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_INCOMINGMSG, gaim_conv_chat_incoming_msg, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, 0x0001, purple_parse_genericerr, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_USERJOIN, purple_conv_chat_join, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_USERLEAVE, purple_conv_chat_leave, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_ROOMINFOUPDATE, purple_conv_chat_info_update, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CHT, AIM_CB_CHT_INCOMINGMSG, purple_conv_chat_incoming_msg, 0);
 
 	aim_clientready(sess, fr->conn);
 
@@ -2635,8 +2636,8 @@ static int conninitdone_chat(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 static int conninitdone_chatnav(aim_session_t *sess, aim_frame_t *fr, ...) {
 
-	aim_conn_addhandler(sess, fr->conn, 0x000d, 0x0001, gaim_parse_genericerr, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CTN, AIM_CB_CTN_INFO, gaim_chatnav_info, 0);
+	aim_conn_addhandler(sess, fr->conn, 0x000d, 0x0001, purple_parse_genericerr, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_CTN, AIM_CB_CTN_INFO, purple_chatnav_info, 0);
 
 	aim_clientready(sess, fr->conn);
 
@@ -2647,8 +2648,8 @@ static int conninitdone_chatnav(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 static int conninitdone_email(aim_session_t *sess, aim_frame_t *fr, ...) {
 
-	aim_conn_addhandler(sess, fr->conn, 0x0018, 0x0001, gaim_parse_genericerr, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_EML, AIM_CB_EML_MAILSTATUS, gaim_email_parseupdate, 0);
+	aim_conn_addhandler(sess, fr->conn, 0x0018, 0x0001, purple_parse_genericerr, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_EML, AIM_CB_EML_MAILSTATUS, purple_email_parseupdate, 0);
 
 	aim_email_sendcookies(sess);
 	aim_email_activate(sess);
@@ -2658,31 +2659,31 @@ static int conninitdone_email(aim_session_t *sess, aim_frame_t *fr, ...) {
 }
 
 static int conninitdone_icon(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 
-	aim_conn_addhandler(sess, fr->conn, 0x0018, 0x0001, gaim_parse_genericerr, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ICO, AIM_CB_ICO_ERROR, gaim_icon_error, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ICO, AIM_CB_ICO_RESPONSE, gaim_icon_parseicon, 0);
+	aim_conn_addhandler(sess, fr->conn, 0x0018, 0x0001, purple_parse_genericerr, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ICO, AIM_CB_ICO_ERROR, purple_icon_error, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ICO, AIM_CB_ICO_RESPONSE, purple_icon_parseicon, 0);
 
 	aim_clientready(sess, fr->conn);
 
 	od->iconconnecting = FALSE;
 
 	if (od->icontimer)
-		gaim_timeout_remove(od->icontimer);
-	od->icontimer = gaim_timeout_add(100, gaim_icon_timerfunc, gc);
+		purple_timeout_remove(od->icontimer);
+	od->icontimer = purple_timeout_add(100, purple_icon_timerfunc, gc);
 
 	return 1;
 }
 
-static void oscar_chatnav_connect(gpointer data, gint source, GaimInputCondition cond) {
-	GaimConnection *gc = data;
+static void oscar_chatnav_connect(gpointer data, gint source, PurpleInputCondition cond) {
+	PurpleConnection *gc = data;
 	OscarData *od;
 	aim_session_t *sess;
 	aim_conn_t *tstconn;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		close(source);
 		return;
 	}
@@ -2694,24 +2695,24 @@ static void oscar_chatnav_connect(gpointer data, gint source, GaimInputCondition
 
 	if (source < 0) {
 		aim_conn_kill(sess, &tstconn);
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "unable to connect to chatnav server\n");
 		return;
 	}
 
 	aim_conn_completeconnect(sess, tstconn);
-	od->cnpa = gaim_input_add(tstconn->fd, GAIM_INPUT_READ, oscar_callback, tstconn);
-	gaim_debug_info("oscar", "chatnav: connected\n");
+	od->cnpa = purple_input_add(tstconn->fd, PURPLE_INPUT_READ, oscar_callback, tstconn);
+	purple_debug_info("oscar", "chatnav: connected\n");
 }
 
-static void oscar_auth_connect(gpointer data, gint source, GaimInputCondition cond)
+static void oscar_auth_connect(gpointer data, gint source, PurpleInputCondition cond)
 {
-	GaimConnection *gc = data;
+	PurpleConnection *gc = data;
 	OscarData *od;
 	aim_session_t *sess;
 	aim_conn_t *tstconn;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		close(source);
 		return;
 	}
@@ -2723,25 +2724,25 @@ static void oscar_auth_connect(gpointer data, gint source, GaimInputCondition co
 
 	if (source < 0) {
 		aim_conn_kill(sess, &tstconn);
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "unable to connect to authorizer\n");
 		return;
 	}
 
 	aim_conn_completeconnect(sess, tstconn);
-	od->paspa = gaim_input_add(tstconn->fd, GAIM_INPUT_READ, oscar_callback, tstconn);
-	gaim_debug_info("oscar", "admin: connected\n");
+	od->paspa = purple_input_add(tstconn->fd, PURPLE_INPUT_READ, oscar_callback, tstconn);
+	purple_debug_info("oscar", "admin: connected\n");
 }
 
-static void oscar_chat_connect(gpointer data, gint source, GaimInputCondition cond)
+static void oscar_chat_connect(gpointer data, gint source, PurpleInputCondition cond)
 {
 	struct chat_connection *ccon = data;
-	GaimConnection *gc = ccon->gc;
+	PurpleConnection *gc = ccon->gc;
 	OscarData *od;
 	aim_session_t *sess;
 	aim_conn_t *tstconn;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		close(source);
 		g_free(ccon->show);
 		g_free(ccon->name);
@@ -2763,17 +2764,17 @@ static void oscar_chat_connect(gpointer data, gint source, GaimInputCondition co
 	}
 
 	aim_conn_completeconnect(sess, ccon->conn);
-	ccon->inpa = gaim_input_add(tstconn->fd, GAIM_INPUT_READ, oscar_callback, tstconn);
+	ccon->inpa = purple_input_add(tstconn->fd, PURPLE_INPUT_READ, oscar_callback, tstconn);
 	od->oscar_chats = g_slist_append(od->oscar_chats, ccon);
 }
 
-static void oscar_email_connect(gpointer data, gint source, GaimInputCondition cond) {
-	GaimConnection *gc = data;
+static void oscar_email_connect(gpointer data, gint source, PurpleInputCondition cond) {
+	PurpleConnection *gc = data;
 	OscarData *od;
 	aim_session_t *sess;
 	aim_conn_t *tstconn;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		close(source);
 		return;
 	}
@@ -2785,24 +2786,24 @@ static void oscar_email_connect(gpointer data, gint source, GaimInputCondition c
 
 	if (source < 0) {
 		aim_conn_kill(sess, &tstconn);
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "unable to connect to email server\n");
 		return;
 	}
 
 	aim_conn_completeconnect(sess, tstconn);
-	od->emlpa = gaim_input_add(tstconn->fd, GAIM_INPUT_READ, oscar_callback, tstconn);
-	gaim_debug_info("oscar",
+	od->emlpa = purple_input_add(tstconn->fd, PURPLE_INPUT_READ, oscar_callback, tstconn);
+	purple_debug_info("oscar",
 			   "email: connected\n");
 }
 
-static void oscar_icon_connect(gpointer data, gint source, GaimInputCondition cond) {
-	GaimConnection *gc = data;
+static void oscar_icon_connect(gpointer data, gint source, PurpleInputCondition cond) {
+	PurpleConnection *gc = data;
 	OscarData *od;
 	aim_session_t *sess;
 	aim_conn_t *tstconn;
 
-	if (!g_list_find(gaim_connections_get_all(), gc)) {
+	if (!g_list_find(purple_connections_get_all(), gc)) {
 		close(source);
 		return;
 	}
@@ -2814,20 +2815,20 @@ static void oscar_icon_connect(gpointer data, gint source, GaimInputCondition co
 
 	if (source < 0) {
 		aim_conn_kill(sess, &tstconn);
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "unable to connect to icon server\n");
 		return;
 	}
 
 	aim_conn_completeconnect(sess, tstconn);
-	od->icopa = gaim_input_add(tstconn->fd, GAIM_INPUT_READ, oscar_callback, tstconn);
-	gaim_debug_info("oscar", "icon: connected\n");
+	od->icopa = purple_input_add(tstconn->fd, PURPLE_INPUT_READ, oscar_callback, tstconn);
+	purple_debug_info("oscar", "icon: connected\n");
 }
 
 /* Hrmph. I don't know how to make this look better. --mid */
-static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+static int purple_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	aim_conn_t *tstconn;
 	int i;
 	char *host;
@@ -2835,7 +2836,7 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	struct aim_redirect_data *redir;
 
-	port = gaim_account_get_int(account, "port", FAIM_LOGIN_PORT);
+	port = purple_account_get_int(account, "port", FAIM_LOGIN_PORT);
 
 	va_start(ap, fr);
 	redir = va_arg(ap, struct aim_redirect_data *);
@@ -2851,22 +2852,22 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	switch(redir->group) {
 	case 0x7: /* Authorizer */
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "Reconnecting with authorizor...\n");
 		tstconn = aim_newconn(sess, AIM_CONN_TYPE_AUTH, NULL);
 		if (tstconn == NULL) {
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to reconnect with authorizer\n");
 			g_free(host);
 			return 1;
 		}
-		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, gaim_connerr, 0);
+		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
 		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNINITDONE, conninitdone_admin, 0);
 
 		tstconn->status |= AIM_CONN_STATUS_INPROGRESS;
-		if (gaim_proxy_connect(account, host, port, oscar_auth_connect, gc) != 0) {
+		if (purple_proxy_connect(account, host, port, oscar_auth_connect, gc) != 0) {
 			aim_conn_kill(sess, &tstconn);
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to reconnect with authorizer\n");
 			g_free(host);
 			return 1;
@@ -2877,18 +2878,18 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 	case 0xd: /* ChatNav */
 		tstconn = aim_newconn(sess, AIM_CONN_TYPE_CHATNAV, NULL);
 		if (tstconn == NULL) {
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to chatnav server\n");
 			g_free(host);
 			return 1;
 		}
-		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, gaim_connerr, 0);
+		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
 		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNINITDONE, conninitdone_chatnav, 0);
 
 		tstconn->status |= AIM_CONN_STATUS_INPROGRESS;
-		if (gaim_proxy_connect(account, host, port, oscar_chatnav_connect, gc) != 0) {
+		if (purple_proxy_connect(account, host, port, oscar_chatnav_connect, gc) != 0) {
 			aim_conn_kill(sess, &tstconn);
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to chatnav server\n");
 			g_free(host);
 			return 1;
@@ -2901,13 +2902,13 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 		tstconn = aim_newconn(sess, AIM_CONN_TYPE_CHAT, NULL);
 		if (tstconn == NULL) {
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to chat server\n");
 			g_free(host);
 			return 1;
 		}
 
-		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, gaim_connerr, 0);
+		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
 		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNINITDONE, conninitdone_chat, 0);
 
 		ccon = g_new0(struct chat_connection, 1);
@@ -2920,9 +2921,9 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 		ccon->show = extract_name(redir->chat.room);
 
 		ccon->conn->status |= AIM_CONN_STATUS_INPROGRESS;
-		if (gaim_proxy_connect(account, host, port, oscar_chat_connect, ccon) != 0) {
+		if (purple_proxy_connect(account, host, port, oscar_chat_connect, ccon) != 0) {
 			aim_conn_kill(sess, &tstconn);
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to chat server\n");
 			g_free(host);
 			g_free(ccon->show);
@@ -2931,25 +2932,25 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 			return 1;
 		}
 		aim_sendcookie(sess, tstconn, redir->cookielen, redir->cookie);
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "Connected to chat room %s exchange %hu\n",
 				   ccon->name, ccon->exchange);
 	} break;
 
 	case 0x0010: { /* icon */
 		if (!(tstconn = aim_newconn(sess, AIM_CONN_TYPE_ICON, NULL))) {
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to icon server\n");
 			g_free(host);
 			return 1;
 		}
-		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, gaim_connerr, 0);
+		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
 		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNINITDONE, conninitdone_icon, 0);
 
 		tstconn->status |= AIM_CONN_STATUS_INPROGRESS;
-		if (gaim_proxy_connect(account, host, port, oscar_icon_connect, gc) != 0) {
+		if (purple_proxy_connect(account, host, port, oscar_icon_connect, gc) != 0) {
 			aim_conn_kill(sess, &tstconn);
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to icon server\n");
 			g_free(host);
 			return 1;
@@ -2959,18 +2960,18 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	case 0x0018: { /* email */
 		if (!(tstconn = aim_newconn(sess, AIM_CONN_TYPE_EMAIL, NULL))) {
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to email server\n");
 			g_free(host);
 			return 1;
 		}
-		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, gaim_connerr, 0);
+		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
 		aim_conn_addhandler(sess, tstconn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNINITDONE, conninitdone_email, 0);
 
 		tstconn->status |= AIM_CONN_STATUS_INPROGRESS;
-		if (gaim_proxy_connect(account, host, port, oscar_email_connect, gc) != 0) {
+		if (purple_proxy_connect(account, host, port, oscar_email_connect, gc) != 0) {
 			aim_conn_kill(sess, &tstconn);
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unable to connect to email server\n");
 			g_free(host);
 			return 1;
@@ -2979,7 +2980,7 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 	} break;
 
 	default: /* huh? */
-		gaim_debug_warning("oscar",
+		purple_debug_warning("oscar",
 				   "got redirect for unknown service 0x%04hx\n",
 				   redir->group);
 		break;
@@ -2989,9 +2990,9 @@ static int gaim_handle_redirect(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+static int purple_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	OscarData *od = gc->proto_data;
 	struct buddyinfo *bi;
 	time_t time_idle = 0, signon = 0;
@@ -3045,13 +3046,13 @@ static int gaim_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	else if (info->present & AIM_USERINFO_PRESENT_SESSIONLEN)
 		signon = time(NULL) - info->sessionlen;
 
-	if (!aim_sncmp(gaim_account_get_username(gaim_connection_get_account(gc)), info->sn))
-		gaim_connection_set_display_name(gc, info->sn);
+	if (!aim_sncmp(purple_account_get_username(purple_connection_get_account(gc)), info->sn))
+		purple_connection_set_display_name(gc, info->sn);
 
-	bi = g_hash_table_lookup(od->buddyinfo, gaim_normalize(gc->account, info->sn));
+	bi = g_hash_table_lookup(od->buddyinfo, purple_normalize(gc->account, info->sn));
 	if (!bi) {
 		bi = g_new0(struct buddyinfo, 1);
-		g_hash_table_insert(od->buddyinfo, g_strdup(gaim_normalize(gc->account, info->sn)), bi);
+		g_hash_table_insert(od->buddyinfo, g_strdup(purple_normalize(gc->account, info->sn)), bi);
 	}
 	bi->typingnot = FALSE;
 	bi->ico_informed = FALSE;
@@ -3077,24 +3078,24 @@ static int gaim_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	if (info->iconcsumlen) {
 		const char *filename = NULL, *saved_b16 = NULL;
 		char *b16 = NULL, *filepath = NULL;
-		GaimBuddy *b = NULL;
+		PurpleBuddy *b = NULL;
 
-		b16 = gaim_base16_encode(info->iconcsum, info->iconcsumlen);
-		b = gaim_find_buddy(gc->account, info->sn);
+		b16 = purple_base16_encode(info->iconcsum, info->iconcsumlen);
+		b = purple_find_buddy(gc->account, info->sn);
 		/*
 		 * If for some reason the checksum is valid, but cached file is not..
 		 * we want to know.
 		 */
-		filename = gaim_blist_node_get_string((GaimBlistNode*)b, "buddy_icon");
+		filename = purple_blist_node_get_string((PurpleBlistNode*)b, "buddy_icon");
 		if (filename != NULL) {
 			if (g_file_test(filename, G_FILE_TEST_EXISTS))
-				saved_b16 = gaim_blist_node_get_string((GaimBlistNode*)b,
+				saved_b16 = purple_blist_node_get_string((PurpleBlistNode*)b,
 						"icon_checksum");
 			else {
-				filepath = g_build_filename(gaim_buddy_icons_get_cache_dir(),
+				filepath = g_build_filename(purple_buddy_icons_get_cache_dir(),
 											filename, NULL);
 				if (g_file_test(filepath, G_FILE_TEST_EXISTS))
-					saved_b16 = gaim_blist_node_get_string((GaimBlistNode*)b,
+					saved_b16 = purple_blist_node_get_string((PurpleBlistNode*)b,
 															"icon_checksum");
 				g_free(filepath);
 			}
@@ -3106,10 +3107,10 @@ static int gaim_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 			while (cur && aim_sncmp((char *)cur->data, info->sn))
 				cur = cur->next;
 			if (!cur) {
-				od->requesticon = g_slist_append(od->requesticon, g_strdup(gaim_normalize(gc->account, info->sn)));
+				od->requesticon = g_slist_append(od->requesticon, g_strdup(purple_normalize(gc->account, info->sn)));
 				if (od->icontimer)
-					gaim_timeout_remove(od->icontimer);
-				od->icontimer = gaim_timeout_add(500, gaim_icon_timerfunc, gc);
+					purple_timeout_remove(od->icontimer);
+				od->icontimer = purple_timeout_add(500, purple_icon_timerfunc, gc);
 			}
 		}
 		g_free(b16);
@@ -3121,7 +3122,7 @@ static int gaim_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	 * XXX - This needs to be changed some how.  evil should not be
 	 * handled by the core at all?
 	 */
-	if (!aim_sncmp(info->sn, gaim_account_get_username(account))) {
+	if (!aim_sncmp(info->sn, purple_account_get_username(account))) {
 		gc->evil = (info->warnlevel/10.0);
 		gc->login_time_official = signon;
 	}
@@ -3131,15 +3132,15 @@ static int gaim_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static void gaim_check_comment(OscarData *od, const char *str) {
+static void purple_check_comment(OscarData *od, const char *str) {
 	if ((str == NULL) || strcmp(str, ck))
 		aim_locate_setcaps(od->sess, caps_aim);
 	else
 		aim_locate_setcaps(od->sess, caps_aim | AIM_CAPS_SECUREIM);
 }
 
-static int gaim_parse_offgoing(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_parse_offgoing(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 	va_list ap;
 	aim_userinfo_t *info;
@@ -3150,7 +3151,7 @@ static int gaim_parse_offgoing(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	serv_got_update(gc, info->sn, FALSE, 0, 0, 0, 0);
 
-	g_hash_table_remove(od->buddyinfo, gaim_normalize(gc->account, info->sn));
+	g_hash_table_remove(od->buddyinfo, purple_normalize(gc->account, info->sn));
 
 	return 1;
 }
@@ -3162,14 +3163,14 @@ static int gaim_parse_offgoing(aim_session_t *sess, aim_frame_t *fr, ...) {
  * callback or two, and then send the AIM_CB_OFT_PROMPT.
  */
 static int oscar_sendfile_estblsh(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 	va_list ap;
 	aim_conn_t *conn, *listenerconn;
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "AAA - in oscar_sendfile_estblsh\n");
 	va_start(ap, fr);
 	conn = va_arg(ap, aim_conn_t *);
@@ -3183,7 +3184,7 @@ static int oscar_sendfile_estblsh(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 
 	/* Stop watching listener conn; watch transfer conn instead */
-	gaim_input_remove(xfer->watcher);
+	purple_input_remove(xfer->watcher);
 	aim_conn_kill(sess, &listenerconn);
 
 	oft_info->conn = conn;
@@ -3191,7 +3192,7 @@ static int oscar_sendfile_estblsh(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	aim_conn_addhandler(sess, oft_info->conn, AIM_CB_FAM_OFT, AIM_CB_OFT_ACK, oscar_sendfile_ack, 0);
 	aim_conn_addhandler(sess, oft_info->conn, AIM_CB_FAM_OFT, AIM_CB_OFT_DONE, oscar_sendfile_done, 0);
-	xfer->watcher = gaim_input_add(oft_info->conn->fd, GAIM_INPUT_READ, oscar_callback, oft_info->conn);
+	xfer->watcher = purple_input_add(oft_info->conn->fd, PURPLE_INPUT_READ, oscar_callback, oft_info->conn);
 
 	/* Inform the other user that we are connected and ready to transfer */
 	aim_oft_sendheader(sess, AIM_CB_OFT_PROMPT, oft_info);
@@ -3200,14 +3201,14 @@ static int oscar_sendfile_estblsh(aim_session_t *sess, aim_frame_t *fr, ...) {
 }
 
 /*
- * This is the gaim callback passed to gaim_proxy_connect when connecting to another AIM 
+ * This is the gaim callback passed to purple_proxy_connect when connecting to another AIM 
  * user in order to transfer a file.
  */
-static void oscar_sendfile_connected(gpointer data, gint source, GaimInputCondition condition) {
-	GaimXfer *xfer;
+static void oscar_sendfile_connected(gpointer data, gint source, PurpleInputCondition condition) {
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "AAA - in oscar_sendfile_connected\n");
 	if (!(xfer = data))
 		return;
@@ -3219,23 +3220,23 @@ static void oscar_sendfile_connected(gpointer data, gint source, GaimInputCondit
 		 * so we need to make sure the verifiedip's failures aren't taken out
 		 * on the poor little clientip, which might actually have been a success. */
 		if(oft_info->success) {
-			gaim_debug_info("oscar","fd of 0 for verifiedip, but clientip succeeded; ignoring\n");
+			purple_debug_info("oscar","fd of 0 for verifiedip, but clientip succeeded; ignoring\n");
 			return;
 		} else {
-			gaim_debug_info("oscar","received source of 0 for fd; aborting transfer\n");
-			gaim_xfer_cancel_remote(xfer);
+			purple_debug_info("oscar","received source of 0 for fd; aborting transfer\n");
+			purple_xfer_cancel_remote(xfer);
 			return;
 		}
 	}
 
-	gaim_debug_info("oscar","marking connection as success\n");
+	purple_debug_info("oscar","marking connection as success\n");
 	oft_info->success = TRUE; /* Mark this connection as successful before it times out */
 	
 	xfer->fd = source;
 	oft_info->conn->fd = source;
 
 	aim_conn_completeconnect(oft_info->sess, oft_info->conn);
-	xfer->watcher = gaim_input_add(xfer->fd, GAIM_INPUT_READ, oscar_callback, oft_info->conn);
+	xfer->watcher = purple_input_add(xfer->fd, PURPLE_INPUT_READ, oscar_callback, oft_info->conn);
 
 	/* Inform the other user that we are connected and ready to transfer */
 	aim_im_sendch2_sendfile_accept(oft_info->sess, oft_info);
@@ -3250,16 +3251,16 @@ static void oscar_sendfile_connected(gpointer data, gint source, GaimInputCondit
  * get like totally ready to like, receive the file, kay?
  */
 static int oscar_sendfile_prompt(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	struct aim_oft_info *oft_info;
 	va_list ap;
 	aim_conn_t *conn;
 	fu8_t *cookie;
 	struct aim_fileheader_t *fh;
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "AAA - in oscar_sendfile_prompt\n");
 	va_start(ap, fr);
 	conn = va_arg(ap, aim_conn_t *);
@@ -3274,7 +3275,7 @@ static int oscar_sendfile_prompt(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 
 	/* We want to stop listening with a normal thingy */
-	gaim_input_remove(xfer->watcher);
+	purple_input_remove(xfer->watcher);
 	xfer->watcher = 0;
 
 	/* They sent us some information about the file they're sending */
@@ -3285,7 +3286,7 @@ static int oscar_sendfile_prompt(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	/* XXX - convert the name from UTF-8 to UCS-2 if necessary, and pass the encoding to the call below */
 	aim_oft_sendheader(oft_info->sess, AIM_CB_OFT_ACK, oft_info);
-	gaim_xfer_start(xfer, xfer->fd, NULL, 0);
+	purple_xfer_start(xfer, xfer->fd, NULL, 0);
 
 	return 0;
 }
@@ -3295,15 +3296,15 @@ static int oscar_sendfile_prompt(aim_session_t *sess, aim_frame_t *fr, ...) {
  * prompt, so we want to start sending data like there's no tomorrow.
  */
 static int oscar_sendfile_ack(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	va_list ap;
 	aim_conn_t *conn;
 	fu8_t *cookie;
 	struct aim_fileheader_t *fh;
 
-	gaim_debug_info("oscar", "AAA - in oscar_sendfile_ack\n");
+	purple_debug_info("oscar", "AAA - in oscar_sendfile_ack\n");
 	va_start(ap, fr);
 	conn = va_arg(ap, aim_conn_t *);
 	cookie = va_arg(ap, fu8_t *);
@@ -3314,10 +3315,10 @@ static int oscar_sendfile_ack(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 
 	/* We want to stop listening with a normal thingy */
-	gaim_input_remove(xfer->watcher);
+	purple_input_remove(xfer->watcher);
 	xfer->watcher = 0;
 
-	gaim_xfer_start(xfer, xfer->fd, NULL, 0);
+	purple_xfer_start(xfer, xfer->fd, NULL, 0);
 
 	return 0;
 }
@@ -3327,15 +3328,15 @@ static int oscar_sendfile_ack(aim_session_t *sess, aim_frame_t *fr, ...) {
  * so we can close our direct connection and what not.
  */
 static int oscar_sendfile_done(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 	va_list ap;
 	aim_conn_t *conn;
 	fu8_t *cookie;
 	struct aim_fileheader_t *fh;
 
-	gaim_debug_info("oscar", "AAA - in oscar_sendfile_done\n");
+	purple_debug_info("oscar", "AAA - in oscar_sendfile_done\n");
 	va_start(ap, fr);
 	conn = va_arg(ap, aim_conn_t *);
 	cookie = va_arg(ap, fu8_t *);
@@ -3346,36 +3347,36 @@ static int oscar_sendfile_done(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 
 	xfer->fd = conn->fd;
-	gaim_xfer_end(xfer);
+	purple_xfer_end(xfer);
 
 	return 0;
 }
 
 static int incomingim_chan1(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_t *userinfo, struct aim_incomingim_ch1_args *args) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
-	GaimConvImFlags flags = 0;
+	PurpleAccount *account = purple_connection_get_account(gc);
+	PurpleConvImFlags flags = 0;
 	struct buddyinfo *bi;
 	const char *iconfile;
 	GString *message;
 	gchar *tmp;
 	aim_mpmsg_section_t *curpart;
 
-	gaim_debug_misc("oscar", "Recived IM from %s with %d parts\n",
+	purple_debug_misc("oscar", "Recived IM from %s with %d parts\n",
 					userinfo->sn, args->mpmsg.numparts);
 
 	if (args->mpmsg.numparts == 0)
 		return 1;
 
-	bi = g_hash_table_lookup(od->buddyinfo, gaim_normalize(account, userinfo->sn));
+	bi = g_hash_table_lookup(od->buddyinfo, purple_normalize(account, userinfo->sn));
 	if (!bi) {
 		bi = g_new0(struct buddyinfo, 1);
-		g_hash_table_insert(od->buddyinfo, g_strdup(gaim_normalize(account, userinfo->sn)), bi);
+		g_hash_table_insert(od->buddyinfo, g_strdup(purple_normalize(account, userinfo->sn)), bi);
 	}
 
 	if (args->icbmflags & AIM_IMFLAGS_AWAY)
-		flags |= GAIM_CONV_IM_AUTO_RESP;
+		flags |= PURPLE_CONV_IM_AUTO_RESP;
 
 	if (args->icbmflags & AIM_IMFLAGS_TYPINGNOT)
 		bi->typingnot = TRUE;
@@ -3383,7 +3384,7 @@ static int incomingim_chan1(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 		bi->typingnot = FALSE;
 
 	if ((args->icbmflags & AIM_IMFLAGS_HASICON) && (args->iconlen) && (args->iconsum) && (args->iconstamp)) {
-		gaim_debug_misc("oscar",
+		purple_debug_misc("oscar",
 				   "%s has an icon\n", userinfo->sn);
 		if ((args->iconlen != bi->ico_len) || (args->iconsum != bi->ico_csum) || (args->iconstamp != bi->ico_time)) {
 			bi->ico_need = TRUE;
@@ -3393,7 +3394,7 @@ static int incomingim_chan1(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 		}
 	}
 
-	if ((iconfile = gaim_account_get_buddy_icon(account)) && 
+	if ((iconfile = purple_account_get_buddy_icon(account)) && 
 	    (args->icbmflags & AIM_IMFLAGS_BUDDYREQ) && !bi->ico_sent && bi->ico_informed) {
 		FILE *file;
 		struct stat st;
@@ -3404,7 +3405,7 @@ static int incomingim_chan1(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 			if (file) {
 				/* XXX - Use g_file_get_contents() */
 				int len = fread(buf, 1, st.st_size, file);
-				gaim_debug_info("oscar",
+				purple_debug_info("oscar",
 						   "Sending buddy icon to %s (%d bytes, "
 						   "%lu reported)\n",
 						   userinfo->sn, len, st.st_size);
@@ -3412,18 +3413,18 @@ static int incomingim_chan1(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 					st.st_mtime, aimutil_iconsum(buf, st.st_size));
 				fclose(file);
 			} else
-				gaim_debug_error("oscar",
+				purple_debug_error("oscar",
 						   "Can't open buddy icon file!\n");
 			g_free(buf);
 		} else
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "Can't stat buddy icon file!\n");
 	}
 
 	message = g_string_new("");
 	curpart = args->mpmsg.parts;
 	while (curpart != NULL) {
-		tmp = gaim_plugin_oscar_decode_im_part(account, userinfo->sn, curpart->charset, curpart->charsubset,
+		tmp = purple_plugin_oscar_decode_im_part(account, userinfo->sn, curpart->charset, curpart->charsubset,
 											curpart->data, curpart->datalen);
 		if (tmp != NULL) {
 			g_string_append(message, tmp);
@@ -3443,12 +3444,12 @@ static int incomingim_chan1(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 	 * Note: There *may* be some clients which send messages as HTML formatted -
 	 *       they need to be special-cased somehow.
 	 */
-	if (isdigit(gaim_account_get_username(account)[0]) && isdigit(userinfo->sn[0])) {
+	if (isdigit(purple_account_get_username(account)[0]) && isdigit(userinfo->sn[0])) {
 		/* being recevied by ICQ from ICQ - escape HTML so it is displayed as sent */
-		gchar *tmp2 = gaim_escape_html(tmp);
+		gchar *tmp2 = purple_escape_html(tmp);
 		g_free(tmp);
 		tmp = tmp2;
-		tmp2 = gaim_strreplace(tmp, "\r\n", "<br>");
+		tmp2 = purple_strreplace(tmp, "\r\n", "<br>");
 		g_free(tmp);
 		tmp = tmp2;
 	}
@@ -3460,8 +3461,8 @@ static int incomingim_chan1(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 }
 
 static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_t *userinfo, struct aim_incomingim_ch2_args *args) {
-	GaimConnection *gc;
-	GaimAccount *account;
+	PurpleConnection *gc;
+	PurpleAccount *account;
 	OscarData *od;
 	const char *username = NULL;
 	char *message = NULL;
@@ -3470,14 +3471,14 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 	g_return_val_if_fail(sess->aux_data != NULL, 0);
 
 	gc = sess->aux_data;
-	account = gaim_connection_get_account(gc);
+	account = purple_connection_get_account(gc);
 	od = gc->proto_data;
-	username = gaim_account_get_username(account);
+	username = purple_account_get_username(account);
 
 	if (args == NULL)
 		return 0;
 
-	gaim_debug_misc("oscar", "rendezvous with %s, status is %hu\n",
+	purple_debug_misc("oscar", "rendezvous with %s, status is %hu\n",
 					userinfo->sn, args->status);
 
 	if (args->msg != NULL)
@@ -3518,18 +3519,18 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 /* BBB */
 		if (args->status == AIM_RENDEZVOUS_PROPOSE) {
 			/* Someone wants to send a file (or files) to us */
-			GaimXfer *xfer;
+			PurpleXfer *xfer;
 			struct aim_oft_info *oft_info;
 
 			if (!args->cookie || !args->port || !args->verifiedip || 
 			    !args->info.sendfile.filename || !args->info.sendfile.totsize || 
 			    !args->info.sendfile.totfiles || !args->reqclass) {
-				gaim_debug_warning("oscar",
+				purple_debug_warning("oscar",
 						   "%s tried to send you a file with incomplete "
 						   "information.\n", userinfo->sn);
 				if (args->proxyip)
-					gaim_debug_warning("oscar",
-							   "IP for a proxy server was given.  Gaim "
+					purple_debug_warning("oscar",
+							   "IP for a proxy server was given.  Purple "
 							   "does not support this yet.\n");
 				g_free(message);
 				return 1;
@@ -3543,36 +3544,36 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 				if (tmp && (tmp[1] == '*')) {
 					tmp[0] = '\0';
 				}
-				gaim_debug_warning("oscar",
+				purple_debug_warning("oscar",
 						   "We're receiving a whole directory! What fun! "
 						   "Especially since we don't support that!\n");
 			}
 
 			/* Build the file transfer handle */
-			xfer = gaim_xfer_new(gc->account, GAIM_XFER_RECEIVE, userinfo->sn);
+			xfer = purple_xfer_new(gc->account, PURPLE_XFER_RECEIVE, userinfo->sn);
 			xfer->remote_ip = g_strdup(args->verifiedip);
 			xfer->remote_port = args->port;
 
 			if (g_utf8_validate(args->info.sendfile.filename, -1,
 						NULL)) {
-				gaim_xfer_set_filename(xfer,
+				purple_xfer_set_filename(xfer,
 						args->info.sendfile.filename);
 			} else {
-				gchar * utf8_filename = gaim_utf8_salvage(
+				gchar * utf8_filename = purple_utf8_salvage(
 						args->info.sendfile.filename);
-				gaim_xfer_set_filename(xfer, utf8_filename);
+				purple_xfer_set_filename(xfer, utf8_filename);
 				g_free(utf8_filename);
 			}
 
-			gaim_xfer_set_size(xfer, args->info.sendfile.totsize);
+			purple_xfer_set_size(xfer, args->info.sendfile.totsize);
 			
 			/* Ignore <ICQ_COOL_FT> XML that is sent along with ICQ sendfile requests */
 			if(g_ascii_strncasecmp(message,"<ICQ_COOL_FT>",13)) {
-				gaim_debug_info("oscar","Ignoring ICQ file transfer message: %s\n", message);
+				purple_debug_info("oscar","Ignoring ICQ file transfer message: %s\n", message);
 				g_free(message);
 				message = NULL;
 			}
-			gaim_xfer_set_message(xfer, message);
+			purple_xfer_set_message(xfer, message);
 
 			/* Create the oscar-specific data */
 			oft_info = aim_oft_createinfo(od->sess, args->cookie, userinfo->sn, args->clientip, xfer->remote_port, 0, 0, NULL);
@@ -3583,24 +3584,24 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 			xfer->data = oft_info;
 
 			 /* Setup our I/O op functions */
-			gaim_xfer_set_init_fnc(xfer, oscar_xfer_init_recv);
-			gaim_xfer_set_end_fnc(xfer, oscar_xfer_end);
-			gaim_xfer_set_request_denied_fnc(xfer, oscar_xfer_cancel_recv);
-			gaim_xfer_set_cancel_recv_fnc(xfer, oscar_xfer_cancel_recv);
-			gaim_xfer_set_ack_fnc(xfer, oscar_xfer_ack_recv);
+			purple_xfer_set_init_fnc(xfer, oscar_xfer_init_recv);
+			purple_xfer_set_end_fnc(xfer, oscar_xfer_end);
+			purple_xfer_set_request_denied_fnc(xfer, oscar_xfer_cancel_recv);
+			purple_xfer_set_cancel_recv_fnc(xfer, oscar_xfer_cancel_recv);
+			purple_xfer_set_ack_fnc(xfer, oscar_xfer_ack_recv);
 
 			/* Keep track of this transfer for later */
 			od->file_transfers = g_slist_append(od->file_transfers, xfer);
 
 			/* Now perform the request */
-			gaim_xfer_request(xfer);
+			purple_xfer_request(xfer);
 		} else if (args->status == AIM_RENDEZVOUS_CANCEL) {
 			/* The other user wants to cancel a file transfer */
-			GaimXfer *xfer;
-			gaim_debug_info("oscar",
+			PurpleXfer *xfer;
+			purple_debug_info("oscar",
 					   "AAA - File transfer canceled by remote user\n");
 			if ((xfer = oscar_find_xfer_by_cookie(od->file_transfers, args->cookie)))
-				gaim_xfer_cancel_remote(xfer);
+				purple_xfer_cancel_remote(xfer);
 		} else if (args->status == AIM_RENDEZVOUS_ACCEPT) {
 			/*
 			 * This gets sent by the receiver of a file 
@@ -3609,13 +3610,13 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 			 * to us, and we shouldn't send them anything.
 			 */
 		} else {
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 					   "unknown rendezvous status!\n");
 		}
 	} else if (args->reqclass & AIM_CAPS_GETFILE) {
 	} else if (args->reqclass & AIM_CAPS_TALK) {
 	} else if (args->reqclass & AIM_CAPS_BUDDYICON) {
-		gaim_buddy_icons_set_for_user(account, userinfo->sn,
+		purple_buddy_icons_set_for_user(account, userinfo->sn,
 									  args->info.icon.icon,
 									  args->info.icon.length);
 	} else if (args->reqclass & AIM_CAPS_DIRECTIM) {
@@ -3626,13 +3627,13 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 
 		if (!args->verifiedip) {
 			/* TODO: do something about this, after figuring out what it means */
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "directim kill blocked (%s)\n", userinfo->sn);
 			g_free(message);
 			return 1;
 		}
 
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "%s received direct im request from %s (%s)\n",
 				   username, userinfo->sn, args->verifiedip);
 
@@ -3659,11 +3660,11 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 			accept_direct_im_request(d);
 		} else {
 			if (dim && !dim->connected)
-				gaim_debug_warning("oscar", "DirectIM: received direct im request while "
+				purple_debug_warning("oscar", "DirectIM: received direct im request while "
 				                   "already connected to that buddy!");
 		g_snprintf(buf, sizeof buf, _("%s has just asked to directly connect to %s"), userinfo->sn, username);
 
-		gaim_request_action(gc, NULL, buf,
+		purple_request_action(gc, NULL, buf,
 							_("This requires a direct connection between "
 							  "the two computers and is necessary for IM "
 							  "Images.  Because your IP address will be "
@@ -3674,9 +3675,9 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 							/* FIXME: we should actually send a packet on cancel */
 		}
 	} else if (args->reqclass & AIM_CAPS_ICQSERVERRELAY) {
-		gaim_debug_error("oscar", "Got an ICQ Server Relay message of type %d\n", args->info.rtfmsg.msgtype);
+		purple_debug_error("oscar", "Got an ICQ Server Relay message of type %d\n", args->info.rtfmsg.msgtype);
 	} else {
-		gaim_debug_error("oscar",
+		purple_debug_error("oscar",
 				   "Unknown reqclass %hu\n", args->reqclass);
 	}
 
@@ -3691,53 +3692,53 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
  * methods of authorization (SSI and old-school channel 4 ICBM)
  */
 /* When you ask other people for authorization */
-static void gaim_auth_request(struct name_data *data, char *msg) {
-	GaimConnection *gc = data->gc;
+static void purple_auth_request(struct name_data *data, char *msg) {
+	PurpleConnection *gc = data->gc;
 
-	if (g_list_find(gaim_connections_get_all(), gc)) {
+	if (g_list_find(purple_connections_get_all(), gc)) {
 		OscarData *od = gc->proto_data;
-		GaimBuddy *buddy = gaim_find_buddy(gc->account, data->name);
-		GaimGroup *group = gaim_find_buddys_group(buddy);
+		PurpleBuddy *buddy = purple_find_buddy(gc->account, data->name);
+		PurpleGroup *group = purple_find_buddys_group(buddy);
 		if (buddy && group) {
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "ssi: adding buddy %s to group %s\n",
 					   buddy->name, group->name);
 			aim_ssi_sendauthrequest(od->sess, data->name, msg ? msg : _("Please authorize me so I can add you to my buddy list."));
 			if (!aim_ssi_itemlist_finditem(od->sess->ssi.local, group->name, buddy->name, AIM_SSI_TYPE_BUDDY))
-				aim_ssi_addbuddy(od->sess, buddy->name, group->name, gaim_buddy_get_alias_only(buddy), NULL, NULL, 1);
+				aim_ssi_addbuddy(od->sess, buddy->name, group->name, purple_buddy_get_alias_only(buddy), NULL, NULL, 1);
 		}
 	}
 }
 
-static void gaim_auth_request_msgprompt(struct name_data *data) {
-	gaim_request_input(data->gc, NULL, _("Authorization Request Message:"),
+static void purple_auth_request_msgprompt(struct name_data *data) {
+	purple_request_input(data->gc, NULL, _("Authorization Request Message:"),
 					   NULL, _("Please authorize me!"), TRUE, FALSE, NULL,
-					   _("OK"), G_CALLBACK(gaim_auth_request),
+					   _("OK"), G_CALLBACK(purple_auth_request),
 					   _("Cancel"), G_CALLBACK(oscar_free_name_data),
 					   data);
 }
 
-static void gaim_auth_dontrequest(struct name_data *data) {
-	GaimConnection *gc = data->gc;
+static void purple_auth_dontrequest(struct name_data *data) {
+	PurpleConnection *gc = data->gc;
 
-	if (g_list_find(gaim_connections_get_all(), gc)) {
+	if (g_list_find(purple_connections_get_all(), gc)) {
 		/* Remove from local list */
-		GaimBuddy *b = gaim_find_buddy(gaim_connection_get_account(gc), data->name);
-		gaim_blist_remove_buddy(b);
+		PurpleBuddy *b = purple_find_buddy(purple_connection_get_account(gc), data->name);
+		purple_blist_remove_buddy(b);
 	}
 
 	oscar_free_name_data(data);
 }
 
 
-static void gaim_auth_sendrequest(GaimConnection *gc, char *name) {
+static void purple_auth_sendrequest(PurpleConnection *gc, char *name) {
 	struct name_data *data = g_new(struct name_data, 1);
-	GaimBuddy *buddy;
+	PurpleBuddy *buddy;
 	gchar *dialog_msg, *nombre;
 
-	buddy = gaim_find_buddy(gc->account, name);
-	if (buddy && (gaim_buddy_get_alias_only(buddy)))
-		nombre = g_strdup_printf("%s (%s)", name, gaim_buddy_get_alias_only(buddy));
+	buddy = purple_find_buddy(gc->account, name);
+	if (buddy && (purple_buddy_get_alias_only(buddy)))
+		nombre = g_strdup_printf("%s (%s)", name, purple_buddy_get_alias_only(buddy));
 	else
 		nombre = NULL;
 
@@ -3746,41 +3747,41 @@ static void gaim_auth_sendrequest(GaimConnection *gc, char *name) {
 	data->name = g_strdup(name);
 	data->nick = NULL;
 
-	gaim_request_action(gc, NULL, _("Request Authorization"), dialog_msg,
+	purple_request_action(gc, NULL, _("Request Authorization"), dialog_msg,
 						0, data, 2,
 						_("Request Authorization"),
-						G_CALLBACK(gaim_auth_request_msgprompt),
-						_("Cancel"), G_CALLBACK(gaim_auth_dontrequest));
+						G_CALLBACK(purple_auth_request_msgprompt),
+						_("Cancel"), G_CALLBACK(purple_auth_dontrequest));
 
 	g_free(dialog_msg);
 	g_free(nombre);
 }
 
 
-static void gaim_auth_sendrequest_menu(GaimBlistNode *node, gpointer ignored) {
-	GaimBuddy *buddy;
-	GaimConnection *gc;
+static void purple_auth_sendrequest_menu(PurpleBlistNode *node, gpointer ignored) {
+	PurpleBuddy *buddy;
+	PurpleConnection *gc;
 
-	g_return_if_fail(GAIM_BLIST_NODE_IS_BUDDY(node));
+	g_return_if_fail(PURPLE_BLIST_NODE_IS_BUDDY(node));
 
-	buddy = (GaimBuddy *) node;
-	gc = gaim_account_get_connection(buddy->account);
-	gaim_auth_sendrequest(gc, buddy->name);
+	buddy = (PurpleBuddy *) node;
+	gc = purple_account_get_connection(buddy->account);
+	purple_auth_sendrequest(gc, buddy->name);
 }
 
 /* When other people ask you for authorization */
-static void gaim_auth_grant(struct name_data *data) {
-	GaimConnection *gc = data->gc;
+static void purple_auth_grant(struct name_data *data) {
+	PurpleConnection *gc = data->gc;
 
-	if (g_list_find(gaim_connections_get_all(), gc)) {
+	if (g_list_find(purple_connections_get_all(), gc)) {
 		OscarData *od = gc->proto_data;
 #ifdef NOSSI
-		GaimBuddy *buddy;
+		PurpleBuddy *buddy;
 		gchar message;
 		message = 0;
-		buddy = gaim_find_buddy(gc->account, data->name);
+		buddy = purple_find_buddy(gc->account, data->name);
 		aim_im_sendch4(od->sess, data->name, AIM_ICQMSG_AUTHGRANTED, &message);
-		gaim_account_notify_added(gc->account, NULL, data->name, (buddy ? gaim_buddy_get_alias_only(buddy) : NULL), NULL);
+		purple_account_notify_added(gc->account, NULL, data->name, (buddy ? purple_buddy_get_alias_only(buddy) : NULL), NULL);
 #else
 		aim_ssi_sendauthreply(od->sess, data->name, 0x01, NULL);
 #endif
@@ -3790,10 +3791,10 @@ static void gaim_auth_grant(struct name_data *data) {
 }
 
 /* When other people ask you for authorization */
-static void gaim_auth_dontgrant(struct name_data *data, char *msg) {
-	GaimConnection *gc = data->gc;
+static void purple_auth_dontgrant(struct name_data *data, char *msg) {
+	PurpleConnection *gc = data->gc;
 
-	if (g_list_find(gaim_connections_get_all(), gc)) {
+	if (g_list_find(purple_connections_get_all(), gc)) {
 		OscarData *od = gc->proto_data;
 #ifdef NOSSI
 		aim_im_sendch4(od->sess, data->name, AIM_ICQMSG_AUTHDENIED, msg ? msg : _("No reason given."));
@@ -3803,35 +3804,35 @@ static void gaim_auth_dontgrant(struct name_data *data, char *msg) {
 	}
 }
 
-static void gaim_auth_dontgrant_msgprompt(struct name_data *data) {
-	gaim_request_input(data->gc, NULL, _("Authorization Denied Message:"),
+static void purple_auth_dontgrant_msgprompt(struct name_data *data) {
+	purple_request_input(data->gc, NULL, _("Authorization Denied Message:"),
 					   NULL, _("No reason given."), TRUE, FALSE, NULL,
-					   _("OK"), G_CALLBACK(gaim_auth_dontgrant),
+					   _("OK"), G_CALLBACK(purple_auth_dontgrant),
 					   _("Cancel"), G_CALLBACK(oscar_free_name_data),
 					   data);
 }
 
 /* When someone sends you buddies */
-static void gaim_icq_buddyadd(struct name_data *data) {
-	GaimConnection *gc = data->gc;
+static void purple_icq_buddyadd(struct name_data *data) {
+	PurpleConnection *gc = data->gc;
 
-	if (g_list_find(gaim_connections_get_all(), gc)) {
-		gaim_blist_request_add_buddy(gaim_connection_get_account(gc), data->name, NULL, data->nick);
+	if (g_list_find(purple_connections_get_all(), gc)) {
+		purple_blist_request_add_buddy(purple_connection_get_account(gc), data->name, NULL, data->nick);
 	}
 
 	oscar_free_name_data(data);
 }
 
 static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_t *userinfo, struct aim_incomingim_ch4_args *args, time_t t) {
-	GaimConnection *gc = sess->aux_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	gchar **msg1, **msg2;
 	int i, numtoks;
 
 	if (!args->type || !args->msg || !args->uin)
 		return 1;
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 					"Received a channel 4 message of type 0x%02hhx.\n",
 					args->type);
 
@@ -3848,8 +3849,8 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 	for (numtoks=0; msg1[numtoks]; numtoks++);
 	msg2 = (gchar **)g_malloc((numtoks+1)*sizeof(gchar *));
 	for (i=0; msg1[i]; i++) {
-		gaim_str_strip_cr(msg1[i]);
-		msg2[i] = gaim_plugin_oscar_decode_im_part(account, "1", AIM_CHARSET_ASCII, 0x0000, msg1[i], strlen(msg1[i]));
+		purple_str_strip_cr(msg1[i]);
+		msg2[i] = purple_plugin_oscar_decode_im_part(account, "1", AIM_CHARSET_ASCII, 0x0000, msg1[i], strlen(msg1[i]));
 	}
 	msg2[i] = NULL;
 
@@ -3860,7 +3861,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 				gchar *tmp;
 
 				/* If the message came from an ICQ user then escape any HTML */
-				tmp = gaim_escape_html(msg2[0]);
+				tmp = purple_escape_html(msg2[0]);
 
 				if (t) { /* This is an offline message */
 					/* The timestamp is UTC-ish, so we need to get the offset */
@@ -3903,19 +3904,19 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 			if (i >= 6) {
 				struct name_data *data = g_new(struct name_data, 1);
 				gchar *dialog_msg = g_strdup_printf(_("The user %u wants to add you to their buddy list for the following reason:\n%s"), args->uin, msg2[5] ? msg2[5] : _("No reason given."));
-				gaim_debug_info("oscar",
+				purple_debug_info("oscar",
 						   "Received an authorization request from UIN %u\n",
 						   args->uin);
 				data->gc = gc;
 				data->name = g_strdup_printf("%u", args->uin);
 				data->nick = NULL;
 
-				gaim_request_action(gc, NULL, _("Authorization Request"),
-									dialog_msg, GAIM_DEFAULT_ACTION_NONE, data,
+				purple_request_action(gc, NULL, _("Authorization Request"),
+									dialog_msg, PURPLE_DEFAULT_ACTION_NONE, data,
 									2, _("Authorize"),
-									G_CALLBACK(gaim_auth_grant),
+									G_CALLBACK(purple_auth_grant),
 									_("Deny"),
-									G_CALLBACK(gaim_auth_dontgrant_msgprompt));
+									G_CALLBACK(purple_auth_dontgrant_msgprompt));
 				g_free(dialog_msg);
 			}
 		} break;
@@ -3923,7 +3924,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 		case 0x07: { /* Someone has denied you authorization */
 			if (i >= 1) {
 				gchar *dialog_msg = g_strdup_printf(_("The user %u has denied your request to add them to your buddy list for the following reason:\n%s"), args->uin, msg2[0] ? msg2[0] : _("No reason given."));
-				gaim_notify_info(gc, NULL, _("ICQ authorization denied."),
+				purple_notify_info(gc, NULL, _("ICQ authorization denied."),
 								 dialog_msg);
 				g_free(dialog_msg);
 			}
@@ -3931,7 +3932,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 
 		case 0x08: { /* Someone has granted you authorization */
 			gchar *dialog_msg = g_strdup_printf(_("The user %u has granted your request to add them to your buddy list."), args->uin);
-			gaim_notify_info(gc, NULL, "ICQ authorization accepted.",
+			purple_notify_info(gc, NULL, "ICQ authorization accepted.",
 							 dialog_msg);
 			g_free(dialog_msg);
 		} break;
@@ -3939,7 +3940,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 		case 0x09: { /* Message from the Godly ICQ server itself, I think */
 			if (i >= 5) {
 				gchar *dialog_msg = g_strdup_printf(_("You have received a special message\n\nFrom: %s [%s]\n%s"), msg2[0], msg2[3], msg2[5]);
-				gaim_notify_info(gc, NULL, "ICQ Server Message", dialog_msg);
+				purple_notify_info(gc, NULL, "ICQ Server Message", dialog_msg);
 				g_free(dialog_msg);
 			}
 		} break;
@@ -3947,7 +3948,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 		case 0x0d: { /* Someone has sent you a pager message from http://www.icq.com/your_uin */
 			if (i >= 6) {
 				gchar *dialog_msg = g_strdup_printf(_("You have received an ICQ page\n\nFrom: %s [%s]\n%s"), msg2[0], msg2[3], msg2[5]);
-				gaim_notify_info(gc, NULL, "ICQ Page", dialog_msg);
+				purple_notify_info(gc, NULL, "ICQ Page", dialog_msg);
 				g_free(dialog_msg);
 			}
 		} break;
@@ -3955,7 +3956,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 		case 0x0e: { /* Someone has emailed you at your_uin@pager.icq.com */
 			if (i >= 6) {
 				gchar *dialog_msg = g_strdup_printf(_("You have received an ICQ email from %s [%s]\n\nMessage is:\n%s"), msg2[0], msg2[3], msg2[5]);
-				gaim_notify_info(gc, NULL, "ICQ Email", dialog_msg);
+				purple_notify_info(gc, NULL, "ICQ Email", dialog_msg);
 				g_free(dialog_msg);
 			}
 		} break;
@@ -3980,11 +3981,11 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 					data->name = g_strdup(text[i*2+1]);
 					data->nick = g_strdup(text[i*2+2]);
 
-					gaim_request_action(gc, NULL, message,
+					purple_request_action(gc, NULL, message,
 										_("Do you want to add this buddy "
 										  "to your buddy list?"),
-										GAIM_DEFAULT_ACTION_NONE, data, 2,
-										_("Add"), G_CALLBACK(gaim_icq_buddyadd),
+										PURPLE_DEFAULT_ACTION_NONE, data, 2,
+										_("Add"), G_CALLBACK(purple_icq_buddyadd),
 										_("Decline"), G_CALLBACK(oscar_free_name_data));
 					g_free(message);
 				}
@@ -3997,7 +3998,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 		} break;
 
 		default: {
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "Received a channel 4 message of unknown type "
 					   "(type 0x%02hhx).\n", args->type);
 		} break;
@@ -4009,7 +4010,7 @@ static int incomingim_chan4(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 	return 1;
 }
 
-static int gaim_parse_incoming_im(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_incoming_im(aim_session_t *sess, aim_frame_t *fr, ...) {
 	fu16_t channel;
 	int ret = 0;
 	aim_userinfo_t *userinfo;
@@ -4039,7 +4040,7 @@ static int gaim_parse_incoming_im(aim_session_t *sess, aim_frame_t *fr, ...) {
 		} break;
 
 		default: {
-			gaim_debug_warning("oscar",
+			purple_debug_warning("oscar",
 					   "ICBM received on unsupported channel (channel "
 					   "0x%04hx).", channel);
 		} break;
@@ -4050,9 +4051,9 @@ static int gaim_parse_incoming_im(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return ret;
 }
 
-static int gaim_parse_misses(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+static int purple_parse_misses(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	char *buf;
 	va_list ap;
 	fu16_t chan, nummissed, reason;
@@ -4122,28 +4123,28 @@ static int gaim_parse_misses(aim_session_t *sess, aim_frame_t *fr, ...) {
 			break;
 	}
 
-	if (!gaim_conv_present_error(userinfo->sn, account, buf))
-		gaim_notify_error(sess->aux_data, NULL, buf, NULL);
+	if (!purple_conv_present_error(userinfo->sn, account, buf))
+		purple_notify_error(sess->aux_data, NULL, buf, NULL);
 	g_free(buf);
 
 	return 1;
 }
 
-static int gaim_parse_clientauto_ch2(aim_session_t *sess, const char *who, fu16_t reason, const char *cookie) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_parse_clientauto_ch2(aim_session_t *sess, const char *who, fu16_t reason, const char *cookie) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 
 /* BBB */
 	switch (reason) {
 		case 3: { /* Decline sendfile. */
-			GaimXfer *xfer;
+			PurpleXfer *xfer;
 			struct oscar_direct_im *dim;
 
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "AAA - Other user declined some sort of direct "
 					   "connect attempt (automaticly?)\n");
 			if ((xfer = oscar_find_xfer_by_cookie(od->file_transfers, cookie)))
-				gaim_xfer_cancel_remote(xfer);
+				purple_xfer_cancel_remote(xfer);
 			else if ((dim = oscar_direct_im_find(od, who))) {
 				/* AAA should use find by cookie or something here */
 				oscar_direct_im_disconnect(od, dim);
@@ -4151,7 +4152,7 @@ static int gaim_parse_clientauto_ch2(aim_session_t *sess, const char *who, fu16_
 		} break;
 
 		default: {
-			gaim_debug_warning("oscar",
+			purple_debug_warning("oscar",
 					   "Received an unknown rendezvous client auto-response "
 					   "from %s.  Type 0x%04hx\n", who, reason);
 		}
@@ -4161,8 +4162,8 @@ static int gaim_parse_clientauto_ch2(aim_session_t *sess, const char *who, fu16_
 	return 0;
 }
 
-static int gaim_parse_clientauto_ch4(aim_session_t *sess, char *who, fu16_t reason, fu32_t state, char *msg) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_parse_clientauto_ch4(aim_session_t *sess, char *who, fu16_t reason, fu32_t state, char *msg) {
+	PurpleConnection *gc = sess->aux_data;
 
 	switch(reason) {
 		case 0x0003: { /* Reply from an ICQ status message request */
@@ -4177,14 +4178,14 @@ static int gaim_parse_clientauto_ch4(aim_session_t *sess, char *who, fu16_t reas
 			g_free(statusmsg);
 			g_strfreev(splitmsg);
 
-			gaim_notify_userinfo(gc, who, title, _("Buddy Information"), NULL, dialogmsg, NULL, NULL);
+			purple_notify_userinfo(gc, who, title, _("Buddy Information"), NULL, dialogmsg, NULL, NULL);
 
 			g_free(title);
 			g_free(dialogmsg);
 		} break;
 
 		default: {
-			gaim_debug_warning("oscar",
+			purple_debug_warning("oscar",
 					   "Received an unknown client auto-response from %s.  "
 					   "Type 0x%04hx\n", who, reason);
 		} break;
@@ -4193,7 +4194,7 @@ static int gaim_parse_clientauto_ch4(aim_session_t *sess, char *who, fu16_t reas
 	return 0;
 }
 
-static int gaim_parse_clientauto(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_clientauto(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	fu16_t chan, reason;
 	char *who;
@@ -4205,7 +4206,7 @@ static int gaim_parse_clientauto(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	if (chan == 0x0002) { /* File transfer declined */
 		char *cookie = va_arg(ap, char *);
-		return gaim_parse_clientauto_ch2(sess, who, reason, cookie);
+		return purple_parse_clientauto_ch2(sess, who, reason, cookie);
 	} else if (chan == 0x0004) { /* ICQ message */
 		fu32_t state = 0;
 		char *msg = NULL;
@@ -4213,7 +4214,7 @@ static int gaim_parse_clientauto(aim_session_t *sess, aim_frame_t *fr, ...) {
 			state = va_arg(ap, fu32_t);
 			msg = va_arg(ap, char *);
 		}
-		return gaim_parse_clientauto_ch4(sess, who, reason, state, msg);
+		return purple_parse_clientauto_ch4(sess, who, reason, state, msg);
 	}
 
 	va_end(ap);
@@ -4221,7 +4222,7 @@ static int gaim_parse_clientauto(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_parse_genericerr(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_genericerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	fu16_t reason;
 	char *m;
@@ -4230,23 +4231,23 @@ static int gaim_parse_genericerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 	reason = (fu16_t) va_arg(ap, unsigned int);
 	va_end(ap);
 
-	gaim_debug_error("oscar",
+	purple_debug_error("oscar",
 			   "snac threw error (reason 0x%04hx: %s)\n", reason,
 			   (reason < msgerrreasonlen) ? msgerrreason[reason] : "unknown");
 
 	m = g_strdup_printf(_("SNAC threw error: %s\n"),
 			reason < msgerrreasonlen ? _(msgerrreason[reason]) : _("Unknown error"));
-	gaim_notify_error(sess->aux_data, NULL, m, NULL);
+	purple_notify_error(sess->aux_data, NULL, m, NULL);
 	g_free(m);
 
 	return 1;
 }
 
-static int gaim_parse_msgerr(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_parse_msgerr(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 #if 0
 	OscarData *od = gc->proto_data;
-	GaimXfer *xfer;
+	PurpleXfer *xfer;
 #endif
 	va_list ap;
 	fu16_t reason;
@@ -4257,24 +4258,24 @@ static int gaim_parse_msgerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 	data = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_error("oscar",
+	purple_debug_error("oscar",
 			   "Message error with data %s and reason %hu\n", data ? data : "(null)", reason);
 
 /* BBB */
 #if 0
 	/* If this was a file transfer request, data is a cookie */
 	if ((xfer = oscar_find_xfer_by_cookie(od->file_transfers, data))) {
-		gaim_xfer_cancel_remote(xfer);
+		purple_xfer_cancel_remote(xfer);
 		return 1;
 	}
 #endif
 
 	/* Data is assumed to be the destination sn */
 	buf = g_strdup_printf(_("Unable to send message: %s"), (reason < msgerrreasonlen) ? msgerrreason[reason] : _("Unknown reason."));
-	if (!gaim_conv_present_error(data, gaim_connection_get_account(gc), buf)) {
+	if (!purple_conv_present_error(data, purple_connection_get_account(gc), buf)) {
 		g_free(buf);
 		buf = g_strdup_printf(_("Unable to send message to %s:"), data ? data : "(unknown)");
-		gaim_notify_error(sess->aux_data, NULL, buf,
+		purple_notify_error(sess->aux_data, NULL, buf,
 				  (reason < msgerrreasonlen) ? _(msgerrreason[reason]) : _("Unknown reason."));
 	}
 	g_free(buf);
@@ -4282,8 +4283,8 @@ static int gaim_parse_msgerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_parse_mtn(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_parse_mtn(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	va_list ap;
 	fu16_t type1, type2;
 	char *sn;
@@ -4300,15 +4301,15 @@ static int gaim_parse_mtn(aim_session_t *sess, aim_frame_t *fr, ...) {
 		} break;
 
 		case 0x0001: { /* Paused typing */
-			serv_got_typing(gc, sn, 0, GAIM_TYPED);
+			serv_got_typing(gc, sn, 0, PURPLE_TYPED);
 		} break;
 
 		case 0x0002: { /* Typing */
-			serv_got_typing(gc, sn, 0, GAIM_TYPING);
+			serv_got_typing(gc, sn, 0, PURPLE_TYPING);
 		} break;
 
 		default: {
-			gaim_debug_error("oscar", "Received unknown typing notification message from %s.  Type1 is 0x%04x and type2 is 0x%04hx.\n", sn, type1, type2);
+			purple_debug_error("oscar", "Received unknown typing notification message from %s.  Type1 is 0x%04x and type2 is 0x%04hx.\n", sn, type1, type2);
 		} break;
 	}
 
@@ -4319,7 +4320,7 @@ static int gaim_parse_mtn(aim_session_t *sess, aim_frame_t *fr, ...) {
  * We get this error when there was an error in the locate family.  This 
  * happens when you request info of someone who is offline.
  */
-static int gaim_parse_locerr(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_locerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 	gchar *buf;
 	va_list ap;
 	fu16_t reason;
@@ -4334,19 +4335,19 @@ static int gaim_parse_locerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 	
 	buf = g_strdup_printf(_("User information not available: %s"), (reason < msgerrreasonlen) ? _(msgerrreason[reason]) : _("Unknown reason."));
-	if (!gaim_conv_present_error(destn, gaim_connection_get_account((GaimConnection*)sess->aux_data), buf)) {
+	if (!purple_conv_present_error(destn, purple_connection_get_account((PurpleConnection*)sess->aux_data), buf)) {
 		g_free(buf);
 		buf = g_strdup_printf(_("User information for %s unavailable:"), destn);
-		gaim_notify_error(sess->aux_data, NULL, buf, (reason < msgerrreasonlen) ? _(msgerrreason[reason]) : _("Unknown reason."));
+		purple_notify_error(sess->aux_data, NULL, buf, (reason < msgerrreasonlen) ? _(msgerrreason[reason]) : _("Unknown reason."));
 	}
 	g_free(buf);
 
 	return 1;
 }
 
-static int gaim_parse_userinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+static int purple_parse_userinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	GString *str;
 	gchar *tmp = NULL, *info_utf8 = NULL, *away_utf8 = NULL, *title = NULL;
 	va_list ap;
@@ -4371,7 +4372,7 @@ static int gaim_parse_userinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
 	}
 
 	if (userinfo->present & AIM_USERINFO_PRESENT_IDLE) {
-		tmp = gaim_str_seconds_to_string(userinfo->idletime*60);
+		tmp = purple_str_seconds_to_string(userinfo->idletime*60);
 		oscar_string_append(str, "\n<br>", _("Idle"), tmp);
 		g_free(tmp);
 	}
@@ -4398,20 +4399,20 @@ static int gaim_parse_userinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
 		}
 	}
 
-	tmp = gaim_str_sub_away_formatters(str->str, gaim_account_get_username(account));
+	tmp = purple_str_sub_away_formatters(str->str, purple_account_get_username(account));
 	g_string_free(str, TRUE);
 	title = g_strdup_printf(_("Info for %s"), userinfo->sn);
-	gaim_notify_userinfo(gc, userinfo->sn, title, _("Buddy Information"), NULL, tmp, NULL, NULL);
+	purple_notify_userinfo(gc, userinfo->sn, title, _("Buddy Information"), NULL, tmp, NULL, NULL);
 	g_free(title);
 	g_free(tmp);
 
 	return 1;
 }
 
-static gboolean gaim_reqinfo_timeout_cb(void *data)
+static gboolean purple_reqinfo_timeout_cb(void *data)
 {
 	aim_session_t *sess = data;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	aim_locate_dorequest(data);
@@ -4420,9 +4421,9 @@ static gboolean gaim_reqinfo_timeout_cb(void *data)
 	return FALSE;
 }
 
-static int gaim_reqinfo_timeout(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_reqinfo_timeout(aim_session_t *sess, aim_frame_t *fr, ...)
 {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	/*
@@ -4431,12 +4432,12 @@ static int gaim_reqinfo_timeout(aim_session_t *sess, aim_frame_t *fr, ...)
 	 * too quickly.
 	 */
 	if (od->getinfotimer == 0)
-		od->getinfotimer = gaim_timeout_add(1200, gaim_reqinfo_timeout_cb, sess);
+		od->getinfotimer = purple_timeout_add(1200, purple_reqinfo_timeout_cb, sess);
 
 	return 1;
 }
 
-static int gaim_parse_motd(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_parse_motd(aim_session_t *sess, aim_frame_t *fr, ...)
 {
 	char *msg;
 	fu16_t id;
@@ -4447,19 +4448,19 @@ static int gaim_parse_motd(aim_session_t *sess, aim_frame_t *fr, ...)
 	msg = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "MOTD: %s (%hu)\n", msg ? msg : "Unknown", id);
 	if (id < 4)
-		gaim_notify_warning(sess->aux_data, NULL,
+		purple_notify_warning(sess->aux_data, NULL,
 							_("Your AIM connection may be lost."), NULL);
 
 	return 1;
 }
 
-static int gaim_chatnav_info(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_chatnav_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	fu16_t type;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	va_start(ap, fr);
@@ -4475,19 +4476,19 @@ static int gaim_chatnav_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 			exchangecount = va_arg(ap, int);
 			exchanges = va_arg(ap, struct aim_chat_exchangeinfo *);
 
-			gaim_debug_misc("oscar",
+			purple_debug_misc("oscar",
 					   "chat info: Chat Rights:\n");
-			gaim_debug_misc("oscar",
+			purple_debug_misc("oscar",
 					   "chat info: \tMax Concurrent Rooms: %hhd\n", maxrooms);
-			gaim_debug_misc("oscar",
+			purple_debug_misc("oscar",
 					   "chat info: \tExchange List: (%d total)\n", exchangecount);
 			for (i = 0; i < exchangecount; i++)
-				gaim_debug_misc("oscar",
+				purple_debug_misc("oscar",
 						   "chat info: \t\t%hu    %s\n",
 						   exchanges[i].number, exchanges[i].name ? exchanges[i].name : "");
 			while (od->create_rooms) {
 				struct create_room *cr = od->create_rooms->data;
-				gaim_debug_info("oscar",
+				purple_debug_info("oscar",
 						   "creating room %s\n", cr->name);
 				aim_chatnav_createroom(sess, fr->conn, cr->name, cr->exchange);
 				g_free(cr->name);
@@ -4514,7 +4515,7 @@ static int gaim_chatnav_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 			name = va_arg(ap, char *);
 			ck = va_arg(ap, char *);
 
-			gaim_debug_misc("oscar",
+			purple_debug_misc("oscar",
 					   "created room: %s %hu %hu %hu %u %hu %hu %hhu %hu %s %s\n",
 					fqcn,
 					exchange, instance, flags,
@@ -4525,7 +4526,7 @@ static int gaim_chatnav_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 			}
 			break;
 		default:
-			gaim_debug_warning("oscar",
+			purple_debug_warning("oscar",
 					   "chatnav info: unknown type (%04hx)\n", type);
 			break;
 	}
@@ -4535,11 +4536,11 @@ static int gaim_chatnav_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_conv_chat_join(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_conv_chat_join(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	int count, i;
 	aim_userinfo_t *info;
-	GaimConnection *g = sess->aux_data;
+	PurpleConnection *g = sess->aux_data;
 
 	struct chat_connection *c = NULL;
 
@@ -4553,16 +4554,16 @@ static int gaim_conv_chat_join(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 
 	for (i = 0; i < count; i++)
-		gaim_conv_chat_add_user(GAIM_CONV_CHAT(c->conv), info[i].sn, NULL, GAIM_CBFLAGS_NONE, TRUE);
+		purple_conv_chat_add_user(PURPLE_CONV_CHAT(c->conv), info[i].sn, NULL, PURPLE_CBFLAGS_NONE, TRUE);
 
 	return 1;
 }
 
-static int gaim_conv_chat_leave(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_conv_chat_leave(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	int count, i;
 	aim_userinfo_t *info;
-	GaimConnection *g = sess->aux_data;
+	PurpleConnection *g = sess->aux_data;
 
 	struct chat_connection *c = NULL;
 
@@ -4576,12 +4577,12 @@ static int gaim_conv_chat_leave(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 
 	for (i = 0; i < count; i++)
-		gaim_conv_chat_remove_user(GAIM_CONV_CHAT(c->conv), info[i].sn, NULL);
+		purple_conv_chat_remove_user(PURPLE_CONV_CHAT(c->conv), info[i].sn, NULL);
 
 	return 1;
 }
 
-static int gaim_conv_chat_info_update(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_conv_chat_info_update(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	aim_userinfo_t *userinfo;
 	struct aim_chat_roominfo *roominfo;
@@ -4590,7 +4591,7 @@ static int gaim_conv_chat_info_update(aim_session_t *sess, aim_frame_t *fr, ...)
 	char *roomdesc;
 	fu16_t unknown_c9, unknown_d2, unknown_d5, maxmsglen, maxvisiblemsglen;
 	fu32_t creationtime;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	struct chat_connection *ccon = find_oscar_chat_by_conn(gc, fr->conn);
 
 	va_start(ap, fr);
@@ -4607,7 +4608,7 @@ static int gaim_conv_chat_info_update(aim_session_t *sess, aim_frame_t *fr, ...)
 	maxvisiblemsglen = (fu16_t)va_arg(ap, unsigned int);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "inside chat_info_update (maxmsglen = %hu, maxvislen = %hu)\n",
 			   maxmsglen, maxvisiblemsglen);
 
@@ -4617,8 +4618,8 @@ static int gaim_conv_chat_info_update(aim_session_t *sess, aim_frame_t *fr, ...)
 	return 1;
 }
 
-static int gaim_conv_chat_incoming_msg(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_conv_chat_incoming_msg(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	struct chat_connection *ccon = find_oscar_chat_by_conn(gc, fr->conn);
 	gchar *utf8;
 	va_list ap;
@@ -4644,9 +4645,9 @@ static int gaim_conv_chat_incoming_msg(aim_session_t *sess, aim_frame_t *fr, ...
 	return 1;
 }
 
-static int gaim_email_parseupdate(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_email_parseupdate(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	struct aim_emailinfo *emailinfo;
 	int havenewmail;
 	char *alertitle, *alerturl;
@@ -4658,41 +4659,41 @@ static int gaim_email_parseupdate(aim_session_t *sess, aim_frame_t *fr, ...) {
 	alerturl  = va_arg(ap, char *);
 	va_end(ap);
 
-	if ((emailinfo != NULL) && gaim_account_get_check_mail(gc->account)) {
-		gchar *to = g_strdup_printf("%s%s%s", gaim_account_get_username(gaim_connection_get_account(gc)),
+	if ((emailinfo != NULL) && purple_account_get_check_mail(gc->account)) {
+		gchar *to = g_strdup_printf("%s%s%s", purple_account_get_username(purple_connection_get_account(gc)),
 									emailinfo->domain ? "@" : "",
 									emailinfo->domain ? emailinfo->domain : "");
 		if (emailinfo->unread && havenewmail)
-			gaim_notify_emails(gc, emailinfo->nummsgs, FALSE, NULL, NULL, (const char **)&to, (const char **)&emailinfo->url, NULL, NULL);
+			purple_notify_emails(gc, emailinfo->nummsgs, FALSE, NULL, NULL, (const char **)&to, (const char **)&emailinfo->url, NULL, NULL);
 		g_free(to);
 	}
 	
 	if (alertitle)
-		gaim_debug_misc("oscar", "Got an alert '%s' %s\n", alertitle, alerturl ? alerturl : "");
+		purple_debug_misc("oscar", "Got an alert '%s' %s\n", alertitle, alerturl ? alerturl : "");
 
 	return 1;
 }
 
-static int gaim_icon_error(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_icon_error(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 	char *sn;
 
 	sn = od->requesticon->data;
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "removing %s from hash table\n", sn);
 	od->requesticon = g_slist_remove(od->requesticon, sn);
 	free(sn);
 
 	if (od->icontimer)
-		gaim_timeout_remove(od->icontimer);
-	od->icontimer = gaim_timeout_add(500, gaim_icon_timerfunc, gc);
+		purple_timeout_remove(od->icontimer);
+	od->icontimer = purple_timeout_add(500, purple_icon_timerfunc, gc);
 
 	return 1;
 }
 
-static int gaim_icon_parseicon(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_icon_parseicon(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 	GSList *cur;
 	va_list ap;
@@ -4715,12 +4716,12 @@ static int gaim_icon_parseicon(aim_session_t *sess, aim_frame_t *fr, ...) {
 	 */
 	if ((iconlen > 0) && (iconlen != 90)) {
 		char *b16;
-		GaimBuddy *b = gaim_find_buddy(gc->account, sn);
-		gaim_buddy_icons_set_for_user(gaim_connection_get_account(gc),
+		PurpleBuddy *b = purple_find_buddy(gc->account, sn);
+		purple_buddy_icons_set_for_user(purple_connection_get_account(gc),
 									  sn, icon, iconlen);
-		b16 = gaim_base16_encode(iconcsum, iconcsumlen);
+		b16 = purple_base16_encode(iconcsum, iconcsumlen);
 		if (b16) {
-			gaim_blist_node_set_string((GaimBlistNode*)b, "icon_checksum", b16);
+			purple_blist_node_set_string((PurpleBlistNode*)b, "icon_checksum", b16);
 			g_free(b16);
 		}
 	}
@@ -4737,14 +4738,14 @@ static int gaim_icon_parseicon(aim_session_t *sess, aim_frame_t *fr, ...) {
 	}
 
 	if (od->icontimer)
-		gaim_timeout_remove(od->icontimer);
-	od->icontimer = gaim_timeout_add(250, gaim_icon_timerfunc, gc);
+		purple_timeout_remove(od->icontimer);
+	od->icontimer = purple_timeout_add(250, purple_icon_timerfunc, gc);
 
 	return 1;
 }
 
-static gboolean gaim_icon_timerfunc(gpointer data) {
-	GaimConnection *gc = data;
+static gboolean purple_icon_timerfunc(gpointer data) {
+	PurpleConnection *gc = data;
 	OscarData *od = gc->proto_data;
 	aim_userinfo_t *userinfo;
 	aim_conn_t *conn;
@@ -4760,7 +4761,7 @@ static gboolean gaim_icon_timerfunc(gpointer data) {
 
 	if (od->set_icon) {
 		struct stat st;
-		const char *iconfile = gaim_account_get_buddy_icon(gaim_connection_get_account(gc));
+		const char *iconfile = purple_account_get_buddy_icon(purple_connection_get_account(gc));
 		if (iconfile == NULL) {
 			aim_ssi_delicon(od->sess);
 		} else if (!g_stat(iconfile, &st)) {
@@ -4770,22 +4771,22 @@ static gboolean gaim_icon_timerfunc(gpointer data) {
 				/* XXX - Use g_file_get_contents()? */
 				fread(buf, 1, st.st_size, file);
 				fclose(file);
-				gaim_debug_info("oscar",
+				purple_debug_info("oscar",
 					   "Uploading icon to icon server\n");
 				aim_bart_upload(od->sess, buf, st.st_size);
 			} else
-				gaim_debug_error("oscar",
+				purple_debug_error("oscar",
 					   "Can't open buddy icon file!\n");
 			g_free(buf);
 		} else {
-			gaim_debug_error("oscar",
+			purple_debug_error("oscar",
 				   "Can't stat buddy icon file!\n");
 		}
 		od->set_icon = FALSE;
 	}
 
 	if (!od->requesticon) {
-		gaim_debug_misc("oscar",
+		purple_debug_misc("oscar",
 				   "no more icons to request\n");
 		return FALSE;
 	}
@@ -4806,7 +4807,7 @@ static gboolean gaim_icon_timerfunc(gpointer data) {
 /*
  * Recieved in response to an IM sent with the AIM_IMFLAGS_ACK option.
  */
-static int gaim_parse_msgack(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_msgack(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	fu16_t type;
 	char *sn;
@@ -4816,12 +4817,12 @@ static int gaim_parse_msgack(aim_session_t *sess, aim_frame_t *fr, ...) {
 	sn = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_info("oscar", "Sent message to %s.\n", sn);
+	purple_debug_info("oscar", "Sent message to %s.\n", sn);
 
 	return 1;
 }
 
-static int gaim_parse_ratechange(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_ratechange(aim_session_t *sess, aim_frame_t *fr, ...) {
 	static const char *codes[5] = {
 		"invalid",
 		"change",
@@ -4845,7 +4846,7 @@ static int gaim_parse_ratechange(aim_session_t *sess, aim_frame_t *fr, ...) {
 	maxavg = va_arg(ap, fu32_t);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "rate %s (param ID 0x%04hx): curavg = %u, maxavg = %u, alert at %u, "
 		     "clear warning at %u, limit at %u, disconnect at %u (window size = %u)\n",
 		     (code < 5) ? codes[code] : codes[0],
@@ -4862,7 +4863,7 @@ static int gaim_parse_ratechange(aim_session_t *sess, aim_frame_t *fr, ...) {
 	} else if (code == AIM_RATE_CODE_WARNING) {
 		aim_conn_setlatency(fr->conn, windowsize/4);
 	} else if (code == AIM_RATE_CODE_LIMIT) {
-		gaim_notify_error(sess->aux_data, NULL, _("Rate limiting error."),
+		purple_notify_error(sess->aux_data, NULL, _("Rate limiting error."),
 						  _("The last action you attempted could not be "
 							"performed because you are over the rate limit. "
 							"Please wait 10 seconds and try again."));
@@ -4874,11 +4875,11 @@ static int gaim_parse_ratechange(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_parse_evilnotify(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_evilnotify(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	fu16_t newevil;
 	aim_userinfo_t *userinfo;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 
 	va_start(ap, fr);
 	newevil = (fu16_t) va_arg(ap, unsigned int);
@@ -4890,10 +4891,10 @@ static int gaim_parse_evilnotify(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_selfinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_selfinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	aim_userinfo_t *info;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 
 	va_start(ap, fr);
 	info = va_arg(ap, aim_userinfo_t *);
@@ -4909,8 +4910,8 @@ static int gaim_selfinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_connerr(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_connerr(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 	va_list ap;
 	fu16_t code;
@@ -4921,14 +4922,14 @@ static int gaim_connerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 	msg = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_info("oscar", "Disconnected.  Code is 0x%04x and msg is %s\n",
+	purple_debug_info("oscar", "Disconnected.  Code is 0x%04x and msg is %s\n",
 					code, (msg != NULL ? msg : ""));
 	if ((fr) && (fr->conn) && (fr->conn->type == AIM_CONN_TYPE_BOS)) {
 		if (code == 0x0001) {
 			gc->wants_to_die = TRUE;
-			gaim_connection_error(gc, _("You have been disconnected because you have signed on with this screen name at another location."));
+			purple_connection_error(gc, _("You have been disconnected because you have signed on with this screen name at another location."));
 		} else {
-			gaim_connection_error(gc, _("You have been signed off for an unknown reason."));
+			purple_connection_error(gc, _("You have been signed off for an unknown reason."));
 		}
 		od->killme = TRUE;
 	}
@@ -4937,12 +4938,12 @@ static int gaim_connerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 }
 
 static int conninitdone_bos(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 
 	aim_reqpersonalinfo(sess, fr->conn);
 
 #ifndef NOSSI
-	gaim_debug_info("oscar", "ssi: requesting rights and list\n");
+	purple_debug_info("oscar", "ssi: requesting rights and list\n");
 	aim_ssi_reqrights(sess);
 	aim_ssi_reqdata(sess);
 #endif
@@ -4953,30 +4954,30 @@ static int conninitdone_bos(aim_session_t *sess, aim_frame_t *fr, ...) {
 	aim_bos_reqrights(sess, fr->conn); /* XXX - Don't call this with ssi */
 
 #ifdef NOSSI
-	gaim_debug_info("oscar", "bos: requesting rights\n");
+	purple_debug_info("oscar", "bos: requesting rights\n");
 	aim_bos_reqrights(sess, fr->conn);
 	aim_bos_setgroupperm(sess, fr->conn, AIM_FLAG_ALLUSERS);
 	aim_bos_setprivacyflags(sess, fr->conn, AIM_PRIVFLAGS_ALLOWIDLE | AIM_PRIVFLAGS_ALLOWMEMBERSINCE);
 #endif
 
-	gaim_connection_update_progress(gc, _("Finalizing connection"), 5, OSCAR_CONNECT_STEPS);
+	purple_connection_update_progress(gc, _("Finalizing connection"), 5, OSCAR_CONNECT_STEPS);
 
 	return 1;
 }
 
 static int conninitdone_admin(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ADM, 0x0003, gaim_info_change, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ADM, 0x0005, gaim_info_change, 0);
-	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ADM, 0x0007, gaim_account_confirm, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ADM, 0x0003, purple_info_change, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ADM, 0x0005, purple_info_change, 0);
+	aim_conn_addhandler(sess, fr->conn, AIM_CB_FAM_ADM, 0x0007, purple_account_confirm, 0);
 
 	aim_clientready(sess, fr->conn);
-	gaim_debug_info("oscar", "connected to admin\n");
+	purple_debug_info("oscar", "connected to admin\n");
 
 	if (od->chpass) {
-		gaim_debug_info("oscar", "changing password\n");
+		purple_debug_info("oscar", "changing password\n");
 		aim_admin_changepasswd(sess, fr->conn, od->newp, od->oldp);
 		g_free(od->oldp);
 		od->oldp = NULL;
@@ -4985,24 +4986,24 @@ static int conninitdone_admin(aim_session_t *sess, aim_frame_t *fr, ...) {
 		od->chpass = FALSE;
 	}
 	if (od->setnick) {
-		gaim_debug_info("oscar", "formatting screen name\n");
+		purple_debug_info("oscar", "formatting screen name\n");
 		aim_admin_setnick(sess, fr->conn, od->newsn);
 		g_free(od->newsn);
 		od->newsn = NULL;
 		od->setnick = FALSE;
 	}
 	if (od->conf) {
-		gaim_debug_info("oscar", "confirming account\n");
+		purple_debug_info("oscar", "confirming account\n");
 		aim_admin_reqconfirm(sess, fr->conn);
 		od->conf = FALSE;
 	}
 	if (od->reqemail) {
-		gaim_debug_info("oscar", "requesting email\n");
+		purple_debug_info("oscar", "requesting email\n");
 		aim_admin_getinfo(sess, fr->conn, 0x0011);
 		od->reqemail = FALSE;
 	}
 	if (od->setemail) {
-		gaim_debug_info("oscar", "setting email\n");
+		purple_debug_info("oscar", "setting email\n");
 		aim_admin_setemail(sess, fr->conn, od->email);
 		g_free(od->email);
 		od->email = NULL;
@@ -5012,7 +5013,7 @@ static int conninitdone_admin(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_icbm_param_info(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_icbm_param_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 	struct aim_icbmparameters *params;
 	va_list ap;
 
@@ -5021,7 +5022,7 @@ static int gaim_icbm_param_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_end(ap);
 
 	/* XXX - evidently this crashes on solaris. i have no clue why
-	gaim_debug_misc("oscar", "ICBM Parameters: maxchannel = %hu, default flags = 0x%08lx, max msg len = %hu, "
+	purple_debug_misc("oscar", "ICBM Parameters: maxchannel = %hu, default flags = 0x%08lx, max msg len = %hu, "
 			"max sender evil = %f, max receiver evil = %f, min msg interval = %u\n",
 			params->maxchan, params->flags, params->maxmsglen,
 			((float)params->maxsenderwarn)/10.0, ((float)params->maxrecverwarn)/10.0,
@@ -5038,9 +5039,9 @@ static int gaim_icbm_param_info(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_parse_locaterights(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_parse_locaterights(aim_session_t *sess, aim_frame_t *fr, ...)
 {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 	va_list ap;
 	fu16_t maxsiglen;
@@ -5049,7 +5050,7 @@ static int gaim_parse_locaterights(aim_session_t *sess, aim_frame_t *fr, ...)
 	maxsiglen = (fu16_t) va_arg(ap, int);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "locate rights: max sig len = %d\n", maxsiglen);
 
 	od->rights.maxsiglen = od->rights.maxawaymsglen = (guint)maxsiglen;
@@ -5063,10 +5064,10 @@ static int gaim_parse_locaterights(aim_session_t *sess, aim_frame_t *fr, ...)
 	return 1;
 }
 
-static int gaim_parse_buddyrights(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_buddyrights(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	fu16_t maxbuddies, maxwatchers;
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	va_start(ap, fr);
@@ -5074,7 +5075,7 @@ static int gaim_parse_buddyrights(aim_session_t *sess, aim_frame_t *fr, ...) {
 	maxwatchers = (fu16_t) va_arg(ap, unsigned int);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "buddy list rights: Max buddies = %hu / Max watchers = %hu\n", maxbuddies, maxwatchers);
 
 	od->rights.maxbuddies = (guint)maxbuddies;
@@ -5083,8 +5084,8 @@ static int gaim_parse_buddyrights(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_bosrights(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_bosrights(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 	va_list ap;
 	fu16_t maxpermits, maxdenies;
@@ -5094,16 +5095,16 @@ static int gaim_bosrights(aim_session_t *sess, aim_frame_t *fr, ...) {
 	maxdenies = (fu16_t) va_arg(ap, unsigned int);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 			   "BOS rights: Max permit = %hu / Max deny = %hu\n", maxpermits, maxdenies);
 
 	od->rights.maxpermits = (guint)maxpermits;
 	od->rights.maxdenies = (guint)maxdenies;
 
-	gaim_connection_set_state(gc, GAIM_CONNECTED);
+	purple_connection_set_state(gc, PURPLE_CONNECTED);
 	serv_finish_login(gc);
 
-	gaim_debug_info("oscar", "buddy list loaded\n");
+	purple_debug_info("oscar", "buddy list loaded\n");
 
 	aim_clientready(sess, fr->conn);
 	aim_srv_setavailmsg(sess, NULL);
@@ -5121,7 +5122,7 @@ static int gaim_bosrights(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_offlinemsg(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_offlinemsg(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	struct aim_icq_offlinemsg *msg;
 	struct aim_incomingim_ch4_args args;
@@ -5131,20 +5132,20 @@ static int gaim_offlinemsg(aim_session_t *sess, aim_frame_t *fr, ...) {
 	msg = va_arg(ap, struct aim_icq_offlinemsg *);
 	va_end(ap);
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "Received offline message.  Converting to channel 4 ICBM...\n");
 	args.uin = msg->sender;
 	args.type = msg->type;
 	args.flags = msg->flags;
 	args.msglen = msg->msglen;
 	args.msg = msg->msg;
-	t = gaim_time_build(msg->year, msg->month, msg->day, msg->hour, msg->minute, 0);
+	t = purple_time_build(msg->year, msg->month, msg->day, msg->hour, msg->minute, 0);
 	incomingim_chan4(sess, fr->conn, NULL, &args, t);
 
 	return 1;
 }
 
-static int gaim_offlinemsgdone(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_offlinemsgdone(aim_session_t *sess, aim_frame_t *fr, ...)
 {
 	aim_icq_ackofflinemsgs(sess);
 	return 1;
@@ -5190,11 +5191,11 @@ static size_t my_strftime(char *s, size_t max, const char  *fmt,
 }
 #endif
 
-static int gaim_icqinfo(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_icqinfo(aim_session_t *sess, aim_frame_t *fr, ...)
 {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
-	GaimBuddy *buddy;
+	PurpleBuddy *buddy;
 	struct buddyinfo *bi = NULL;
 	gchar who[16];
 	GString *str;
@@ -5212,9 +5213,9 @@ static int gaim_icqinfo(aim_session_t *sess, aim_frame_t *fr, ...)
 
 	str = g_string_sized_new(100);
 	g_snprintf(who, sizeof(who), "%u", info->uin);
-	buddy = gaim_find_buddy(gaim_connection_get_account(gc), who);
+	buddy = purple_find_buddy(purple_connection_get_account(gc), who);
 	if (buddy != NULL)
-		bi = g_hash_table_lookup(od->buddyinfo, gaim_normalize(buddy->account, buddy->name));
+		bi = g_hash_table_lookup(od->buddyinfo, purple_normalize(buddy->account, buddy->name));
 
 	g_string_append_printf(str, "<b>%s:</b> %s", _("UIN"), who);
 	oscar_string_append(str, "\n<br>", _("Nick"), info->nick);
@@ -5229,14 +5230,14 @@ static int gaim_icqinfo(aim_session_t *sess, aim_frame_t *fr, ...)
 	}
 	oscar_string_append(str, "\n<br>", _("First Name"), info->first);
 	oscar_string_append(str, "\n<br>", _("Last Name"), info->last);
-	if (info->email && info->email[0] && (utf8 = gaim_utf8_try_convert(info->email))) {
+	if (info->email && info->email[0] && (utf8 = purple_utf8_try_convert(info->email))) {
 		g_string_append_printf(str, "\n<br><b>%s:</b> <a href=\"mailto:%s\">%s</a>", _("Email Address"), utf8, utf8);
 		g_free(utf8);
 	}
 	if (info->numaddresses && info->email2) {
 		int i;
 		for (i = 0; i < info->numaddresses; i++) {
-			if (info->email2[i] && info->email2[i][0] && (utf8 = gaim_utf8_try_convert(info->email2[i]))) {
+			if (info->email2[i] && info->email2[i][0] && (utf8 = purple_utf8_try_convert(info->email2[i]))) {
 				g_string_append_printf(str, "\n<br><b>%s:</b> <a href=\"mailto:%s\">%s</a>", _("Email Address"), utf8, utf8);
 				g_free(utf8);
 			}
@@ -5259,11 +5260,11 @@ static int gaim_icqinfo(aim_session_t *sess, aim_frame_t *fr, ...)
 		snprintf(age, sizeof(age), "%hhd", info->age);
 		oscar_string_append(str, "\n<br>", _("Age"), age);
 	}
-	if (info->personalwebpage && info->personalwebpage[0] && (utf8 = gaim_utf8_try_convert(info->personalwebpage))) {
+	if (info->personalwebpage && info->personalwebpage[0] && (utf8 = purple_utf8_try_convert(info->personalwebpage))) {
 		g_string_append_printf(str, "\n<br><b>%s:</b> <a href=\"%s\">%s</a>", _("Personal Web Page"), utf8, utf8);
 		g_free(utf8);
 	}
-	if (info->info && info->info[0] && (utf8 = gaim_utf8_try_convert(info->info))) {
+	if (info->info && info->info[0] && (utf8 = purple_utf8_try_convert(info->info))) {
 		g_string_append_printf(str, "<hr><b>%s:</b><br>%s", _("Additional Information"), utf8);
 		g_free(utf8);
 	}
@@ -5289,7 +5290,7 @@ static int gaim_icqinfo(aim_session_t *sess, aim_frame_t *fr, ...)
 		oscar_string_append(str, "\n<br>", _("Company"), info->workcompany);
 		oscar_string_append(str, "\n<br>", _("Division"), info->workdivision);
 		oscar_string_append(str, "\n<br>", _("Position"), info->workposition);
-		if (info->workwebpage && info->workwebpage[0] && (utf8 = gaim_utf8_try_convert(info->workwebpage))) {
+		if (info->workwebpage && info->workwebpage[0] && (utf8 = purple_utf8_try_convert(info->workwebpage))) {
 			g_string_append_printf(str, "\n<br><b>%s:</b> <a href=\"%s\">%s</a>", _("Web Page"), utf8, utf8);
 			g_free(utf8);
 		}
@@ -5297,22 +5298,22 @@ static int gaim_icqinfo(aim_session_t *sess, aim_frame_t *fr, ...)
 	}
 
 	if (buddy != NULL)
-		alias = gaim_buddy_get_alias(buddy);
+		alias = purple_buddy_get_alias(buddy);
 	else
 		alias = who;
 	primary = g_strdup_printf(_("ICQ Info for %s"), alias);
-	gaim_notify_userinfo(gc, who, NULL, primary, NULL, str->str, NULL, NULL);
+	purple_notify_userinfo(gc, who, NULL, primary, NULL, str->str, NULL, NULL);
 	g_free(primary);
 	g_string_free(str, TRUE);
 
 	return 1;
 }
 
-static int gaim_icqalias(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_icqalias(aim_session_t *sess, aim_frame_t *fr, ...)
 {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	gchar who[16], *utf8;
-	GaimBuddy *b;
+	PurpleBuddy *b;
 	va_list ap;
 	struct aim_icq_info *info;
 
@@ -5320,11 +5321,11 @@ static int gaim_icqalias(aim_session_t *sess, aim_frame_t *fr, ...)
 	info = va_arg(ap, struct aim_icq_info *);
 	va_end(ap);
 
-	if (info->uin && info->nick && info->nick[0] && (utf8 = gaim_utf8_try_convert(info->nick))) {
+	if (info->uin && info->nick && info->nick[0] && (utf8 = purple_utf8_try_convert(info->nick))) {
 		g_snprintf(who, sizeof(who), "%u", info->uin);
 		serv_got_alias(gc, who, utf8);
-		if ((b = gaim_find_buddy(gc->account, who))) {
-			gaim_blist_node_set_string((GaimBlistNode*)b, "servernick", utf8);
+		if ((b = purple_find_buddy(gc->account, who))) {
+			purple_blist_node_set_string((PurpleBlistNode*)b, "servernick", utf8);
 		}
 		g_free(utf8);
 	}
@@ -5332,9 +5333,9 @@ static int gaim_icqalias(aim_session_t *sess, aim_frame_t *fr, ...)
 	return 1;
 }
 
-static int gaim_popup(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_popup(aim_session_t *sess, aim_frame_t *fr, ...)
 {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	gchar *text;
 	va_list ap;
 	char *msg, *url;
@@ -5349,15 +5350,15 @@ static int gaim_popup(aim_session_t *sess, aim_frame_t *fr, ...)
 	va_end(ap);
 
 	text = g_strdup_printf("%s<br><a href=\"%s\">%s</a>", msg, url, url);
-	gaim_notify_formatted(gc, NULL, _("Pop-Up Message"), NULL, text, NULL, NULL);
+	purple_notify_formatted(gc, NULL, _("Pop-Up Message"), NULL, text, NULL, NULL);
 	g_free(text);
 
 	return 1;
 }
 
-static int gaim_parse_searchreply(aim_session_t *sess, aim_frame_t *fr, ...)
+static int purple_parse_searchreply(aim_session_t *sess, aim_frame_t *fr, ...)
 {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	gchar *secondary;
 	GString *text;
 	int i, num;
@@ -5374,7 +5375,7 @@ static int gaim_parse_searchreply(aim_session_t *sess, aim_frame_t *fr, ...)
 	text = g_string_new("");
 	for (i = 0; i < num; i++)
 		g_string_append_printf(text, "%s<br>", &SNs[i * (MAXSNLEN + 1)]);
-	gaim_notify_formatted(gc, NULL, _("Search Results"), secondary, text->str, NULL, NULL);
+	purple_notify_formatted(gc, NULL, _("Search Results"), secondary, text->str, NULL, NULL);
 
 	g_free(secondary);
 	g_string_free(text, TRUE);
@@ -5382,7 +5383,7 @@ static int gaim_parse_searchreply(aim_session_t *sess, aim_frame_t *fr, ...)
 	return 1;
 }
 
-static int gaim_parse_searcherror(aim_session_t *sess, aim_frame_t *fr, ...) {
+static int purple_parse_searcherror(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
 	char *email;
 	char *buf;
@@ -5392,14 +5393,14 @@ static int gaim_parse_searcherror(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_end(ap);
 
 	buf = g_strdup_printf(_("No results found for email address %s"), email);
-	gaim_notify_error(sess->aux_data, NULL, buf, NULL);
+	purple_notify_error(sess->aux_data, NULL, buf, NULL);
 	g_free(buf);
 
 	return 1;
 }
 
-static int gaim_account_confirm(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_account_confirm(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	fu16_t status;
 	va_list ap;
 	char msg[256];
@@ -5408,20 +5409,20 @@ static int gaim_account_confirm(aim_session_t *sess, aim_frame_t *fr, ...) {
 	status = (fu16_t) va_arg(ap, unsigned int); /* status code of confirmation request */
 	va_end(ap);
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "account confirmation returned status 0x%04x (%s)\n", status,
 			status ? "unknown" : "email sent");
 	if (!status) {
 		g_snprintf(msg, sizeof(msg), _("You should receive an email asking to confirm %s."),
-				gaim_account_get_username(gaim_connection_get_account(gc)));
-		gaim_notify_info(gc, NULL, _("Account Confirmation Requested"), msg);
+				purple_account_get_username(purple_connection_get_account(gc)));
+		purple_notify_info(gc, NULL, _("Account Confirmation Requested"), msg);
 	}
 
 	return 1;
 }
 
-static int gaim_info_change(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_info_change(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	va_list ap;
 	fu16_t perms, err;
 	char *url, *sn, *email;
@@ -5436,7 +5437,7 @@ static int gaim_info_change(aim_session_t *sess, aim_frame_t *fr, ...) {
 	email = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_misc("oscar",
+	purple_debug_misc("oscar",
 					"account info: because of %s, perms=0x%04x, err=0x%04x, url=%s, sn=%s, email=%s\n",
 					change ? "change" : "request", perms, err,
 					(url != NULL) ? url : "(null)",
@@ -5469,7 +5470,7 @@ static int gaim_info_change(aim_session_t *sess, aim_frame_t *fr, ...) {
 				dialog_msg = g_strdup_printf(_("Error 0x%04x: Unknown error."), err);
 			} break;
 		}
-		gaim_notify_error(gc, NULL, dialog_top, dialog_msg);
+		purple_notify_error(gc, NULL, dialog_top, dialog_msg);
 		g_free(dialog_top);
 		g_free(dialog_msg);
 		return 1;
@@ -5477,32 +5478,32 @@ static int gaim_info_change(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	if (sn != NULL) {
 		char *dialog_msg = g_strdup_printf(_("Your screen name is currently formatted as follows:\n%s"), sn);
-		gaim_notify_info(gc, NULL, _("Account Info"), dialog_msg);
+		purple_notify_info(gc, NULL, _("Account Info"), dialog_msg);
 		g_free(dialog_msg);
 	}
 
 	if (email != NULL) {
 		char *dialog_msg = g_strdup_printf(_("The email address for %s is %s"), 
-						   gaim_account_get_username(gaim_connection_get_account(gc)), email);
-		gaim_notify_info(gc, NULL, _("Account Info"), dialog_msg);
+						   purple_account_get_username(purple_connection_get_account(gc)), email);
+		purple_notify_info(gc, NULL, _("Account Info"), dialog_msg);
 		g_free(dialog_msg);
 	}
 
 	return 1;
 }
 
-static void oscar_keepalive(GaimConnection *gc) {
+static void oscar_keepalive(PurpleConnection *gc) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	aim_flap_nop(od->sess, od->conn);
 }
 
-static int oscar_send_typing(GaimConnection *gc, const char *name, int typing) {
+static int oscar_send_typing(PurpleConnection *gc, const char *name, int typing) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	struct oscar_direct_im *dim = oscar_direct_im_find(od, name);
 	if (dim && dim->connected)
-		if (typing == GAIM_TYPING)
+		if (typing == PURPLE_TYPING)
 			aim_odc_send_typing(od->sess, dim->conn, 0x0002);
-		else if (typing == GAIM_TYPED)
+		else if (typing == PURPLE_TYPED)
 			aim_odc_send_typing(od->sess, dim->conn, 0x0001);
 		else
 			aim_odc_send_typing(od->sess, dim->conn, 0x0000);
@@ -5511,11 +5512,11 @@ static int oscar_send_typing(GaimConnection *gc, const char *name, int typing) {
 		GSList *list;
 		for (list=gc->account->deny; (list && aim_sncmp(name, list->data)); list=list->next);
 		if (!list) {
-			struct buddyinfo *bi = g_hash_table_lookup(od->buddyinfo, gaim_normalize(gc->account, name));
+			struct buddyinfo *bi = g_hash_table_lookup(od->buddyinfo, purple_normalize(gc->account, name));
 			if (bi && bi->typingnot) {
-				if (typing == GAIM_TYPING)
+				if (typing == PURPLE_TYPING)
 					aim_im_sendmtn(od->sess, 0x0001, name, 0x0002);
-				else if (typing == GAIM_TYPED)
+				else if (typing == PURPLE_TYPED)
 					aim_im_sendmtn(od->sess, 0x0001, name, 0x0001);
 				else
 					aim_im_sendmtn(od->sess, 0x0001, name, 0x0000);
@@ -5525,36 +5526,36 @@ static int oscar_send_typing(GaimConnection *gc, const char *name, int typing) {
 	return 0;
 }
 
-static int gaim_odc_send_im(aim_session_t *, aim_conn_t *, const char *, GaimConvImFlags);
+static int purple_odc_send_im(aim_session_t *, aim_conn_t *, const char *, PurpleMessageFlags);
 
-static int oscar_send_im(GaimConnection *gc, const char *name, const char *message, GaimConvImFlags imflags) {
+static int oscar_send_im(PurpleConnection *gc, const char *name, const char *message, PurpleMessageFlags imflags) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	struct oscar_direct_im *dim = oscar_direct_im_find(od, name);
 	int ret = 0;
-	const char *iconfile = gaim_account_get_buddy_icon(gaim_connection_get_account(gc));
+	const char *iconfile = purple_account_get_buddy_icon(purple_connection_get_account(gc));
 	char *tmpmsg = NULL;
 
 	if (dim && dim->connected) {
 		/* If we're directly connected, send a direct IM */
-		ret = gaim_odc_send_im(od->sess, dim->conn, message, imflags);
+		ret = purple_odc_send_im(od->sess, dim->conn, message, imflags);
 	} else {
 		struct buddyinfo *bi;
 		struct aim_sendimext_args args;
 		gsize tmpmsglen;
 		struct stat st;
 		gsize len;
-		GaimConversation *conv = gaim_find_conversation_with_account(name, gaim_connection_get_account(gc));
+		PurpleConversation *conv = purple_find_conversation_with_account(name, purple_connection_get_account(gc));
 
 		if (strstr(message, "<IMG "))
-			gaim_conversation_write(conv, "",
+			purple_conversation_write(conv, "",
 			                        _("Your IM Image was not sent. "
 			                        "You must be Direct Connected to send IM Images."),
-			                        GAIM_MESSAGE_ERROR, time(NULL));
+			                        PURPLE_MESSAGE_ERROR, time(NULL));
 
-		bi = g_hash_table_lookup(od->buddyinfo, gaim_normalize(gc->account, name));
+		bi = g_hash_table_lookup(od->buddyinfo, purple_normalize(gc->account, name));
 		if (!bi) {
 			bi = g_new0(struct buddyinfo, 1);
-			g_hash_table_insert(od->buddyinfo, g_strdup(gaim_normalize(gc->account, name)), bi);
+			g_hash_table_insert(od->buddyinfo, g_strdup(purple_normalize(gc->account, name)), bi);
 		}
 
 		args.flags = AIM_IMFLAGS_ACK | AIM_IMFLAGS_CUSTOMFEATURES;
@@ -5566,7 +5567,7 @@ static int oscar_send_im(GaimConnection *gc, const char *name, const char *messa
 			   encoded" (and instead, assumes them to be UTF-8).
 			   For more details, see SF issue 1179452.
 			*/
-			GaimBuddy *buddy = gaim_find_buddy(gc->account, name);
+			PurpleBuddy *buddy = purple_find_buddy(gc->account, name);
 			if (buddy && buddy->present != 0) {
 				args.features = features_icq;
 				args.featureslen = sizeof(features_icq);
@@ -5579,12 +5580,12 @@ static int oscar_send_im(GaimConnection *gc, const char *name, const char *messa
 			args.features = features_aim;
 			args.featureslen = sizeof(features_aim);
 
-			if (imflags & GAIM_CONV_IM_AUTO_RESP)
+			if (imflags & PURPLE_CONV_IM_AUTO_RESP)
 				args.flags |= AIM_IMFLAGS_AWAY;
 		}
 
 		if (bi->ico_need) {
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "Sending buddy icon request with message\n");
 			args.flags |= AIM_IMFLAGS_BUDDYREQ;
 			bi->ico_need = FALSE;
@@ -5608,7 +5609,7 @@ static int oscar_send_im(GaimConnection *gc, const char *name, const char *messa
 				}
 
 				if (!bi->ico_informed) {
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							   "Claiming to have a buddy icon\n");
 					args.flags |= AIM_IMFLAGS_HASICON;
 					bi->ico_me_len = args.iconlen;
@@ -5627,22 +5628,22 @@ static int oscar_send_im(GaimConnection *gc, const char *name, const char *messa
 		 * If we're IMing an ICQ user from an ICQ account, then strip HTML
 		 * and use \r\n as the newline character.
 		 */
-		if ((isdigit(gaim_account_get_username(gc->account)[0]))) {
+		if ((isdigit(purple_account_get_username(gc->account)[0]))) {
 			if (isdigit(name[0]))
 				/* From ICQ to ICQ */
 				tmpmsg = g_strdup(message);
 			else
 				/* From ICQ to AIM */
-				tmpmsg = gaim_escape_html(message);
+				tmpmsg = purple_escape_html(message);
 		} else {
 			/* From AIM to AIM and AIM to ICQ */
 			tmpmsg = g_strdup(message);
 		}
 		len = strlen(tmpmsg);
 
-		gaim_plugin_oscar_convert_to_best_encoding(gc, name, tmpmsg, (char **)&args.msg, &tmpmsglen, &args.charset, &args.charsubset);
+		purple_plugin_oscar_convert_to_best_encoding(gc, name, tmpmsg, (char **)&args.msg, &tmpmsglen, &args.charset, &args.charsubset);
 		args.msglen = tmpmsglen;
-		gaim_debug_info("oscar", "Sending IM, charset=0x%04hx, charsubset=0x%04hx, length=%d\n",
+		purple_debug_info("oscar", "Sending IM, charset=0x%04hx, charsubset=0x%04hx, length=%d\n",
 						args.charset, args.charsubset, args.msglen);
 		ret = aim_im_sendch1_ext(od->sess, &args);
 		g_free((char *)args.msg);
@@ -5656,7 +5657,7 @@ static int oscar_send_im(GaimConnection *gc, const char *name, const char *messa
 	return ret;
 }
 
-static void oscar_get_info(GaimConnection *gc, const char *name) {
+static void oscar_get_info(PurpleConnection *gc, const char *name) {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	if (od->icq && isdigit(name[0]))
@@ -5666,7 +5667,7 @@ static void oscar_get_info(GaimConnection *gc, const char *name) {
 }
 
 #if 0
-static void oscar_set_dir(GaimConnection *gc, const char *first, const char *middle, const char *last,
+static void oscar_set_dir(PurpleConnection *gc, const char *first, const char *middle, const char *last,
 			  const char *maiden, const char *city, const char *state, const char *country, int web) {
 	/* XXX - some of these things are wrong, but i'm lazy */
 	OscarData *od = (OscarData *)gc->proto_data;
@@ -5675,12 +5676,12 @@ static void oscar_set_dir(GaimConnection *gc, const char *first, const char *mid
 }
 #endif
 
-static void oscar_set_idle(GaimConnection *gc, int time) {
+static void oscar_set_idle(PurpleConnection *gc, int time) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	aim_srv_setidle(od->sess, time);
 }
 
-static void oscar_set_info(GaimConnection *gc, const char *text) {
+static void oscar_set_info(PurpleConnection *gc, const char *text) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	int charset = 0;
 	char *text_html = NULL;
@@ -5688,7 +5689,7 @@ static void oscar_set_info(GaimConnection *gc, const char *text) {
 	gsize msglen = 0;
 
 	if (od->rights.maxsiglen == 0)
-		gaim_notify_warning(gc, NULL, _("Unable to set AIM profile."),
+		purple_notify_warning(gc, NULL, _("Unable to set AIM profile."),
 							_("You have probably requested to set your "
 							  "profile before the login procedure completed.  "
 							  "Your profile remains unset; try setting it "
@@ -5699,7 +5700,7 @@ static void oscar_set_info(GaimConnection *gc, const char *text) {
 		return;
 	}
 		
-	text_html = gaim_strdup_withhtml(text);
+	text_html = purple_strdup_withhtml(text);
 	charset = oscar_charset_check(text_html);
 	if (charset == AIM_CHARSET_UNICODE) {
 		msg = g_convert(text_html, strlen(text_html), "UCS-2BE", "UTF-8", NULL, &msglen, NULL);
@@ -5717,11 +5718,11 @@ static void oscar_set_info(GaimConnection *gc, const char *text) {
 	if (msglen > od->rights.maxsiglen) {
 		gchar *errstr;
 		errstr = g_strdup_printf(ngettext("The maximum profile length of %d byte "
-								 "has been exceeded.  Gaim has truncated it for you.",
+								 "has been exceeded.  Purple has truncated it for you.",
 								 "The maximum profile length of %d bytes "
-								 "has been exceeded.  Gaim has truncated it for you.",
+								 "has been exceeded.  Purple has truncated it for you.",
 								 od->rights.maxsiglen), od->rights.maxsiglen);
-		gaim_notify_warning(gc, NULL, _("Profile too long."), errstr);
+		purple_notify_warning(gc, NULL, _("Profile too long."), errstr);
 		g_free(errstr);
 	}
 
@@ -5730,7 +5731,7 @@ static void oscar_set_info(GaimConnection *gc, const char *text) {
 	return;
 }
 
-static void oscar_set_away_aim(GaimConnection *gc, OscarData *od, const char *state, const char *text)
+static void oscar_set_away_aim(PurpleConnection *gc, OscarData *od, const char *state, const char *text)
 {
 	int charset = 0;
 	gchar *text_html = NULL;
@@ -5746,8 +5747,8 @@ static void oscar_set_away_aim(GaimConnection *gc, OscarData *od, const char *st
 	} /* else... */
 
 	if (!strcmp(state, _("Back"))) {
-		/* If this is our only online account then globally set Gaim not-away */
-		GList *gcs = gaim_connections_get_all();
+		/* If this is our only online account then globally set Purple not-away */
+		GList *gcs = purple_connections_get_all();
 		if (gcs->next == NULL)
 			; /* XXX do_im_back(NULL, NULL); */
 	}
@@ -5755,7 +5756,7 @@ static void oscar_set_away_aim(GaimConnection *gc, OscarData *od, const char *st
 	aim_setextstatus(od->sess, AIM_ICQ_STATE_NORMAL);
 
 	if (od->rights.maxawaymsglen == 0)
-		gaim_notify_warning(gc, NULL, _("Unable to set AIM away message."),
+		purple_notify_warning(gc, NULL, _("Unable to set AIM away message."),
 							_("You have probably requested to set your "
 							  "away message before the login procedure "
 							  "completed.  You remain in a \"present\" "
@@ -5772,7 +5773,7 @@ static void oscar_set_away_aim(GaimConnection *gc, OscarData *od, const char *st
 		return;
 	}
 
-	text_html = gaim_strdup_withhtml(text);
+	text_html = purple_strdup_withhtml(text);
 	charset = oscar_charset_check(text_html);
 	if (charset == AIM_CHARSET_UNICODE) {
 		msg = g_convert(text_html, strlen(text_html), "UCS-2BE", "UTF-8", NULL, &msglen, NULL);
@@ -5797,11 +5798,11 @@ static void oscar_set_away_aim(GaimConnection *gc, OscarData *od, const char *st
 		gchar *errstr;
 
 		errstr = g_strdup_printf(ngettext("The maximum away message length of %d byte "
-								 "has been exceeded.  Gaim has truncated it for you.",
+								 "has been exceeded.  Purple has truncated it for you.",
 								 "The maximum away message length of %d bytes "
-								 "has been exceeded.  Gaim has truncated it for you.",
+								 "has been exceeded.  Purple has truncated it for you.",
 								 od->rights.maxawaymsglen), od->rights.maxawaymsglen);
-		gaim_notify_warning(gc, NULL, _("Away message too long."), errstr);
+		purple_notify_warning(gc, NULL, _("Away message too long."), errstr);
 		g_free(errstr);
 	}
 	
@@ -5810,9 +5811,9 @@ static void oscar_set_away_aim(GaimConnection *gc, OscarData *od, const char *st
 	return;
 }
 
-static void oscar_set_away_icq(GaimConnection *gc, OscarData *od, const char *state, const char *message)
+static void oscar_set_away_icq(PurpleConnection *gc, OscarData *od, const char *state, const char *message)
 {
-	GaimAccount *account = gaim_connection_get_account(gc);
+	PurpleAccount *account = purple_connection_get_account(gc);
 	if (gc->away) {
 		g_free(gc->away);
 		gc->away = NULL;
@@ -5845,7 +5846,7 @@ static void oscar_set_away_icq(GaimConnection *gc, OscarData *od, const char *st
 	} else if (!strcmp(state, _("Invisible"))) {
 		aim_setextstatus(od->sess, AIM_ICQ_STATE_INVISIBLE);
 		gc->away = g_strdup("");
-	} else if (!strcmp(state, GAIM_AWAY_CUSTOM)) {
+	} else if (!strcmp(state, PURPLE_AWAY_CUSTOM)) {
 	 	if (message) {
 			aim_setextstatus(od->sess, AIM_ICQ_STATE_OUT | AIM_ICQ_STATE_AWAY);
 			gc->away = g_strdup("");
@@ -5857,7 +5858,7 @@ static void oscar_set_away_icq(GaimConnection *gc, OscarData *od, const char *st
 	return;
 }
 
-static void oscar_set_away(GaimConnection *gc, const char *state, const char *message)
+static void oscar_set_away(PurpleConnection *gc, const char *state, const char *message)
 {
 	OscarData *od = (OscarData *)gc->proto_data;
 
@@ -5868,23 +5869,41 @@ static void oscar_set_away(GaimConnection *gc, const char *state, const char *me
 	return;
 }
 
-static void oscar_warn(GaimConnection *gc, const char *name, gboolean anonymous) {
+static void oscar_set_status(PurpleAccount *account, PurpleStatus *status)
+{
+	PurpleConnection *gc;
+	const char *state;
+	const char *message;
+
+	if (!purple_status_is_active(status))
+		return;
+
+	gc = purple_account_get_connection(account);
+	if (gc == NULL)
+		return;
+
+	state = purple_status_get_id(status);
+	message = purple_status_get_attr_string(status, "message");
+	oscar_set_away(gc, state, message);
+}
+
+static void oscar_warn(PurpleConnection *gc, const char *name, gboolean anonymous) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	aim_im_warn(od->sess, od->conn, name, anonymous ? AIM_WARN_ANON : 0);
 }
 
-static void oscar_add_buddy(GaimConnection *gc, GaimBuddy *buddy, GaimGroup *group) {
+static void oscar_add_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group) {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	if (!aim_snvalid(buddy->name)) {
 		gchar *buf;
 		buf = g_strdup_printf(_("Could not add the buddy %s because the screen name is invalid.  Screen names must either start with a letter and contain only letters, numbers and spaces, or contain only numbers."), buddy->name);
-		if (!gaim_conv_present_error(buddy->name, gaim_connection_get_account(gc), buf))
-			gaim_notify_error(gc, NULL, _("Unable To Add"), buf);
+		if (!purple_conv_present_error(buddy->name, purple_connection_get_account(gc), buf))
+			purple_notify_error(gc, NULL, _("Unable To Add"), buf);
 		g_free(buf);
 
 		/* Remove from local list */
-		gaim_blist_remove_buddy(buddy);
+		purple_blist_remove_buddy(buddy);
 
 		return;
 	}
@@ -5894,9 +5913,9 @@ static void oscar_add_buddy(GaimConnection *gc, GaimBuddy *buddy, GaimGroup *gro
 #else
 	if ((od->sess->ssi.received_data) && !(aim_ssi_itemlist_finditem(od->sess->ssi.local, group->name, buddy->name, AIM_SSI_TYPE_BUDDY))) {
 		if (buddy && group) {
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "ssi: adding buddy %s to group %s\n", buddy->name, group->name);
-			aim_ssi_addbuddy(od->sess, buddy->name, group->name, gaim_buddy_get_alias_only(buddy), NULL, NULL, 0);
+			aim_ssi_addbuddy(od->sess, buddy->name, group->name, purple_buddy_get_alias_only(buddy), NULL, NULL, 0);
 		}
 	}
 #endif
@@ -5905,14 +5924,14 @@ static void oscar_add_buddy(GaimConnection *gc, GaimBuddy *buddy, GaimGroup *gro
 		aim_icq_getalias(od->sess, buddy->name);
 }
 
-static void oscar_add_buddies(GaimConnection *gc, GList *buddies, GList *groups) {
+static void oscar_add_buddies(PurpleConnection *gc, GList *buddies, GList *groups) {
 	OscarData *od = (OscarData *)gc->proto_data;
 #ifdef NOSSI
 	char buf[MSG_LEN];
 	int n=0;
 
 	while (buddies) {
-		GaimBuddy *buddy = buddies->data;
+		PurpleBuddy *buddy = buddies->data;
 		if (n > MSG_LEN - 18) {
 			aim_buddylist_set(od->sess, od->conn, buf);
 			n = 0;
@@ -5927,8 +5946,8 @@ static void oscar_add_buddies(GaimConnection *gc, GList *buddies, GList *groups)
 		GList *curb = buddies;
 		GList *curg = groups;
 		while ((curb != NULL) && (curg != NULL)) {
-			GaimBuddy *buddy = curb->data;
-			GaimGroup *group = curg->data;
+			PurpleBuddy *buddy = curb->data;
+			PurpleGroup *group = curg->data;
 			oscar_add_buddy(gc, buddy, group);
 			curb = curb->next;
 			curg = curg->next;
@@ -5937,26 +5956,26 @@ static void oscar_add_buddies(GaimConnection *gc, GList *buddies, GList *groups)
 #endif
 }
 
-static void oscar_remove_buddy(GaimConnection *gc, GaimBuddy *buddy, GaimGroup *group) {
+static void oscar_remove_buddy(PurpleConnection *gc, PurpleBuddy *buddy, PurpleGroup *group) {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 #ifdef NOSSI
 	aim_buddylist_removebuddy(od->sess, od->conn, buddy->name);
 #else
 	if (od->sess->ssi.received_data) {
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "ssi: deleting buddy %s from group %s\n", buddy->name, group->name);
 		aim_ssi_delbuddy(od->sess, buddy->name, group->name);
 	}
 #endif
 }
 
-static void oscar_remove_buddies(GaimConnection *gc, GList *buddies, GList *groups) {
+static void oscar_remove_buddies(PurpleConnection *gc, GList *buddies, GList *groups) {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 #ifdef NOSSI
 	for (cur = buddies; cur != NULL; cur = cur->next) {
-		GaimBuddy *buddy = cur->data;
+		PurpleBuddy *buddy = cur->data;
 		aim_buddylist_removebuddy(od->sess, od->conn, buddy->name);
 	}
 #else
@@ -5964,8 +5983,8 @@ static void oscar_remove_buddies(GaimConnection *gc, GList *buddies, GList *grou
 		GList *curb = buddies;
 		GList *curg = groups;
 		while ((curb != NULL) && (curg != NULL)) {
-			GaimBuddy *buddy = curb->data;
-			GaimGroup *group = curg->data;
+			PurpleBuddy *buddy = curb->data;
+			PurpleGroup *group = curg->data;
 			oscar_remove_buddy(gc, buddy, group);
 			curb = curb->next;
 			curg = curg->next;
@@ -5975,21 +5994,21 @@ static void oscar_remove_buddies(GaimConnection *gc, GList *buddies, GList *grou
 }
 
 #ifndef NOSSI
-static void oscar_move_buddy(GaimConnection *gc, const char *name, const char *old_group, const char *new_group) {
+static void oscar_move_buddy(PurpleConnection *gc, const char *name, const char *old_group, const char *new_group) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	if (od->sess->ssi.received_data && strcmp(old_group, new_group)) {
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "ssi: moving buddy %s from group %s to group %s\n", name, old_group, new_group);
 		aim_ssi_movebuddy(od->sess, old_group, new_group, name);
 	}
 }
 
-static void oscar_alias_buddy(GaimConnection *gc, const char *name, const char *alias) {
+static void oscar_alias_buddy(PurpleConnection *gc, const char *name, const char *alias) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	if (od->sess->ssi.received_data) {
 		char *gname = aim_ssi_itemlist_findparentname(od->sess->ssi.local, name);
 		if (gname) {
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "ssi: changing the alias for buddy %s to %s\n", name, alias ? alias : "(none)");
 			aim_ssi_aliasbuddy(od->sess, gname, name, alias);
 		}
@@ -5999,7 +6018,7 @@ static void oscar_alias_buddy(GaimConnection *gc, const char *name, const char *
 /*
  * FYI, the OSCAR SSI code removes empty groups automatically.
  */
-static void oscar_rename_group(GaimConnection *gc, const char *old_name, GaimGroup *group, GList *moved_buddies) {
+static void oscar_rename_group(PurpleConnection *gc, const char *old_name, PurpleGroup *group, GList *moved_buddies) {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	if (od->sess->ssi.received_data) {
@@ -6008,8 +6027,8 @@ static void oscar_rename_group(GaimConnection *gc, const char *old_name, GaimGro
 
 			/* Make a list of what the groups each buddy is in */
 			for (cur = moved_buddies; cur != NULL; cur = cur->next) {
-				GaimBlistNode *node = cur->data;
-				/* node is GaimBuddy, parent is a GaimContact.
+				PurpleBlistNode *node = cur->data;
+				/* node is PurpleBuddy, parent is a PurpleContact.
 				 * We must go two levels up to get the Group */
 				groups = g_list_append(groups,
 						node->parent->parent);
@@ -6018,24 +6037,24 @@ static void oscar_rename_group(GaimConnection *gc, const char *old_name, GaimGro
 			oscar_remove_buddies(gc, moved_buddies, groups);
 			oscar_add_buddies(gc, moved_buddies, groups);
 			g_list_free(groups);
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "ssi: moved all buddies from group %s to %s\n", old_name, group->name);
 		} else {
 			aim_ssi_rename_group(od->sess, old_name, group->name);
-			gaim_debug_info("oscar",
+			purple_debug_info("oscar",
 					   "ssi: renamed group %s to %s\n", old_name, group->name);
 		}
 	}
 }
 
-static gboolean gaim_ssi_rerequestdata(gpointer data) {
+static gboolean purple_ssi_rerequestdata(gpointer data) {
 	aim_session_t *sess = data;
 	aim_ssi_reqdata(sess);
 	return FALSE;
 }
 
-static int gaim_ssi_parseerr(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_parseerr(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 	va_list ap;
 	fu16_t reason;
@@ -6044,25 +6063,25 @@ static int gaim_ssi_parseerr(aim_session_t *sess, aim_frame_t *fr, ...) {
 	reason = (fu16_t)va_arg(ap, unsigned int);
 	va_end(ap);
 
-	gaim_debug_error("oscar", "ssi: SNAC error %hu\n", reason);
+	purple_debug_error("oscar", "ssi: SNAC error %hu\n", reason);
 
 	if (reason == 0x0005) {
-		gaim_notify_error(gc, NULL, _("Unable To Retrieve Buddy List"),
-						  _("Gaim was temporarily unable to retrieve your buddy list from the AIM servers.  Your buddy list is not lost, and will probably become available in a few hours."));
-		od->getblisttimer = gaim_timeout_add(300000, gaim_ssi_rerequestdata, od->sess);
+		purple_notify_error(gc, NULL, _("Unable To Retrieve Buddy List"),
+						  _("Purple was temporarily unable to retrieve your buddy list from the AIM servers.  Your buddy list is not lost, and will probably become available in a few hours."));
+		od->getblisttimer = purple_timeout_add(300000, purple_ssi_rerequestdata, od->sess);
 	}
 
 	/* Activate SSI */
 	/* Sending the enable causes other people to be able to see you, and you to see them */
 	/* Make sure your privacy setting/invisibility is set how you want it before this! */
-	gaim_debug_info("oscar", "ssi: activating server-stored buddy list\n");
+	purple_debug_info("oscar", "ssi: activating server-stored buddy list\n");
 	aim_ssi_enable(od->sess);
 
 	return 1;
 }
 
-static int gaim_ssi_parserights(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_parserights(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = (OscarData *)gc->proto_data;
 	int numtypes, i;
 	fu16_t *maxitems;
@@ -6073,13 +6092,13 @@ static int gaim_ssi_parserights(aim_session_t *sess, aim_frame_t *fr, ...) {
 	maxitems = va_arg(ap, fu16_t *);
 	va_end(ap);
 
-	gaim_debug_misc("oscar", "ssi rights:");
+	purple_debug_misc("oscar", "ssi rights:");
 
 	for (i=0; i<numtypes; i++)
-		gaim_debug_misc(NULL, " max type 0x%04x=%hd,",
+		purple_debug_misc(NULL, " max type 0x%04x=%hd,",
 				   i, maxitems[i]);
 
-	gaim_debug_misc(NULL, "\n");
+	purple_debug_misc(NULL, "\n");
 
 	if (numtypes >= 0)
 		od->rights.maxbuddies = maxitems[0];
@@ -6093,12 +6112,12 @@ static int gaim_ssi_parserights(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
-	GaimAccount *account = gaim_connection_get_account(gc);
+static int purple_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	OscarData *od = (OscarData *)gc->proto_data;
-	GaimGroup *g;
-	GaimBuddy *b;
+	PurpleGroup *g;
+	PurpleBuddy *b;
 	struct aim_ssi_item *curitem;
 	int tmp;
 	va_list ap;
@@ -6113,11 +6132,11 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 	timestamp = va_arg(ap, fu32_t);
 	va_end(ap);
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "ssi: syncing local list and server list\n");
 
 	if ((timestamp == 0) || (numitems == 0)) {
-		gaim_debug_info("oscar", "Got AIM SSI with a 0 timestamp or 0 numitems--not syncing.  This probably means your buddy list is empty.", NULL);
+		purple_debug_info("oscar", "Got AIM SSI with a 0 timestamp or 0 numitems--not syncing.  This probably means your buddy list is empty.", NULL);
 		return 1;
 	}
 
@@ -6125,28 +6144,28 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 	aim_ssi_cleanlist(sess);
 
 	{ /* If not in server list then prune from local list */
-		GaimBlistNode *gnode, *cnode, *bnode;
-		GaimBuddyList *blist;
+		PurpleBlistNode *gnode, *cnode, *bnode;
+		PurpleBuddyList *blist;
 		GSList *cur, *next;
 
 		/* Buddies */
 		cur = NULL;
-		if ((blist = gaim_get_blist()) != NULL) {
+		if ((blist = purple_get_blist()) != NULL) {
 			for (gnode = blist->root; gnode; gnode = gnode->next) {
-				if(!GAIM_BLIST_NODE_IS_GROUP(gnode))
+				if(!PURPLE_BLIST_NODE_IS_GROUP(gnode))
 					continue;
-				g = (GaimGroup *)gnode;
+				g = (PurpleGroup *)gnode;
 				for (cnode = gnode->child; cnode; cnode = cnode->next) {
-					if(!GAIM_BLIST_NODE_IS_CONTACT(cnode))
+					if(!PURPLE_BLIST_NODE_IS_CONTACT(cnode))
 						continue;
 					for (bnode = cnode->child; bnode; bnode = bnode->next) {
-						if(!GAIM_BLIST_NODE_IS_BUDDY(bnode))
+						if(!PURPLE_BLIST_NODE_IS_BUDDY(bnode))
 							continue;
-						b = (GaimBuddy *)bnode;
+						b = (PurpleBuddy *)bnode;
 						if (b->account == gc->account) {
 							if (aim_ssi_itemlist_exists(sess->ssi.local, b->name)) {
 								/* If the buddy is an ICQ user then load his nickname */
-								const char *servernick = gaim_blist_node_get_string((GaimBlistNode*)b, "servernick");
+								const char *servernick = purple_blist_node_get_string((PurpleBlistNode*)b, "servernick");
 								char *alias;
 								if (servernick)
 									serv_got_alias(gc, b->name, servernick);
@@ -6157,7 +6176,7 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 									aim_ssi_aliasbuddy(sess, g->name, b->name, b->alias);
 								free(alias);
 							} else {
-								gaim_debug_info("oscar",
+								purple_debug_info("oscar",
 										"ssi: removing buddy %s from local list\n", b->name);
 								/* We can't actually remove now because it will screw up our looping */
 								cur = g_slist_prepend(cur, b);
@@ -6171,7 +6190,7 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 		while (cur != NULL) {
 			b = cur->data;
 			cur = g_slist_remove(cur, b);
-			gaim_blist_remove_buddy(b);
+			purple_blist_remove_buddy(b);
 		}
 
 		/* Permit list */
@@ -6181,9 +6200,9 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 				cur = next;
 				next = next->next;
 				if (!aim_ssi_itemlist_finditem(sess->ssi.local, NULL, cur->data, AIM_SSI_TYPE_PERMIT)) {
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							"ssi: removing permit %s from local list\n", (const char *)cur->data);
-					gaim_privacy_permit_remove(account, cur->data, TRUE);
+					purple_privacy_permit_remove(account, cur->data, TRUE);
 				}
 			}
 		}
@@ -6195,9 +6214,9 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 				cur = next;
 				next = next->next;
 				if (!aim_ssi_itemlist_finditem(sess->ssi.local, NULL, cur->data, AIM_SSI_TYPE_DENY)) {
-					gaim_debug_info("oscar",
+					purple_debug_info("oscar",
 							"ssi: removing deny %s from local list\n", (const char *)cur->data);
-					gaim_privacy_deny_remove(account, cur->data, TRUE);
+					purple_privacy_deny_remove(account, cur->data, TRUE);
 				}
 			}
 		}
@@ -6214,10 +6233,10 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 			case 0x0000: { /* Buddy */
 				if (curitem->name) {
 					char *gname = aim_ssi_itemlist_findparentname(sess->ssi.local, curitem->name);
-					char *gname_utf8 = gname ? gaim_utf8_try_convert(gname) : NULL;
+					char *gname_utf8 = gname ? purple_utf8_try_convert(gname) : NULL;
 					char *alias = aim_ssi_getalias(sess->ssi.local, gname, curitem->name);
-					char *alias_utf8 = alias ? gaim_utf8_try_convert(alias) : NULL;
-					b = gaim_find_buddy(gc->account, curitem->name);
+					char *alias_utf8 = alias ? purple_utf8_try_convert(alias) : NULL;
+					b = purple_find_buddy(gc->account, curitem->name);
 					/* Should gname be freed here? -- elb */
 					/* Not with the current code, but that might be cleaner -- med */
 					free(alias);
@@ -6228,20 +6247,20 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 							b->alias = g_strdup(alias_utf8);
 						}
 					} else {
-						b = gaim_buddy_new(gc->account, curitem->name, alias_utf8);
+						b = purple_buddy_new(gc->account, curitem->name, alias_utf8);
 
-						if (!(g = gaim_find_group(gname_utf8 ? gname_utf8 : _("Orphans")))) {
-							g = gaim_group_new(gname_utf8 ? gname_utf8 : _("Orphans"));
-							gaim_blist_add_group(g, NULL);
+						if (!(g = purple_find_group(gname_utf8 ? gname_utf8 : _("Orphans")))) {
+							g = purple_group_new(gname_utf8 ? gname_utf8 : _("Orphans"));
+							purple_blist_add_group(g, NULL);
 						}
 
-						gaim_debug_info("oscar",
+						purple_debug_info("oscar",
 								   "ssi: adding buddy %s to group %s to local list\n", curitem->name, gname_utf8 ? gname_utf8 : _("Orphans"));
-						gaim_blist_add_buddy(b, NULL, g, NULL);
+						purple_blist_add_buddy(b, NULL, g, NULL);
 					}
 					if (!aim_sncmp(curitem->name, account->username)) {
 						char *comment = aim_ssi_getcomment(sess->ssi.local, gname, curitem->name);
-						gaim_check_comment(od, comment);
+						purple_check_comment(od, comment);
 						free(comment);
 					}
 					g_free(gname_utf8);
@@ -6259,9 +6278,9 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 					GSList *list;
 					for (list=account->permit; (list && aim_sncmp(curitem->name, list->data)); list=list->next);
 					if (!list) {
-						gaim_debug_info("oscar",
+						purple_debug_info("oscar",
 								   "ssi: adding permit buddy %s to local list\n", curitem->name);
-						gaim_privacy_permit_add(account, curitem->name, TRUE);
+						purple_privacy_permit_add(account, curitem->name, TRUE);
 					}
 				}
 			} break;
@@ -6271,9 +6290,9 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 					GSList *list;
 					for (list=account->deny; (list && aim_sncmp(curitem->name, list->data)); list=list->next);
 					if (!list) {
-						gaim_debug_info("oscar",
+						purple_debug_info("oscar",
 								   "ssi: adding deny buddy %s to local list\n", curitem->name);
-						gaim_privacy_deny_add(account, curitem->name, TRUE);
+						purple_privacy_deny_add(account, curitem->name, TRUE);
 					}
 				}
 			} break;
@@ -6282,7 +6301,7 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 				if (curitem->data) {
 					fu8_t permdeny;
 					if ((permdeny = aim_ssi_getpermdeny(sess->ssi.local)) && (permdeny != account->perm_deny)) {
-						gaim_debug_info("oscar",
+						purple_debug_info("oscar",
 								   "ssi: changing permdeny from %d to %hhu\n", account->perm_deny, permdeny);
 						account->perm_deny = permdeny;
 						if (od->icq && account->perm_deny == 0x03) {
@@ -6293,7 +6312,7 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 			} break;
 
 			case 0x0005: { /* Presence setting */
-				/* We don't want to change Gaim's setting because it applies to all accounts */
+				/* We don't want to change Purple's setting because it applies to all accounts */
 			} break;
 		} /* End of switch on curitem->type */
 	} /* End of for loop */
@@ -6306,15 +6325,15 @@ static int gaim_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 	/* Activate SSI */
 	/* Sending the enable causes other people to be able to see you, and you to see them */
 	/* Make sure your privacy setting/invisibility is set how you want it before this! */
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "ssi: activating server-stored buddy list\n");
 	aim_ssi_enable(sess);
 
 	return 1;
 }
 
-static int gaim_ssi_parseack(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_parseack(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	va_list ap;
 	struct aim_ssi_tmp *retval;
 
@@ -6323,7 +6342,7 @@ static int gaim_ssi_parseack(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_end(ap);
 
 	while (retval) {
-		gaim_debug_misc("oscar",
+		purple_debug_misc("oscar",
 				   "ssi: status is 0x%04hx for a 0x%04hx action with name %s\n", retval->ack,  retval->action, retval->item ? (retval->item->name ? retval->item->name : "no name") : "no item");
 
 		if (retval->ack != 0xffff)
@@ -6334,22 +6353,22 @@ static int gaim_ssi_parseack(aim_session_t *sess, aim_frame_t *fr, ...) {
 			case 0x000c: { /* you are over the limit, the cheat is to the limit, come on fhqwhgads */
 				gchar *buf;
 				buf = g_strdup_printf(_("Could not add the buddy %s because you have too many buddies in your buddy list.  Please remove one and try again."), (retval->name ? retval->name : _("(no name)")));
-				if ((retval->name != NULL) && !gaim_conv_present_error(retval->name, gaim_connection_get_account(gc), buf))
-					gaim_notify_error(gc, NULL, _("Unable To Add"), buf);
+				if ((retval->name != NULL) && !purple_conv_present_error(retval->name, purple_connection_get_account(gc), buf))
+					purple_notify_error(gc, NULL, _("Unable To Add"), buf);
 				g_free(buf);
 			}
 
 			case 0x000e: { /* buddy requires authorization */
 				if ((retval->action == AIM_CB_SSI_ADD) && (retval->name))
-					gaim_auth_sendrequest(gc, retval->name);
+					purple_auth_sendrequest(gc, retval->name);
 			} break;
 
 			default: { /* La la la */
 				gchar *buf;
-				gaim_debug_error("oscar", "ssi: Action 0x%04hx was unsuccessful with error 0x%04hx\n", retval->action, retval->ack);
+				purple_debug_error("oscar", "ssi: Action 0x%04hx was unsuccessful with error 0x%04hx\n", retval->action, retval->ack);
 				buf = g_strdup_printf(_("Could not add the buddy %s for an unknown reason.  The most common reason for this is that you have the maximum number of allowed buddies in your buddy list."), (retval->name ? retval->name : _("(no name)")));
-				if ((retval->name != NULL) && !gaim_conv_present_error(retval->name, gaim_connection_get_account(gc), buf))
-					gaim_notify_error(gc, NULL, _("Unable To Add"), buf);
+				if ((retval->name != NULL) && !purple_conv_present_error(retval->name, purple_connection_get_account(gc), buf))
+					purple_notify_error(gc, NULL, _("Unable To Add"), buf);
 				g_free(buf);
 			} break;
 		}
@@ -6360,11 +6379,11 @@ static int gaim_ssi_parseack(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_ssi_parseadd(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_parseadd(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	char *gname, *gname_utf8, *alias, *alias_utf8;
-	GaimBuddy *b;
-	GaimGroup *g;
+	PurpleBuddy *b;
+	PurpleGroup *g;
 	va_list ap;
 	fu16_t type;
 	const char *name;
@@ -6378,10 +6397,10 @@ static int gaim_ssi_parseadd(aim_session_t *sess, aim_frame_t *fr, ...) {
 		return 1;
 
 	gname = aim_ssi_itemlist_findparentname(sess->ssi.local, name);
-	gname_utf8 = gname ? gaim_utf8_try_convert(gname) : NULL;
+	gname_utf8 = gname ? purple_utf8_try_convert(gname) : NULL;
 	alias = aim_ssi_getalias(sess->ssi.local, gname, name);
-	alias_utf8 = alias ? gaim_utf8_try_convert(alias) : NULL;
-	b = gaim_find_buddy(gc->account, name);
+	alias_utf8 = alias ? purple_utf8_try_convert(alias) : NULL;
+	b = purple_find_buddy(gc->account, name);
 	free(alias);
 
 	if (b) {
@@ -6391,16 +6410,16 @@ static int gaim_ssi_parseadd(aim_session_t *sess, aim_frame_t *fr, ...) {
 			b->alias = g_strdup(alias_utf8);
 		}
 	} else {
-		b = gaim_buddy_new(gc->account, name, alias_utf8);
+		b = purple_buddy_new(gc->account, name, alias_utf8);
 
-		if (!(g = gaim_find_group(gname_utf8 ? gname_utf8 : _("Orphans")))) {
-			g = gaim_group_new(gname_utf8 ? gname_utf8 : _("Orphans"));
-			gaim_blist_add_group(g, NULL);
+		if (!(g = purple_find_group(gname_utf8 ? gname_utf8 : _("Orphans")))) {
+			g = purple_group_new(gname_utf8 ? gname_utf8 : _("Orphans"));
+			purple_blist_add_group(g, NULL);
 		}
 
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "ssi: adding buddy %s to group %s to local list\n", name, gname_utf8 ? gname_utf8 : _("Orphans"));
-		gaim_blist_add_buddy(b, NULL, g, NULL);
+		purple_blist_add_buddy(b, NULL, g, NULL);
 	}
 	g_free(gname_utf8);
 	g_free(alias_utf8);
@@ -6408,25 +6427,25 @@ static int gaim_ssi_parseadd(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_ssi_authgiven(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_authgiven(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	va_list ap;
 	char *sn, *msg;
 	gchar *dialog_msg, *nombre;
 	struct name_data *data;
-	GaimBuddy *buddy;
+	PurpleBuddy *buddy;
 
 	va_start(ap, fr);
 	sn = va_arg(ap, char *);
 	msg = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "ssi: %s has given you permission to add him to your buddy list\n", sn);
 
-	buddy = gaim_find_buddy(gc->account, sn);
-	if (buddy && (gaim_buddy_get_alias_only(buddy)))
-		nombre = g_strdup_printf("%s (%s)", sn, gaim_buddy_get_alias_only(buddy));
+	buddy = purple_find_buddy(gc->account, sn);
+	if (buddy && (purple_buddy_get_alias_only(buddy)))
+		nombre = g_strdup_printf("%s (%s)", sn, purple_buddy_get_alias_only(buddy));
 	else
 		nombre = g_strdup(sn);
 
@@ -6436,9 +6455,9 @@ static int gaim_ssi_authgiven(aim_session_t *sess, aim_frame_t *fr, ...) {
 	data->name = g_strdup(sn);
 	data->nick = NULL;
 
-	gaim_request_yes_no(gc, NULL, _("Authorization Given"), dialog_msg,
-						GAIM_DEFAULT_ACTION_NONE, data,
-						G_CALLBACK(gaim_icq_buddyadd),
+	purple_request_yes_no(gc, NULL, _("Authorization Given"), dialog_msg,
+						PURPLE_DEFAULT_ACTION_NONE, data,
+						G_CALLBACK(purple_icq_buddyadd),
 						G_CALLBACK(oscar_free_name_data));
 
 	g_free(dialog_msg);
@@ -6447,25 +6466,25 @@ static int gaim_ssi_authgiven(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_ssi_authrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_authrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	va_list ap;
 	char *sn, *msg;
 	gchar *dialog_msg, *nombre;
 	struct name_data *data;
-	GaimBuddy *buddy;
+	PurpleBuddy *buddy;
 
 	va_start(ap, fr);
 	sn = va_arg(ap, char *);
 	msg = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "ssi: received authorization request from %s\n", sn);
 
-	buddy = gaim_find_buddy(gc->account, sn);
-	if (buddy && (gaim_buddy_get_alias_only(buddy)))
-		nombre = g_strdup_printf("%s (%s)", sn, gaim_buddy_get_alias_only(buddy));
+	buddy = purple_find_buddy(gc->account, sn);
+	if (buddy && (purple_buddy_get_alias_only(buddy)))
+		nombre = g_strdup_printf("%s (%s)", sn, purple_buddy_get_alias_only(buddy));
 	else
 		nombre = g_strdup(sn);
 
@@ -6475,10 +6494,10 @@ static int gaim_ssi_authrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	data->name = g_strdup(sn);
 	data->nick = NULL;
 
-	gaim_request_action(gc, NULL, _("Authorization Request"), dialog_msg,
-						GAIM_DEFAULT_ACTION_NONE, data, 2,
-						_("Authorize"), G_CALLBACK(gaim_auth_grant),
-						_("Deny"), G_CALLBACK(gaim_auth_dontgrant_msgprompt));
+	purple_request_action(gc, NULL, _("Authorization Request"), dialog_msg,
+						PURPLE_DEFAULT_ACTION_NONE, data, 2,
+						_("Authorize"), G_CALLBACK(purple_auth_grant),
+						_("Deny"), G_CALLBACK(purple_auth_dontgrant_msgprompt));
 
 	g_free(dialog_msg);
 	g_free(nombre);
@@ -6486,13 +6505,13 @@ static int gaim_ssi_authrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_ssi_authreply(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_authreply(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	va_list ap;
 	char *sn, *msg;
 	gchar *dialog_msg, *nombre;
 	fu8_t reply;
-	GaimBuddy *buddy;
+	PurpleBuddy *buddy;
 
 	va_start(ap, fr);
 	sn = va_arg(ap, char *);
@@ -6500,23 +6519,23 @@ static int gaim_ssi_authreply(aim_session_t *sess, aim_frame_t *fr, ...) {
 	msg = va_arg(ap, char *);
 	va_end(ap);
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "ssi: received authorization reply from %s.  Reply is 0x%04hhx\n", sn, reply);
 
-	buddy = gaim_find_buddy(gc->account, sn);
-	if (buddy && (gaim_buddy_get_alias_only(buddy)))
-		nombre = g_strdup_printf("%s (%s)", sn, gaim_buddy_get_alias_only(buddy));
+	buddy = purple_find_buddy(gc->account, sn);
+	if (buddy && (purple_buddy_get_alias_only(buddy)))
+		nombre = g_strdup_printf("%s (%s)", sn, purple_buddy_get_alias_only(buddy));
 	else
 		nombre = g_strdup(sn);
 
 	if (reply) {
 		/* Granted */
 		dialog_msg = g_strdup_printf(_("The user %s has granted your request to add them to your buddy list."), nombre);
-		gaim_notify_info(gc, NULL, _("Authorization Granted"), dialog_msg);
+		purple_notify_info(gc, NULL, _("Authorization Granted"), dialog_msg);
 	} else {
 		/* Denied */
 		dialog_msg = g_strdup_printf(_("The user %s has denied your request to add them to your buddy list for the following reason:\n%s"), nombre, msg ? msg : _("No reason given."));
-		gaim_notify_info(gc, NULL, _("Authorization Denied"), dialog_msg);
+		purple_notify_info(gc, NULL, _("Authorization Denied"), dialog_msg);
 	}
 	g_free(dialog_msg);
 	g_free(nombre);
@@ -6524,26 +6543,26 @@ static int gaim_ssi_authreply(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 1;
 }
 
-static int gaim_ssi_gotadded(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+static int purple_ssi_gotadded(aim_session_t *sess, aim_frame_t *fr, ...) {
+	PurpleConnection *gc = sess->aux_data;
 	va_list ap;
 	char *sn;
-	GaimBuddy *buddy;
+	PurpleBuddy *buddy;
 
 	va_start(ap, fr);
 	sn = va_arg(ap, char *);
 	va_end(ap);
 
-	buddy = gaim_find_buddy(gc->account, sn);
-	gaim_debug_info("oscar",
+	buddy = purple_find_buddy(gc->account, sn);
+	purple_debug_info("oscar",
 			   "ssi: %s added you to their buddy list\n", sn);
-	gaim_account_notify_added(gc->account, NULL, sn, (buddy ? gaim_buddy_get_alias_only(buddy) : NULL), NULL);
+	purple_account_notify_added(gc->account, NULL, sn, (buddy ? purple_buddy_get_alias_only(buddy) : NULL), NULL);
 
 	return 1;
 }
 #endif
 
-static GList *oscar_chat_info(GaimConnection *gc) {
+static GList *oscar_chat_info(PurpleConnection *gc) {
 	GList *m = NULL;
 	struct proto_chat_entry *pce;
 
@@ -6563,7 +6582,7 @@ static GList *oscar_chat_info(GaimConnection *gc) {
 	return m;
 }
 
-GHashTable *oscar_chat_info_defaults(GaimConnection *gc, const char *chat_name)
+GHashTable *oscar_chat_info_defaults(PurpleConnection *gc, const char *chat_name)
 {
 	GHashTable *defaults;
 
@@ -6579,7 +6598,7 @@ static char *oscar_get_chat_name(GHashTable *data) {
 	return g_strdup(g_hash_table_lookup(data, "room"));
 }
 
-static void oscar_join_chat(GaimConnection *gc, GHashTable *data) {
+static void oscar_join_chat(PurpleConnection *gc, GHashTable *data) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	aim_conn_t *cur;
 	char *name, *exchange;
@@ -6587,22 +6606,22 @@ static void oscar_join_chat(GaimConnection *gc, GHashTable *data) {
 	name = g_hash_table_lookup(data, "room");
 	exchange = g_hash_table_lookup(data, "exchange");
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "Attempting to join chat room %s.\n", name);
 
 	if ((name == NULL) || (*name == '\0')) {
-		gaim_notify_error(gc, NULL, _("Invalid chat name specified."), NULL);
+		purple_notify_error(gc, NULL, _("Invalid chat name specified."), NULL);
 		return;
 	}
 
 	if ((cur = aim_getconn_type(od->sess, AIM_CONN_TYPE_CHATNAV))) {
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "chatnav exists, creating room\n");
 		aim_chatnav_createroom(od->sess, cur, name, atoi(exchange));
 	} else {
 		/* this gets tricky */
 		struct create_room *cr = g_new0(struct create_room, 1);
-		gaim_debug_info("oscar",
+		purple_debug_info("oscar",
 				   "chatnav does not exist, opening chatnav\n");
 		cr->exchange = atoi(exchange);
 		cr->name = g_strdup(name);
@@ -6611,7 +6630,7 @@ static void oscar_join_chat(GaimConnection *gc, GHashTable *data) {
 	}
 }
 
-static void oscar_chat_invite(GaimConnection *gc, int id, const char *message, const char *name) {
+static void oscar_chat_invite(PurpleConnection *gc, int id, const char *message, const char *name) {
 	OscarData *od = (OscarData *)gc->proto_data;
 	struct chat_connection *ccon = find_oscar_chat(gc, id);
 	
@@ -6622,17 +6641,17 @@ static void oscar_chat_invite(GaimConnection *gc, int id, const char *message, c
 			ccon->exchange, ccon->name, 0x0);
 }
 
-static void oscar_chat_leave(GaimConnection *gc, int id) {
+static void oscar_chat_leave(PurpleConnection *gc, int id) {
 	OscarData *od = gc ? (OscarData *)gc->proto_data : NULL;
 	GSList *bcs = gc->buddy_chats;
-	GaimConversation *b = NULL;
+	PurpleConversation *b = NULL;
 	struct chat_connection *c = NULL;
 	int count = 0;
 
 	while (bcs) {
 		count++;
-		b = (GaimConversation *)bcs->data;
-		if (id == gaim_conv_chat_get_id(GAIM_CONV_CHAT(b)))
+		b = (PurpleConversation *)bcs->data;
+		if (id == purple_conv_chat_get_id(PURPLE_CONV_CHAT(b)))
 			break;
 		bcs = bcs->next;
 		b = NULL;
@@ -6641,15 +6660,15 @@ static void oscar_chat_leave(GaimConnection *gc, int id) {
 	if (!b)
 		return;
 
-	gaim_debug_info("oscar",
+	purple_debug_info("oscar",
 			   "Attempting to leave room %s (currently in %d rooms)\n", b->name, count);
 	
-	c = find_oscar_chat(gc, gaim_conv_chat_get_id(GAIM_CONV_CHAT(b)));
+	c = find_oscar_chat(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(b)));
 	if (c != NULL) {
 		if (od)
 			od->oscar_chats = g_slist_remove(od->oscar_chats, c);
 		if (c->inpa > 0)
-			gaim_input_remove(c->inpa);
+			purple_input_remove(c->inpa);
 		if (gc && od->sess)
 			aim_conn_kill(od->sess, &c->conn);
 		g_free(c->name);
@@ -6657,34 +6676,35 @@ static void oscar_chat_leave(GaimConnection *gc, int id) {
 		g_free(c);
 	}
 	/* we do this because with Oscar it doesn't tell us we left */
-	serv_got_chat_left(gc, gaim_conv_chat_get_id(GAIM_CONV_CHAT(b)));
+	serv_got_chat_left(gc, purple_conv_chat_get_id(PURPLE_CONV_CHAT(b)));
 }
 
-static int oscar_send_chat(GaimConnection *gc, int id, const char *message) {
+static int oscar_send_chat(PurpleConnection *gc, int id, const char *message, PurpleMessageFlags flags) {
+	(void)flags;
 	OscarData *od = (OscarData *)gc->proto_data;
-	GaimConversation *conv = NULL;
+	PurpleConversation *conv = NULL;
 	struct chat_connection *c = NULL;
 	char *buf, *buf2;
 	fu16_t charset, charsubset;
 	char *charsetstr = NULL;
 	gsize len;
 
-	if (!(conv = gaim_find_chat(gc, id)))
+	if (!(conv = purple_find_chat(gc, id)))
 		return -EINVAL;
 
 	if (!(c = find_oscar_chat_by_conv(gc, conv)))
 		return -EINVAL;
 
-	buf = gaim_strdup_withhtml(message);
+	buf = purple_strdup_withhtml(message);
 	len = strlen(buf);
 
 	if (strstr(buf, "<IMG "))
-		gaim_conversation_write(conv, "",
+		purple_conversation_write(conv, "",
 		                        _("Your IM Image was not sent. "
 		                        "You cannot send IM Images in AIM chats."),
-		                        GAIM_MESSAGE_ERROR, time(NULL));
+		                        PURPLE_MESSAGE_ERROR, time(NULL));
 
-	gaim_plugin_oscar_convert_to_best_encoding(gc, NULL, buf, &buf2, &len, &charset, &charsubset);
+	purple_plugin_oscar_convert_to_best_encoding(gc, NULL, buf, &buf2, &len, &charset, &charsubset);
 	if ((len > c->maxlen) || (len > c->maxvis)) {
 		g_free(buf2);
 		return -E2BIG;
@@ -6702,9 +6722,9 @@ static int oscar_send_chat(GaimConnection *gc, int id, const char *message) {
 	return 0;
 }
 
-static const char *oscar_list_icon(GaimAccount *a, GaimBuddy *b) {
+static const char *oscar_list_icon(PurpleAccount *a, PurpleBuddy *b) {
 	if (!b || (b && b->name && b->name[0] == '+')) {
-		if (a != NULL && isdigit(*gaim_account_get_username(a)))
+		if (a != NULL && isdigit(*purple_account_get_username(a)))
 			return "icq";
 		else
 			return "aim";
@@ -6715,10 +6735,10 @@ static const char *oscar_list_icon(GaimAccount *a, GaimBuddy *b) {
 	return "aim";
 }
 
-static void oscar_list_emblems(GaimBuddy *b, char **se, char **sw, char **nw, char **ne)
+static void oscar_list_emblems(PurpleBuddy *b, char **se, char **sw, char **nw, char **ne)
 {
-	GaimAccount *account = NULL;
-	GaimConnection *gc = NULL;
+	PurpleAccount *account = NULL;
+	PurpleConnection *gc = NULL;
 	OscarData *od = NULL;
 	char *emblems[4] = {NULL,NULL,NULL,NULL};
 	int i = 0;
@@ -6733,7 +6753,7 @@ static void oscar_list_emblems(GaimBuddy *b, char **se, char **sw, char **nw, ch
 	if (od != NULL)
 		userinfo = aim_locate_finduserinfo(od->sess, b->name);
 
-	if (!GAIM_BUDDY_IS_ONLINE(b)) {
+	if (!PURPLE_BUDDY_IS_ONLINE(b)) {
 		char *gname;
 		if ((b->name) && (od) && (od->sess->ssi.received_data) && 
 			(gname = aim_ssi_itemlist_findparentname(od->sess->ssi.local, b->name)) && 
@@ -6785,13 +6805,13 @@ static void oscar_list_emblems(GaimBuddy *b, char **se, char **sw, char **nw, ch
 	*ne = emblems[3];
 }
 
-static char *oscar_tooltip_text(GaimBuddy *b) {
-	GaimConnection *gc = b->account->gc;
+static char *oscar_tooltip_text(PurpleBuddy *b) {
+	PurpleConnection *gc = b->account->gc;
 	OscarData *od = gc->proto_data;
 	aim_userinfo_t *userinfo = aim_locate_finduserinfo(od->sess, b->name);
 	GString *str = g_string_new("");
 
-	if (GAIM_BUDDY_IS_ONLINE(b)) {
+	if (PURPLE_BUDDY_IS_ONLINE(b)) {
 		oscar_string_append_info(gc, str, "\n", b, userinfo);
 
 		if ((userinfo != NULL) && (userinfo->flags & AIM_FLAG_AWAY) && (userinfo->away_len > 0) && (userinfo->away != NULL) && (userinfo->away_encoding != NULL)) {
@@ -6800,11 +6820,11 @@ static char *oscar_tooltip_text(GaimBuddy *b) {
 			g_free(charset);
 			if (away_utf8 != NULL) {
 				gchar *tmp1, *tmp2;
-				tmp2 = gaim_markup_strip_html(away_utf8);
+				tmp2 = purple_markup_strip_html(away_utf8);
 				g_free(away_utf8);
-				tmp1 = gaim_escape_html(tmp2);
+				tmp1 = purple_escape_html(tmp2);
 				g_free(tmp2);
-				tmp2 = gaim_str_sub_away_formatters(tmp1, gaim_account_get_username(gaim_connection_get_account(gc)));
+				tmp2 = purple_str_sub_away_formatters(tmp1, purple_account_get_username(purple_connection_get_account(gc)));
 				g_free(tmp1);
 				g_string_append_printf(str, "\n<b>%s:</b> %s", _("Away Message"), tmp2);
 				g_free(tmp2);
@@ -6815,8 +6835,8 @@ static char *oscar_tooltip_text(GaimBuddy *b) {
 	return g_string_free(str, FALSE);
 }
 
-static char *oscar_status_text(GaimBuddy *b) {
-	GaimConnection *gc = b->account->gc;
+static char *oscar_status_text(PurpleBuddy *b) {
+	PurpleConnection *gc = b->account->gc;
 	OscarData *od = gc->proto_data;
 	gchar *ret = NULL;
 
@@ -6825,8 +6845,8 @@ static char *oscar_status_text(GaimBuddy *b) {
 			ret = oscar_icqstatus((b->uc & 0xffff0000) >> 16);
 		else
 			ret = g_strdup(_("Away"));
-	} else if (GAIM_BUDDY_IS_ONLINE(b)) {
-		struct buddyinfo *bi = g_hash_table_lookup(od->buddyinfo, gaim_normalize(b->account, b->name));
+	} else if (PURPLE_BUDDY_IS_ONLINE(b)) {
+		struct buddyinfo *bi = g_hash_table_lookup(od->buddyinfo, purple_normalize(b->account, b->name));
 		if (bi->availmsg)
 			ret = g_markup_escape_text(bi->availmsg, strlen(bi->availmsg));
 	} else {
@@ -6842,7 +6862,7 @@ static char *oscar_status_text(GaimBuddy *b) {
 
 
 static int oscar_icon_req(aim_session_t *sess, aim_frame_t *fr, ...) {
-	GaimConnection *gc = sess->aux_data;
+	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
 	va_list ap;
 	fu16_t type;
@@ -6867,7 +6887,7 @@ static int oscar_icon_req(aim_session_t *sess, aim_frame_t *fr, ...) {
 					aim_reqservice(od->sess, od->conn, AIM_CONN_TYPE_ICON);
 				} else {
 					struct stat st;
-					const char *iconfile = gaim_account_get_buddy_icon(gaim_connection_get_account(gc));
+					const char *iconfile = purple_account_get_buddy_icon(purple_connection_get_account(gc));
 					if (iconfile == NULL) {
 						aim_ssi_delicon(od->sess);
 					} else if (!g_stat(iconfile, &st)) {
@@ -6877,20 +6897,20 @@ static int oscar_icon_req(aim_session_t *sess, aim_frame_t *fr, ...) {
 							/* XXX - Use g_file_get_contents()? */
 							fread(buf, 1, st.st_size, file);
 							fclose(file);
-							gaim_debug_info("oscar",
+							purple_debug_info("oscar",
 								   "Uploading icon to icon server\n");
 							aim_bart_upload(od->sess, buf, st.st_size);
 						} else
-							gaim_debug_error("oscar",
+							purple_debug_error("oscar",
 								   "Can't open buddy icon file!\n");
 						g_free(buf);
 					} else {
-						gaim_debug_error("oscar",
+						purple_debug_error("oscar",
 							   "Can't stat buddy icon file!\n");
 					}
 				}
 			} else if (flags == 0x81) {
-				const char *iconfile = gaim_account_get_buddy_icon(gaim_connection_get_account(gc));
+				const char *iconfile = purple_account_get_buddy_icon(purple_connection_get_account(gc));
 				if (iconfile == NULL)
 					aim_ssi_delicon(od->sess);
 				else
@@ -6907,8 +6927,8 @@ static int oscar_icon_req(aim_session_t *sess, aim_frame_t *fr, ...) {
 	return 0;
 }
 
-static void oscar_set_permit_deny(GaimConnection *gc) {
-	GaimAccount *account = gaim_connection_get_account(gc);
+static void oscar_set_permit_deny(PurpleConnection *gc) {
+	PurpleAccount *account = purple_connection_get_account(gc);
 	OscarData *od = (OscarData *)gc->proto_data;
 #ifdef NOSSI
 	GSList *list;
@@ -6916,13 +6936,13 @@ static void oscar_set_permit_deny(GaimConnection *gc) {
 	int at;
 
 	switch(account->perm_deny) {
-	case GAIM_PRIVACY_ALLOW_ALL: 
-		aim_bos_changevisibility(od->sess, od->conn, AIM_VISIBILITYCHANGE_DENYADD, gaim_account_get_username(account));
+	case PURPLE_PRIVACY_ALLOW_ALL: 
+		aim_bos_changevisibility(od->sess, od->conn, AIM_VISIBILITYCHANGE_DENYADD, purple_account_get_username(account));
 		break;
-	case GAIM_PRIVACY_DENY_ALL:
-		aim_bos_changevisibility(od->sess, od->conn, AIM_VISIBILITYCHANGE_PERMITADD, gaim_account_get_username(account));
+	case PURPLE_PRIVACY_DENY_ALL:
+		aim_bos_changevisibility(od->sess, od->conn, AIM_VISIBILITYCHANGE_PERMITADD, purple_account_get_username(account));
 		break;
-	case GAIM_PRIVACY_ALLOW_USERS:
+	case PURPLE_PRIVACY_ALLOW_USERS:
 		list = account->permit;
 		at = 0;
 		while (list) {
@@ -6931,7 +6951,7 @@ static void oscar_set_permit_deny(GaimConnection *gc) {
 		}
 		aim_bos_changevisibility(od->sess, od->conn, AIM_VISIBILITYCHANGE_PERMITADD, buf);
 		break;
-	case GAIM_PRIVACY_DENY_USERS:
+	case PURPLE_PRIVACY_DENY_USERS:
 		list = account->deny;
 		at = 0;
 		while (list) {
@@ -6946,19 +6966,19 @@ static void oscar_set_permit_deny(GaimConnection *gc) {
 #else
 	if (od->sess->ssi.received_data) {
 		switch (account->perm_deny) {
-			case GAIM_PRIVACY_ALLOW_ALL:
+			case PURPLE_PRIVACY_ALLOW_ALL:
 				aim_ssi_setpermdeny(od->sess, 0x01, 0xffffffff);
 				break;
-			case GAIM_PRIVACY_ALLOW_BUDDYLIST:
+			case PURPLE_PRIVACY_ALLOW_BUDDYLIST:
 				aim_ssi_setpermdeny(od->sess, 0x05, 0xffffffff);
 				break;
-			case GAIM_PRIVACY_ALLOW_USERS:
+			case PURPLE_PRIVACY_ALLOW_USERS:
 				aim_ssi_setpermdeny(od->sess, 0x03, 0xffffffff);
 				break;
-			case GAIM_PRIVACY_DENY_ALL:
+			case PURPLE_PRIVACY_DENY_ALL:
 				aim_ssi_setpermdeny(od->sess, 0x02, 0xffffffff);
 				break;
-			case GAIM_PRIVACY_DENY_USERS:
+			case PURPLE_PRIVACY_DENY_USERS:
 				aim_ssi_setpermdeny(od->sess, 0x04, 0xffffffff);
 				break;
 			default:
@@ -6969,55 +6989,55 @@ static void oscar_set_permit_deny(GaimConnection *gc) {
 #endif
 }
 
-static void oscar_add_permit(GaimConnection *gc, const char *who) {
+static void oscar_add_permit(PurpleConnection *gc, const char *who) {
 #ifdef NOSSI
 	if (gc->account->perm_deny == 3)
 		oscar_set_permit_deny(gc);
 #else
 	OscarData *od = (OscarData *)gc->proto_data;
-	gaim_debug_info("oscar", "ssi: About to add a permit\n");
+	purple_debug_info("oscar", "ssi: About to add a permit\n");
 	if (od->sess->ssi.received_data)
 		aim_ssi_addpermit(od->sess, who);
 #endif
 }
 
-static void oscar_add_deny(GaimConnection *gc, const char *who) {
+static void oscar_add_deny(PurpleConnection *gc, const char *who) {
 #ifdef NOSSI
 	if (gc->account->perm_deny == 4)
 		oscar_set_permit_deny(gc);
 #else
 	OscarData *od = (OscarData *)gc->proto_data;
-	gaim_debug_info("oscar", "ssi: About to add a deny\n");
+	purple_debug_info("oscar", "ssi: About to add a deny\n");
 	if (od->sess->ssi.received_data)
 		aim_ssi_adddeny(od->sess, who);
 #endif
 }
 
-static void oscar_rem_permit(GaimConnection *gc, const char *who) {
+static void oscar_rem_permit(PurpleConnection *gc, const char *who) {
 #ifdef NOSSI
 	if (gc->account->perm_deny == 3)
 		oscar_set_permit_deny(gc);
 #else
 	OscarData *od = (OscarData *)gc->proto_data;
-	gaim_debug_info("oscar", "ssi: About to delete a permit\n");
+	purple_debug_info("oscar", "ssi: About to delete a permit\n");
 	if (od->sess->ssi.received_data)
 		aim_ssi_delpermit(od->sess, who);
 #endif
 }
 
-static void oscar_rem_deny(GaimConnection *gc, const char *who) {
+static void oscar_rem_deny(PurpleConnection *gc, const char *who) {
 #ifdef NOSSI
 	if (gc->account->perm_deny == 4)
 		oscar_set_permit_deny(gc);
 #else
 	OscarData *od = (OscarData *)gc->proto_data;
-	gaim_debug_info("oscar", "ssi: About to delete a deny\n");
+	purple_debug_info("oscar", "ssi: About to delete a deny\n");
 	if (od->sess->ssi.received_data)
 		aim_ssi_deldeny(od->sess, who);
 #endif
 }
 
-static GList *oscar_away_states(GaimConnection *gc)
+static GList *oscar_away_states(PurpleConnection *gc)
 {
 	OscarData *od = gc->proto_data;
 	GList *m = NULL;
@@ -7031,7 +7051,7 @@ static GList *oscar_away_states(GaimConnection *gc)
 		m = g_list_append(m, _("Free For Chat"));
 		m = g_list_append(m, _("Invisible"));
 	} else {
-		m = g_list_append(m, GAIM_AWAY_CUSTOM);
+		m = g_list_append(m, PURPLE_AWAY_CUSTOM);
 		m = g_list_append(m, _("Back"));
 		m = g_list_append(m, _("Visible"));
 		m = g_list_append(m, _("Invisible"));
@@ -7041,17 +7061,17 @@ static GList *oscar_away_states(GaimConnection *gc)
 }
 
 static void oscar_ssi_editcomment(struct name_data *data, const char *text) {
-	GaimConnection *gc = data->gc;
+	PurpleConnection *gc = data->gc;
 	OscarData *od = gc->proto_data;
-	GaimBuddy *b;
-	GaimGroup *g;
+	PurpleBuddy *b;
+	PurpleGroup *g;
 
-	if (!(b = gaim_find_buddy(gaim_connection_get_account(data->gc), data->name))) {
+	if (!(b = purple_find_buddy(purple_connection_get_account(data->gc), data->name))) {
 		oscar_free_name_data(data);
 		return;
 	}
 
-	if (!(g = gaim_find_buddys_group(b))) {
+	if (!(g = purple_find_buddys_group(b))) {
 		oscar_free_name_data(data);
 		return;
 	}
@@ -7059,41 +7079,41 @@ static void oscar_ssi_editcomment(struct name_data *data, const char *text) {
 	aim_ssi_editcomment(od->sess, g->name, data->name, text);
 
 	if (!aim_sncmp(data->name, gc->account->username))
-		gaim_check_comment(od, text);
+		purple_check_comment(od, text);
 
 	oscar_free_name_data(data);
 }
 
-static void oscar_buddycb_edit_comment(GaimBlistNode *node, gpointer ignore) {
+static void oscar_buddycb_edit_comment(PurpleBlistNode *node, gpointer ignore) {
 
-	GaimBuddy *buddy;
-	GaimConnection *gc;
+	PurpleBuddy *buddy;
+	PurpleConnection *gc;
 	OscarData *od;
 	struct name_data *data;
-	GaimGroup *g;
+	PurpleGroup *g;
 	char *comment;
 	gchar *comment_utf8;
 	gchar *title;
 
-	g_return_if_fail(GAIM_BLIST_NODE_IS_BUDDY(node));
+	g_return_if_fail(PURPLE_BLIST_NODE_IS_BUDDY(node));
 
-	buddy = (GaimBuddy *) node;
-	gc = gaim_account_get_connection(buddy->account);
+	buddy = (PurpleBuddy *) node;
+	gc = purple_account_get_connection(buddy->account);
 	od = gc->proto_data;
 
 	data = g_new(struct name_data, 1);
 
-	if (!(g = gaim_find_buddys_group(buddy)))
+	if (!(g = purple_find_buddys_group(buddy)))
 		return;
 	comment = aim_ssi_getcomment(od->sess->ssi.local, g->name, buddy->name);
-	comment_utf8 = comment ? gaim_utf8_try_convert(comment) : NULL;
+	comment_utf8 = comment ? purple_utf8_try_convert(comment) : NULL;
 
 	data->gc = gc;
 	data->name = g_strdup(buddy->name);
 	data->nick = NULL;
 
 	title = g_strdup_printf(_("Buddy Comment for %s"), data->name);
-	gaim_request_input(gc, title, _("Buddy Comment:"), NULL,
+	purple_request_input(gc, title, _("Buddy Comment:"), NULL,
 					   comment_utf8, TRUE, FALSE, NULL,
 					   _("OK"), G_CALLBACK(oscar_ssi_editcomment),
 					   _("Cancel"), G_CALLBACK(oscar_free_name_data),
@@ -7104,21 +7124,21 @@ static void oscar_buddycb_edit_comment(GaimBlistNode *node, gpointer ignore) {
 	g_free(comment_utf8);
 }
 
-static GList *oscar_buddy_menu(GaimBuddy *buddy) {
+static GList *oscar_buddy_menu(PurpleBuddy *buddy) {
 
-	GaimConnection *gc = gaim_account_get_connection(buddy->account);
+	PurpleConnection *gc = purple_account_get_connection(buddy->account);
 	OscarData *od = gc->proto_data;
 
 	GList *m = NULL;
-	GaimBlistNodeAction *act;
+	PurpleBlistNodeAction *act;
 
-	act = gaim_blist_node_action_new(_("Edit Buddy Comment"),
+	act = purple_blist_node_action_new(_("Edit Buddy Comment"),
 			oscar_buddycb_edit_comment, NULL);
 	m = g_list_append(m, act);
 
 	if (od->icq) {
 #if 0
-		act = gaim_blist_node_action_new(_("Get Status Msg"),
+		act = purple_blist_node_action_new(_("Get Status Msg"),
 				oscar_get_icqstatusmsg, NULL);
 		m = g_list_append(m, act);
 #endif
@@ -7126,17 +7146,17 @@ static GList *oscar_buddy_menu(GaimBuddy *buddy) {
 		aim_userinfo_t *userinfo;
 		userinfo = aim_locate_finduserinfo(od->sess, buddy->name);
 
-		if (userinfo && aim_sncmp(gaim_account_get_username(buddy->account), buddy->name) &&
-				GAIM_BUDDY_IS_ONLINE(buddy)) {
+		if (userinfo && aim_sncmp(purple_account_get_username(buddy->account), buddy->name) &&
+				PURPLE_BUDDY_IS_ONLINE(buddy)) {
 
 			if (userinfo->capabilities & AIM_CAPS_DIRECTIM) {
-				act = gaim_blist_node_action_new(_("Direct IM"),
+				act = purple_blist_node_action_new(_("Direct IM"),
 						oscar_ask_direct_im, NULL);
 				m = g_list_append(m, act);
 			}
 #if 0
 			if (userinfo->capabilities & AIM_CAPS_GETFILE) {
-				act = gaim_blist_node_action_new(_("Get File"),
+				act = purple_blist_node_action_new(_("Get File"),
 						oscar_ask_getfile, NULL);
 				m = g_list_append(m, act);
 			}
@@ -7147,8 +7167,8 @@ static GList *oscar_buddy_menu(GaimBuddy *buddy) {
 	if (od->sess->ssi.received_data) {
 		char *gname = aim_ssi_itemlist_findparentname(od->sess->ssi.local, buddy->name);
 		if (gname && aim_ssi_waitingforauth(od->sess->ssi.local, gname, buddy->name)) {
-			act = gaim_blist_node_action_new(_("Re-request Authorization"),
-					gaim_auth_sendrequest_menu, NULL);
+			act = purple_blist_node_action_new(_("Re-request Authorization"),
+					purple_auth_sendrequest_menu, NULL);
 			m = g_list_append(m, act);
 		}
 	}
@@ -7157,18 +7177,18 @@ static GList *oscar_buddy_menu(GaimBuddy *buddy) {
 }
 
 
-static GList *oscar_blist_node_menu(GaimBlistNode *node) {
-	if(GAIM_BLIST_NODE_IS_BUDDY(node)) {
-		return oscar_buddy_menu((GaimBuddy *) node);
+static GList *oscar_blist_node_menu(PurpleBlistNode *node) {
+	if(PURPLE_BLIST_NODE_IS_BUDDY(node)) {
+		return oscar_buddy_menu((PurpleBuddy *) node);
 	} else {
 		return NULL;
 	}
 }
 
 
-static void oscar_format_screenname(GaimConnection *gc, const char *nick) {
+static void oscar_format_screenname(PurpleConnection *gc, const char *nick) {
 	OscarData *od = gc->proto_data;
-	if (!aim_sncmp(gaim_account_get_username(gaim_connection_get_account(gc)), nick)) {
+	if (!aim_sncmp(purple_account_get_username(purple_connection_get_account(gc)), nick)) {
 		if (!aim_getconn_type(od->sess, AIM_CONN_TYPE_AUTH)) {
 			od->setnick = TRUE;
 			od->newsn = g_strdup(nick);
@@ -7177,24 +7197,24 @@ static void oscar_format_screenname(GaimConnection *gc, const char *nick) {
 			aim_admin_setnick(od->sess, aim_getconn_type(od->sess, AIM_CONN_TYPE_AUTH), nick);
 		}
 	} else {
-		gaim_notify_error(gc, NULL, _("The new formatting is invalid."),
+		purple_notify_error(gc, NULL, _("The new formatting is invalid."),
 						  _("Screen name formatting can change only capitalization and whitespace."));
 	}
 }
 
-static void oscar_show_format_screenname(GaimPluginAction *action)
+static void oscar_show_format_screenname(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_request_input(gc, NULL, _("New screen name formatting:"), NULL,
-					   gaim_connection_get_display_name(gc), FALSE, FALSE, NULL,
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_request_input(gc, NULL, _("New screen name formatting:"), NULL,
+					   purple_connection_get_display_name(gc), FALSE, FALSE, NULL,
 					   _("OK"), G_CALLBACK(oscar_format_screenname),
 					   _("Cancel"), NULL,
 					   gc);
 }
 
-static void oscar_confirm_account(GaimPluginAction *action)
+static void oscar_confirm_account(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
+	PurpleConnection *gc = (PurpleConnection *) action->context;
 	OscarData *od = gc->proto_data;
 	aim_conn_t *conn = aim_getconn_type(od->sess, AIM_CONN_TYPE_AUTH);
 
@@ -7206,9 +7226,9 @@ static void oscar_confirm_account(GaimPluginAction *action)
 	}
 }
 
-static void oscar_show_email(GaimPluginAction *action)
+static void oscar_show_email(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
+	PurpleConnection *gc = (PurpleConnection *) action->context;
 	OscarData *od = gc->proto_data;
 	aim_conn_t *conn = aim_getconn_type(od->sess, AIM_CONN_TYPE_AUTH);
 
@@ -7220,7 +7240,7 @@ static void oscar_show_email(GaimPluginAction *action)
 	}
 }
 
-static void oscar_change_email(GaimConnection *gc, const char *email)
+static void oscar_change_email(PurpleConnection *gc, const char *email)
 {
 	OscarData *od = gc->proto_data;
 	aim_conn_t *conn = aim_getconn_type(od->sess, AIM_CONN_TYPE_AUTH);
@@ -7234,40 +7254,40 @@ static void oscar_change_email(GaimConnection *gc, const char *email)
 	}
 }
 
-static void oscar_show_change_email(GaimPluginAction *action)
+static void oscar_show_change_email(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_request_input(gc, NULL, _("Change Address To:"), NULL, NULL,
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_request_input(gc, NULL, _("Change Address To:"), NULL, NULL,
 					   FALSE, FALSE, NULL,
 					   _("OK"), G_CALLBACK(oscar_change_email),
 					   _("Cancel"), NULL,
 					   gc);
 }
 
-static void oscar_show_awaitingauth(GaimPluginAction *action)
+static void oscar_show_awaitingauth(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
+	PurpleConnection *gc = (PurpleConnection *) action->context;
 	OscarData *od = gc->proto_data;
 	gchar *nombre, *text, *tmp;
-	GaimBlistNode *gnode, *cnode, *bnode;
+	PurpleBlistNode *gnode, *cnode, *bnode;
 	int num=0;
 
 	text = g_strdup("");
 
-	for (gnode = gaim_get_blist()->root; gnode; gnode = gnode->next) {
-		GaimGroup *group = (GaimGroup *)gnode;
-		if(!GAIM_BLIST_NODE_IS_GROUP(gnode))
+	for (gnode = purple_get_blist()->root; gnode; gnode = gnode->next) {
+		PurpleGroup *group = (PurpleGroup *)gnode;
+		if(!PURPLE_BLIST_NODE_IS_GROUP(gnode))
 			continue;
 		for (cnode = gnode->child; cnode; cnode = cnode->next) {
-			if(!GAIM_BLIST_NODE_IS_CONTACT(cnode))
+			if(!PURPLE_BLIST_NODE_IS_CONTACT(cnode))
 				continue;
 			for (bnode = cnode->child; bnode; bnode = bnode->next) {
-				GaimBuddy *buddy = (GaimBuddy *)bnode;
-				if(!GAIM_BLIST_NODE_IS_BUDDY(bnode))
+				PurpleBuddy *buddy = (PurpleBuddy *)bnode;
+				if(!PURPLE_BLIST_NODE_IS_BUDDY(bnode))
 					continue;
 				if (buddy->account == gc->account && aim_ssi_waitingforauth(od->sess->ssi.local, group->name, buddy->name)) {
-					if (gaim_buddy_get_alias_only(buddy))
-						nombre = g_strdup_printf(" %s (%s)", buddy->name, gaim_buddy_get_alias_only(buddy));
+					if (purple_buddy_get_alias_only(buddy))
+						nombre = g_strdup_printf(" %s (%s)", buddy->name, purple_buddy_get_alias_only(buddy));
 					else
 						nombre = g_strdup_printf(" %s", buddy->name);
 					tmp = g_strdup_printf("%s%s<br>", text, nombre);
@@ -7285,7 +7305,7 @@ static void oscar_show_awaitingauth(GaimPluginAction *action)
 		text = g_strdup(_("<i>you are not waiting for authorization</i>"));
 	}
 
-	gaim_notify_formatted(gc, NULL, _("You are awaiting authorization from "
+	purple_notify_formatted(gc, NULL, _("You are awaiting authorization from "
 						  "the following buddies"),	_("You can re-request "
 						  "authorization from these buddies by "
 						  "right-clicking on them and selecting "
@@ -7293,17 +7313,17 @@ static void oscar_show_awaitingauth(GaimPluginAction *action)
 	g_free(text);
 }
 
-static void search_by_email_cb(GaimConnection *gc, const char *email)
+static void search_by_email_cb(PurpleConnection *gc, const char *email)
 {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	aim_search_address(od->sess, od->conn, email);
 }
 
-static void oscar_show_find_email(GaimPluginAction *action)
+static void oscar_show_find_email(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_request_input(gc, _("Find Buddy by E-mail"),
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_request_input(gc, _("Find Buddy by E-mail"),
 					   _("Search for a buddy by e-mail address"),
 					   _("Type the e-mail address of the buddy you are "
 						 "searching for."),
@@ -7312,17 +7332,17 @@ static void oscar_show_find_email(GaimPluginAction *action)
 					   _("Cancel"), NULL, gc);
 }
 
-static void oscar_setavailmsg(GaimConnection *gc, char *text) {
+static void oscar_setavailmsg(PurpleConnection *gc, char *text) {
 	OscarData *od = (OscarData *)gc->proto_data;
 
 	aim_locate_setprofile(od->sess, NULL, NULL, 0, NULL, "", 0);
 	aim_srv_setavailmsg(od->sess, text);
 }
 
-static void oscar_show_setavailmsg(GaimPluginAction *action)
+static void oscar_show_setavailmsg(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_request_input(gc, NULL, _("Available Message:"), NULL,
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_request_input(gc, NULL, _("Available Message:"), NULL,
 					   _("I'm doing work and hoping for a distraction--IM me!"), 
 					   TRUE, FALSE, NULL,
 					   _("OK"), G_CALLBACK(oscar_setavailmsg),
@@ -7330,106 +7350,96 @@ static void oscar_show_setavailmsg(GaimPluginAction *action)
 					   gc);
 }
 
-static void oscar_show_set_info(GaimPluginAction *action)
+static void oscar_show_set_info(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_account_request_change_user_info(gaim_connection_get_account(gc));
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_account_request_change_user_info(purple_connection_get_account(gc));
 }
 
-static void oscar_show_set_info_icqurl(GaimPluginAction *action)
+static void oscar_show_set_info_icqurl(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_notify_uri(gc, "http://www.icq.com/whitepages/user_details.php");
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_notify_uri(gc, "http://www.icq.com/whitepages/user_details.php");
 }
 
-static void oscar_change_pass(GaimPluginAction *action)
+static void oscar_change_pass(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_account_request_change_password(gaim_connection_get_account(gc));
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_account_request_change_password(purple_connection_get_account(gc));
 }
 
-static void oscar_show_chpassurl(GaimPluginAction *action)
+static void oscar_show_chpassurl(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
+	PurpleConnection *gc = (PurpleConnection *) action->context;
 	OscarData *od = gc->proto_data;
-	gchar *substituted = gaim_strreplace(od->sess->authinfo->chpassurl, "%s", gaim_account_get_username(gaim_connection_get_account(gc)));
-	gaim_notify_uri(gc, substituted);
+	gchar *substituted = purple_strreplace(od->sess->authinfo->chpassurl, "%s", purple_account_get_username(purple_connection_get_account(gc)));
+	purple_notify_uri(gc, substituted);
 	g_free(substituted);
 }
 
-static void oscar_show_imforwardingurl(GaimPluginAction *action)
+static void oscar_show_imforwardingurl(PurplePluginAction *action)
 {
-	GaimConnection *gc = (GaimConnection *) action->context;
-	gaim_notify_uri(gc, "http://mymobile.aol.com/dbreg/register?action=imf&clientID=1");
+	PurpleConnection *gc = (PurpleConnection *) action->context;
+	purple_notify_uri(gc, "http://mymobile.aol.com/dbreg/register?action=imf&clientID=1");
 }
 
-static void oscar_set_icon(GaimConnection *gc, const char *iconfile)
+static void oscar_set_icon(PurpleConnection *gc, PurpleStoredImage *img)
 {
 	OscarData *od = gc->proto_data;
 	aim_session_t *sess = od->sess;
-	FILE *file;
-	struct stat st;
 
-	if (iconfile == NULL) {
+	if (img == NULL) {
 		aim_ssi_delicon(od->sess);
-	} else if (!g_stat(iconfile, &st)) {
-		char *buf = g_malloc(st.st_size);
-		file = g_fopen(iconfile, "rb");
-		if (file) {
-			md5_state_t *state;
-			char md5[16];
-			/* XXX - Use g_file_get_contents()? */
-			int len = fread(buf, 1, st.st_size, file);
-			fclose(file);
-			state = g_malloc(sizeof(md5_state_t));
-			md5_init(state);
-			md5_append(state, buf, len);
-			md5_finish(state, md5);
-			g_free(state);
-			aim_ssi_seticon(sess, md5, 16);
-		} else
-			gaim_debug_error("oscar",
-				   "Can't open buddy icon file!\n");
-		g_free(buf);
-	} else
-		gaim_debug_error("oscar",
-			   "Can't stat buddy icon file!\n");
+	} else {
+		gconstpointer data;
+		size_t len;
+		md5_state_t state;
+		char md5[16];
+
+		data = purple_imgstore_get_data(img);
+		len = purple_imgstore_get_size(img);
+		md5_init(&state);
+		md5_append(&state, data, len);
+		md5_finish(&state, md5);
+		aim_ssi_seticon(sess, md5, 16);
+	}
 }
 
 
-static GList *oscar_actions(GaimPlugin *plugin, gpointer context)
+
+static GList *oscar_actions(PurplePlugin *plugin, gpointer context)
 {
-	GaimConnection *gc = (GaimConnection *) context;
+	PurpleConnection *gc = (PurpleConnection *) context;
 	OscarData *od = gc->proto_data;
 	GList *m = NULL;
-	GaimPluginAction *act;
+	PurplePluginAction *act;
 
-	act = gaim_plugin_action_new(_("Set User Info..."),
+	act = purple_plugin_action_new(_("Set User Info..."),
 			oscar_show_set_info);
 	m = g_list_append(m, act);
 
 	if (od->icq) {
-		act = gaim_plugin_action_new(_("Set User Info (URL)..."),
+		act = purple_plugin_action_new(_("Set User Info (URL)..."),
 				oscar_show_set_info_icqurl);
 		m = g_list_append(m, act);
 	}
 
 	if (!od->icq) {
-		act = gaim_plugin_action_new(_("Set Available Message..."),
+		act = purple_plugin_action_new(_("Set Available Message..."),
 				oscar_show_setavailmsg);
 		m = g_list_append(m, act);
 	}
 
-	act = gaim_plugin_action_new(_("Change Password..."),
+	act = purple_plugin_action_new(_("Change Password..."),
 			oscar_change_pass);
 	m = g_list_append(m, act);
 
 	if (od->sess->authinfo->chpassurl) {
-		act = gaim_plugin_action_new(_("Change Password (URL)"),
+		act = purple_plugin_action_new(_("Change Password (URL)"),
 				oscar_show_chpassurl);
 		m = g_list_append(m, act);
 
-		act = gaim_plugin_action_new(_("Configure IM Forwarding (URL)"),
+		act = purple_plugin_action_new(_("Configure IM Forwarding (URL)"),
 				oscar_show_imforwardingurl);
 		m = g_list_append(m, act);
 	}
@@ -7438,37 +7448,37 @@ static GList *oscar_actions(GaimPlugin *plugin, gpointer context)
 		/* AIM actions */
 		m = g_list_append(m, NULL);
 
-		act = gaim_plugin_action_new(_("Format Screen Name..."),
+		act = purple_plugin_action_new(_("Format Screen Name..."),
 				oscar_show_format_screenname);
 		m = g_list_append(m, act);
 
-		act = gaim_plugin_action_new(_("Confirm Account"),
+		act = purple_plugin_action_new(_("Confirm Account"),
 				oscar_confirm_account);
 		m = g_list_append(m, act);
 
-		act = gaim_plugin_action_new(_("Display Currently Registered Address"),
+		act = purple_plugin_action_new(_("Display Currently Registered Address"),
 				oscar_show_email);
 		m = g_list_append(m, act);
 
-		act = gaim_plugin_action_new(_("Change Currently Registered Address..."),
+		act = purple_plugin_action_new(_("Change Currently Registered Address..."),
 				oscar_show_change_email);
 		m = g_list_append(m, act);
 	}
 
 	m = g_list_append(m, NULL);
 
-	act = gaim_plugin_action_new(_("Show Buddies Awaiting Authorization"),
+	act = purple_plugin_action_new(_("Show Buddies Awaiting Authorization"),
 			oscar_show_awaitingauth);
 	m = g_list_append(m, act);
 
 	m = g_list_append(m, NULL);
 
-	act = gaim_plugin_action_new(_("Search for Buddy by Email..."),
+	act = purple_plugin_action_new(_("Search for Buddy by Email..."),
 			oscar_show_find_email);
 	m = g_list_append(m, act);
 
 #if 0
-	act = gaim_plugin_action_new(_("Search for Buddy by Information"),
+	act = purple_plugin_action_new(_("Search for Buddy by Information"),
 			show_find_info);
 	m = g_list_append(m, act);
 #endif
@@ -7476,7 +7486,7 @@ static GList *oscar_actions(GaimPlugin *plugin, gpointer context)
 	return m;
 }
 
-static void oscar_change_passwd(GaimConnection *gc, const char *old, const char *new)
+static void oscar_change_passwd(PurpleConnection *gc, const char *old, const char *new)
 {
 	OscarData *od = gc->proto_data;
 
@@ -7495,7 +7505,7 @@ static void oscar_change_passwd(GaimConnection *gc, const char *old, const char 
 	}
 }
 
-static void oscar_convo_closed(GaimConnection *gc, const char *who)
+static void oscar_convo_closed(PurpleConnection *gc, const char *who)
 {
 	OscarData *od = gc->proto_data;
 	struct oscar_direct_im *dim = oscar_direct_im_find(od, who);
@@ -7507,7 +7517,7 @@ static void oscar_convo_closed(GaimConnection *gc, const char *who)
 }
 
 static const char *
-oscar_normalize(const GaimAccount *account, const char *str)
+oscar_normalize(const PurpleAccount *account, const char *str)
 {
 	static char buf[BUF_LEN];
 	char *tmp1, *tmp2;
@@ -7533,12 +7543,12 @@ oscar_normalize(const GaimAccount *account, const char *str)
 	return buf;
 }
 
-static GaimPluginProtocolInfo prpl_info =
+static PurplePluginProtocolInfo prpl_info =
 {
 	OPT_PROTO_MAIL_CHECK | OPT_PROTO_IM_IMAGE,
 	NULL,					/* user_splits */
 	NULL,					/* protocol_options */
-	{"jpeg,gif,bmp,ico", 48, 48, 50, 50, GAIM_ICON_SCALE_SEND},	/* icon_spec */
+	{"jpeg,gif,bmp,ico", 48, 48, 50, 50, PURPLE_ICON_SCALE_SEND},	/* icon_spec */
 	oscar_list_icon,		/* list_icon */
 	oscar_list_emblems,		/* list_emblems */
 	oscar_status_text,		/* status_text */
@@ -7553,7 +7563,7 @@ static GaimPluginProtocolInfo prpl_info =
 	oscar_set_info,			/* set_info */
 	oscar_send_typing,		/* send_typing */
 	oscar_get_info,			/* get_info */
-	oscar_set_away,			/* set_away */
+	oscar_set_status,			/* set_status */
 	oscar_set_idle,			/* set_idle */
 	oscar_change_passwd,	/* change_passwd */
 	oscar_add_buddy,		/* add_buddy */
@@ -7598,19 +7608,39 @@ static GaimPluginProtocolInfo prpl_info =
 	NULL,					/* roomlist_cancel */
 	NULL,					/* roomlist_expand_category */
 	oscar_can_receive_file,	/* can_receive_file */
-	oscar_send_file			/* send_file */
+	oscar_send_file,			/* send_file */
+	NULL,					/* new_xfer */
+	NULL,					/* offline_message */
+	NULL,					/* whiteboard_prpl_ops */
+	NULL,					/* send_raw */
+	NULL,					/* roomlist_room_serialize */
+	NULL,					/* unregister_user */
+	NULL,					/* send_attention */
+	NULL,					/* get_attention_types */
+	sizeof(PurplePluginProtocolInfo),	/* struct_size */
+	NULL,					/* get_account_text_table */
+	NULL,					/* initiate_media */
+	NULL,					/* get_media_caps */
+	NULL,					/* get_moods */
+	NULL,					/* set_public_alias */
+	NULL,					/* get_public_alias */
+	NULL,					/* add_buddy_with_invite */
+	NULL,					/* add_buddies_with_invite */
+	NULL,					/* get_cb_alias */
+	NULL,					/* chat_can_receive_file */
+	NULL					/* chat_send_file */
 };
 
-static GaimPluginInfo info =
+static PurplePluginInfo info =
 {
-	GAIM_PLUGIN_MAGIC,
-	GAIM_MAJOR_VERSION,
-	GAIM_MINOR_VERSION,
-	GAIM_PLUGIN_PROTOCOL,                             /**< type           */
+	PURPLE_PLUGIN_MAGIC,
+	PURPLE_MAJOR_VERSION,
+	PURPLE_MINOR_VERSION,
+	PURPLE_PLUGIN_PROTOCOL,                             /**< type           */
 	NULL,                                             /**< ui_requirement */
 	0,                                                /**< flags          */
 	NULL,                                             /**< dependencies   */
-	GAIM_PRIORITY_DEFAULT,                            /**< priority       */
+	PURPLE_PRIORITY_DEFAULT,                            /**< priority       */
 
 	"prpl-oscar",                                     /**< id             */
 	"AIM/ICQ",                                        /**< name           */
@@ -7620,7 +7650,7 @@ static GaimPluginInfo info =
 	                                                  /**  description    */
 	N_("AIM/ICQ Protocol Plugin"),
 	NULL,                                             /**< author         */
-	GAIM_WEBSITE,                                     /**< homepage       */
+	PURPLE_WEBSITE,                                     /**< homepage       */
 
 	NULL,                                             /**< load           */
 	NULL,                                             /**< unload         */
@@ -7629,22 +7659,27 @@ static GaimPluginInfo info =
 	NULL,                                             /**< ui_info        */
 	&prpl_info,                                       /**< extra_info     */
 	NULL,                                             /**< prefs_info     */
-	oscar_actions
+	oscar_actions,
+
+	NULL,
+	NULL,
+	NULL,
+	NULL
 };
 
 static void
-init_plugin(GaimPlugin *plugin)
+_init_plugin(PurplePlugin *plugin)
 {
-	GaimAccountOption *option;
+	PurpleAccountOption *option;
 
-	option = gaim_account_option_string_new(_("Auth host"), "server", FAIM_LOGIN_SERVER);
+	option = purple_account_option_string_new(_("Auth host"), "server", FAIM_LOGIN_SERVER);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
-	option = gaim_account_option_int_new(_("Auth port"), "port", FAIM_LOGIN_PORT);
+	option = purple_account_option_int_new(_("Auth port"), "port", FAIM_LOGIN_PORT);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
-	option = gaim_account_option_string_new(_("Encoding"), "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+	option = purple_account_option_string_new(_("Encoding"), "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 }
 
-GAIM_INIT_PLUGIN(oscar, init_plugin, info);
+PURPLE_INIT_PLUGIN(oscar, _init_plugin, info);
