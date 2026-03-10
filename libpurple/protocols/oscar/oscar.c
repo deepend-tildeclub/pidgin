@@ -41,11 +41,11 @@
 #include "prpl.h"
 #include "proxy.h"
 #include "request.h"
+#include "cipher.h"
 #include "util.h"
 #include "version.h"
 
 #include "aim.h"
-#include "md5.h"
 
 #define UC_AOL		0x02
 #define UC_ADMIN	0x04
@@ -7390,6 +7390,7 @@ static void oscar_set_icon(PurpleConnection *gc, PurpleStoredImage *img)
 
 	if (img == NULL) {
 		aim_ssi_delicon(od->sess);
+<<<<<<< ours
 	} else {
 		gconstpointer data;
 		size_t len;
@@ -7403,6 +7404,32 @@ static void oscar_set_icon(PurpleConnection *gc, PurpleStoredImage *img)
 		md5_finish(&state, md5);
 		aim_ssi_seticon(sess, md5, 16);
 	}
+=======
+	} else if (!g_stat(iconfile, &st)) {
+		char *buf = g_malloc(st.st_size);
+		PurpleCipher *cipher;
+		PurpleCipherContext *context;
+		file = g_fopen(iconfile, "rb");
+		if (file) {
+			char md5[16];
+			int len = fread(buf, 1, st.st_size, file);
+			fclose(file);
+			cipher = purple_ciphers_find_cipher("md5");
+			if (cipher != NULL) {
+				context = purple_cipher_context_new(cipher, NULL);
+				purple_cipher_context_append(context, (const guchar *)buf, len);
+				if (purple_cipher_context_digest(context, sizeof(md5), (guchar *)md5, NULL))
+					aim_ssi_seticon(sess, md5, 16);
+				purple_cipher_context_destroy(context);
+			}
+		} else
+			gaim_debug_error("oscar",
+				   "Can't open buddy icon file!\n");
+		g_free(buf);
+	} else
+		gaim_debug_error("oscar",
+			   "Can't stat buddy icon file!\n");
+>>>>>>> theirs
 }
 
 

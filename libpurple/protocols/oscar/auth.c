@@ -9,7 +9,7 @@
 #define FAIM_INTERNAL
 #include <aim.h>
 
-#include "md5.h"
+#include "cipher.h"
 
 #include <ctype.h>
 
@@ -56,33 +56,51 @@ static int aim_encode_password(const char *password, fu8_t *encoded)
 #ifdef USE_OLD_MD5
 static int aim_encode_password_md5(const char *password, const char *key, fu8_t *digest)
 {
-	md5_state_t state;
+	PurpleCipher *cipher;
+	PurpleCipherContext *context;
+	gboolean ret;
 
-	md5_init(&state);	
-	md5_append(&state, (const md5_byte_t *)key, strlen(key));
-	md5_append(&state, (const md5_byte_t *)password, strlen(password));
-	md5_append(&state, (const md5_byte_t *)AIM_MD5_STRING, strlen(AIM_MD5_STRING));
-	md5_finish(&state, (md5_byte_t *)digest);
+	cipher = purple_ciphers_find_cipher("md5");
+	if (cipher == NULL)
+		return -EINVAL;
 
-	return 0;
+	context = purple_cipher_context_new(cipher, NULL);
+	purple_cipher_context_append(context, (const guchar *)key, strlen(key));
+	purple_cipher_context_append(context, (const guchar *)password, strlen(password));
+	purple_cipher_context_append(context, (const guchar *)AIM_MD5_STRING, strlen(AIM_MD5_STRING));
+	ret = purple_cipher_context_digest(context, 16, (guchar *)digest, NULL);
+	purple_cipher_context_destroy(context);
+
+	return ret ? 0 : -EINVAL;
 }
 #else
 static int aim_encode_password_md5(const char *password, const char *key, fu8_t *digest)
 {
-	md5_state_t state;
+	PurpleCipher *cipher;
+	PurpleCipherContext *context;
 	fu8_t passdigest[16];
+	gboolean ret;
 
-	md5_init(&state);
-	md5_append(&state, (const md5_byte_t *)password, strlen(password));
-	md5_finish(&state, (md5_byte_t *)&passdigest);
+	cipher = purple_ciphers_find_cipher("md5");
+	if (cipher == NULL)
+		return -EINVAL;
 
-	md5_init(&state);	
-	md5_append(&state, (const md5_byte_t *)key, strlen(key));
-	md5_append(&state, (const md5_byte_t *)&passdigest, 16);
-	md5_append(&state, (const md5_byte_t *)AIM_MD5_STRING, strlen(AIM_MD5_STRING));
-	md5_finish(&state, (md5_byte_t *)digest);
+	context = purple_cipher_context_new(cipher, NULL);
+	purple_cipher_context_append(context, (const guchar *)password, strlen(password));
+	ret = purple_cipher_context_digest(context, sizeof(passdigest), (guchar *)&passdigest, NULL);
+	if (!ret) {
+		purple_cipher_context_destroy(context);
+		return -EINVAL;
+	}
 
-	return 0;
+	purple_cipher_context_reset(context, NULL);
+	purple_cipher_context_append(context, (const guchar *)key, strlen(key));
+	purple_cipher_context_append(context, (const guchar *)&passdigest, sizeof(passdigest));
+	purple_cipher_context_append(context, (const guchar *)AIM_MD5_STRING, strlen(AIM_MD5_STRING));
+	ret = purple_cipher_context_digest(context, 16, (guchar *)digest, NULL);
+	purple_cipher_context_destroy(context);
+
+	return ret ? 0 : -EINVAL;
 }
 #endif
 
