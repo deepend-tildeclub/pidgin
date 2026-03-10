@@ -90,3 +90,48 @@ Front-end information:
 Protocol information:
   http://www.auk.cx/faim/protocol/
 
+
+Current OSCAR/ICQ endpoint notes
+--------------------------------
+
+Hardcoded endpoint inventory in this tree:
+
+  libpurple/protocols/oscar/faimconfig.h
+    FAIM_LOGIN_SERVER = icq.petaltxt.me
+    FAIM_LOGIN_PORT = 5190
+
+  libpurple/protocols/oscar/oscar.c
+    Auth bootstrap fallback reads account options:
+      server (default from FAIM_LOGIN_SERVER)
+      port (default from FAIM_LOGIN_PORT)
+    Redirected services use server-provided host:port pairs from BOS/auth redirects.
+    DirectIM and OFT listen ranges are fixed at 5190-5199.
+    Legacy hash lookup defaults (disabled by default):
+      legacy_hash_lookup_host = gaim.sourceforge.net
+      legacy_hash_lookup_port = 80
+      legacy_hash_lookup_path = /aim_data.php3
+
+Known-supported targets
+-----------------------
+
+Verified against https://petaltxt.me/connect.php:
+
+  Primary ICQ/OSCAR endpoint:
+    host: icq.petaltxt.me
+    port: 5190/TCP
+
+  Legacy AIM endpoint (older AIM clients <= 5.1):
+    host: login.petaltxt.me
+    port: 5190/TCP
+
+For this plugin, operators can override Auth host/port in account settings without recompiling.
+The login bootstrap path uses Auth host/port for the initial authorizer connection, then follows
+server-provided BOS and service redirects.
+
+Limitations
+-----------
+
+The old web hash fetch flow for AIM memrequest data uses a historic sourceforge endpoint and may
+not be available on modern deployments. It is now gated by account option
+"allow_legacy_hash_lookup" and disabled by default so login/session startup does not depend on
+that external URL.

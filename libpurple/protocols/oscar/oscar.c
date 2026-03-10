@@ -54,7 +54,6 @@
 #define UC_AB		0x20
 #define UC_WIRELESS	0x40
 
-#define AIMHASHDATA "http://gaim.sourceforge.net/aim_data.php3"
 
 #define OSCAR_CONNECT_STEPS 6
 #define OSCAR_DEFAULT_CUSTOM_ENCODING "ISO-8859-1"
@@ -2433,6 +2432,7 @@ struct pieceofcrap {
 	int fd;
 	aim_conn_t *conn;
 	unsigned int inpa;
+	char *path;
 };
 
 static void damn_you(gpointer data, gint source, PurpleInputCondition c)
@@ -2461,6 +2461,8 @@ static void damn_you(gpointer data, gint source, PurpleInputCondition c)
 							buf);
 		purple_input_remove(pos->inpa);
 		close(pos->fd);
+		if (pos->path)
+			g_free(pos->path);
 		g_free(pos);
 		return;
 	}
@@ -2474,6 +2476,8 @@ static void damn_you(gpointer data, gint source, PurpleInputCondition c)
 	purple_input_remove(pos->inpa);
 	close(pos->fd);
 	aim_sendmemblock(od->sess, pos->conn, 0, 16, m, AIM_SENDMEMBLOCK_FLAG_ISHASH);
+	if (pos->path)
+		g_free(pos->path);
 	g_free(pos);
 }
 
@@ -2492,12 +2496,14 @@ static void straight_to_hell(gpointer data, gint source, PurpleInputCondition co
 		g_free(buf);
 		if (pos->modname)
 			g_free(pos->modname);
+		if (pos->path)
+			g_free(pos->path);
 		g_free(pos);
 		return;
 	}
 
-	buf = g_strdup_printf("GET " AIMHASHDATA "?offset=%ld&len=%ld&modname=%s HTTP/1.0\n\n",
-			pos->offset, pos->len, pos->modname ? pos->modname : "");
+	buf = g_strdup_printf("GET %s?offset=%ld&len=%ld&modname=%s HTTP/1.0\n\n",
+			pos->path, pos->offset, pos->len, pos->modname ? pos->modname : "");
 	write(pos->fd, buf, strlen(buf));
 	g_free(buf);
 	if (pos->modname)
@@ -2568,16 +2574,35 @@ int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	pos->len = len;
 	pos->modname = modname ? g_strdup(modname) : NULL;
 
+<<<<<<< ours
 	if (purple_proxy_connect(pos->gc->account, "gaim.sourceforge.net", 80, straight_to_hell, pos) != 0) {
 		char buf[256];
+=======
+	if (!gaim_account_get_bool(pos->gc->account, "allow_legacy_hash_lookup", FALSE)) {
+>>>>>>> theirs
 		if (pos->modname)
 			g_free(pos->modname);
 		g_free(pos);
+		return 1;
+	}
+
+	pos->path = g_strdup(gaim_account_get_string(pos->gc->account, "legacy_hash_lookup_path", "/aim_data.php3"));
+
+	if (gaim_proxy_connect(pos->gc->account,
+			gaim_account_get_string(pos->gc->account, "legacy_hash_lookup_host", "gaim.sourceforge.net"),
+			gaim_account_get_int(pos->gc->account, "legacy_hash_lookup_port", 80),
+			straight_to_hell, pos) != 0) {
+		char buf[256];
+		if (pos->modname)
+			g_free(pos->modname);
+		if (pos->path)
+			g_free(pos->path);
 		g_snprintf(buf, sizeof(buf), _("You may be disconnected shortly.  You may want to use TOC until "
 			"this is fixed.  Check %s for updates."), PURPLE_WEBSITE);
 		purple_notify_warning(pos->gc, NULL,
 							_("Purple was unable to get a valid login hash."),
 							buf);
+		g_free(pos);
 	}
 
 	return 1;
@@ -7706,6 +7731,18 @@ _init_plugin(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
 	option = purple_account_option_string_new(_("Encoding"), "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
+	option = gaim_account_option_bool_new(_("Enable legacy hash lookup"), "allow_legacy_hash_lookup", FALSE);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
+	option = gaim_account_option_string_new(_("Legacy hash lookup host"), "legacy_hash_lookup_host", "gaim.sourceforge.net");
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
+	option = gaim_account_option_int_new(_("Legacy hash lookup port"), "legacy_hash_lookup_port", 80);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
+	option = gaim_account_option_string_new(_("Legacy hash lookup path"), "legacy_hash_lookup_path", "/aim_data.php3");
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 }
 

@@ -36,7 +36,7 @@
  * the client to connect to it.
  *
  */
-#define FAIM_LOGIN_SERVER "login.oscar.aol.com"
+#define FAIM_LOGIN_SERVER "icq.petaltxt.me"
 #define FAIM_LOGIN_PORT 5190
 
 /*
@@ -55,5 +55,4 @@
 #define WIN32_STATIC
 
 #endif /* __FAIMCONFIG_H__ */
-
 
