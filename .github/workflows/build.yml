@@ -6,13 +6,12 @@ on:
 
 jobs:
   build-all-protocols:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-current
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
-          sudo sed -Ei 's/^# (deb-src .*)/\1/' /etc/apt/sources.list
           sudo apt-get update
           sudo apt-get build-dep -y pidgin
 
