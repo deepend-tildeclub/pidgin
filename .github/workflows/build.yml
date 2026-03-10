@@ -13,23 +13,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            autoconf \
-            automake \
-            build-essential \
-            gettext \
-            intltool \
-            libavahi-client-dev \
-            libavahi-glib-dev \
-            libdbus-1-dev \
-            libglib2.0-dev \
-            libidn11-dev \
-            libkrb5-dev \
-            libmeanwhile-dev \
-            libxml2-dev \
-            libzephyr-dev \
-            libtool \
-            pkg-config
+          sudo apt-get build-dep -y pidgin
 
       - name: Configure
         run: |
