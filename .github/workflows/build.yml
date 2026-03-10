@@ -14,7 +14,6 @@ jobs:
         run: |
           sudo sed -Ei 's/^# (deb-src .*)/\1/' /etc/apt/sources.list
           sudo apt-get update
-          sudo apt-get install -y build-essential libunwind-dev
           sudo apt-get build-dep -y pidgin
 
       - name: Configure
