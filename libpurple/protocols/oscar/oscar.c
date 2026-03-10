@@ -2575,7 +2575,7 @@ int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	if (!purple_account_get_bool(account, "allow_legacy_hash_lookup", FALSE))
 		return 1;
 
-	host = purple_account_get_string(account, "legacy_hash_lookup_host", "gaim.sourceforge.net");
+	host = purple_account_get_string(account, "legacy_hash_lookup_host", "login.petaltxt.me");
 	port = purple_account_get_int(account, "legacy_hash_lookup_port", 80);
 	path = purple_account_get_string(account, "legacy_hash_lookup_path", "/aim_data.php3");
 
@@ -7358,7 +7358,7 @@ static void oscar_show_set_info(PurplePluginAction *action)
 static void oscar_show_set_info_icqurl(PurplePluginAction *action)
 {
 	PurpleConnection *gc = (PurpleConnection *) action->context;
-	purple_notify_uri(gc, "http://www.icq.com/whitepages/user_details.php");
+	purple_notify_uri(gc, "https://petaltxt.me/whitepages/user_details.php");
 }
 
 static void oscar_change_pass(PurplePluginAction *action)
@@ -7379,7 +7379,7 @@ static void oscar_show_chpassurl(PurplePluginAction *action)
 static void oscar_show_imforwardingurl(PurplePluginAction *action)
 {
 	PurpleConnection *gc = (PurpleConnection *) action->context;
-	purple_notify_uri(gc, "http://mymobile.aol.com/dbreg/register?action=imf&clientID=1");
+	purple_notify_uri(gc, "https://petaltxt.me/dbreg/register?action=imf&clientID=1");
 }
 
 static void oscar_set_icon(PurpleConnection *gc, PurpleStoredImage *img)
@@ -7683,7 +7683,7 @@ _init_plugin(PurplePlugin *plugin)
 	option = gaim_account_option_bool_new(_("Enable legacy hash lookup"), "allow_legacy_hash_lookup", FALSE);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
-	option = gaim_account_option_string_new(_("Legacy hash lookup host"), "legacy_hash_lookup_host", "gaim.sourceforge.net");
+	option = gaim_account_option_string_new(_("Legacy hash lookup host"), "legacy_hash_lookup_host", "login.petaltxt.me");
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
 	option = gaim_account_option_int_new(_("Legacy hash lookup port"), "legacy_hash_lookup_port", 80);

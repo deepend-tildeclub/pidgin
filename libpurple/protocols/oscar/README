@@ -107,7 +107,7 @@ Hardcoded endpoint inventory in this tree:
     Redirected services use server-provided host:port pairs from BOS/auth redirects.
     DirectIM and OFT listen ranges are fixed at 5190-5199.
     Legacy hash lookup defaults (disabled by default):
-      legacy_hash_lookup_host = gaim.sourceforge.net
+      legacy_hash_lookup_host = login.petaltxt.me
       legacy_hash_lookup_port = 80
       legacy_hash_lookup_path = /aim_data.php3
 
@@ -131,7 +131,7 @@ server-provided BOS and service redirects.
 Limitations
 -----------
 
-The old web hash fetch flow for AIM memrequest data uses a historic sourceforge endpoint and may
-not be available on modern deployments. It is now gated by account option
+The old web hash fetch flow for AIM memrequest data defaults to the petaltxt legacy endpoint and may
+not be available on every deployment. It is gated by account option
 "allow_legacy_hash_lookup" and disabled by default so login/session startup does not depend on
 that external URL.
