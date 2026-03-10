@@ -6,7 +6,7 @@ EXTRA_DIST = \
 		AUTHORS \
 		Makefile.mingw
 
-pkgdir = $(libdir)/gaim
+pkgdir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 
 OSCARSOURCES = \
 	admin.c        \
@@ -48,24 +48,26 @@ OSCARSOURCES = \
 
 AM_CFLAGS = $(st)
 
-liboscar_la_LDFLAGS = -module -avoid-version $(GLIB_LIBS)
+liboscar_la_LDFLAGS = -module -avoid-version
 
 if STATIC_OSCAR
 
-st = -DGAIM_STATIC_PRPL
-noinst_LIBRARIES   = liboscar.a
-liboscar_a_SOURCES = $(OSCARSOURCES)
-liboscar_a_CFLAGS  = $(AM_CFLAGS)
+st = -DPURPLE_STATIC_PRPL
+noinst_LTLIBRARIES   = liboscar.la
+liboscar_la_SOURCES = $(OSCARSOURCES)
+liboscar_la_CFLAGS  = $(AM_CFLAGS)
 
 else
 
 st =
-pkg_LTLIBRARIES     = liboscar.la
+pkg_LTLIBRARIES      = liboscar.la
 liboscar_la_SOURCES = $(OSCARSOURCES)
+liboscar_la_LIBADD  = $(GLIB_LIBS)
 
 endif
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/libpurple \
+	-I$(top_builddir)/libpurple \
 	$(GLIB_CFLAGS) \
 	$(DEBUG_CFLAGS)

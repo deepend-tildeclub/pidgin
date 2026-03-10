@@ -40,7 +40,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
-subdir = src/protocols/oscar
+subdir = libpurple/protocols/oscar
 DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	AUTHORS COPYING
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -394,7 +394,7 @@ EXTRA_DIST = \
 		AUTHORS \
 		Makefile.mingw
 
-pkgdir = $(libdir)/gaim
+pkgdir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 OSCARSOURCES = \
 	admin.c        \
 	adverts.c      \
@@ -434,16 +434,17 @@ OSCARSOURCES = \
 	oscar.c
 
 AM_CFLAGS = $(st)
-liboscar_la_LDFLAGS = -module -avoid-version $(GLIB_LIBS)
+liboscar_la_LDFLAGS = -module -avoid-version
 @STATIC_OSCAR_FALSE@st = 
-@STATIC_OSCAR_TRUE@st = -DGAIM_STATIC_PRPL
+@STATIC_OSCAR_TRUE@st = -DPURPLE_STATIC_PRPL
 @STATIC_OSCAR_TRUE@noinst_LIBRARIES = liboscar.a
 @STATIC_OSCAR_TRUE@liboscar_a_SOURCES = $(OSCARSOURCES)
 @STATIC_OSCAR_TRUE@liboscar_a_CFLAGS = $(AM_CFLAGS)
 @STATIC_OSCAR_FALSE@pkg_LTLIBRARIES = liboscar.la
 @STATIC_OSCAR_FALSE@liboscar_la_SOURCES = $(OSCARSOURCES)
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/libpurple \
+	-I$(top_builddir)/libpurple \
 	$(GLIB_CFLAGS) \
 	$(DEBUG_CFLAGS)
 
@@ -460,9 +461,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/protocols/oscar/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  libpurple/protocols/oscar/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  src/protocols/oscar/Makefile
+	  $(AUTOMAKE) --gnu  libpurple/protocols/oscar/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
