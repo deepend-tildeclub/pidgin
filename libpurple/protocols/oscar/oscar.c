@@ -2574,23 +2574,18 @@ int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	pos->len = len;
 	pos->modname = modname ? g_strdup(modname) : NULL;
 
-<<<<<<< ours
-	if (purple_proxy_connect(pos->gc->account, "gaim.sourceforge.net", 80, straight_to_hell, pos) != 0) {
-		char buf[256];
-=======
-	if (!gaim_account_get_bool(pos->gc->account, "allow_legacy_hash_lookup", FALSE)) {
->>>>>>> theirs
+	if (!purple_account_get_bool(pos->gc->account, "allow_legacy_hash_lookup", FALSE)) {
 		if (pos->modname)
 			g_free(pos->modname);
 		g_free(pos);
 		return 1;
 	}
 
-	pos->path = g_strdup(gaim_account_get_string(pos->gc->account, "legacy_hash_lookup_path", "/aim_data.php3"));
+	pos->path = g_strdup(purple_account_get_string(pos->gc->account, "legacy_hash_lookup_path", "/aim_data.php3"));
 
-	if (gaim_proxy_connect(pos->gc->account,
-			gaim_account_get_string(pos->gc->account, "legacy_hash_lookup_host", "gaim.sourceforge.net"),
-			gaim_account_get_int(pos->gc->account, "legacy_hash_lookup_port", 80),
+	if (purple_proxy_connect(pos->gc->account,
+			purple_account_get_string(pos->gc->account, "legacy_hash_lookup_host", "gaim.sourceforge.net"),
+			purple_account_get_int(pos->gc->account, "legacy_hash_lookup_port", 80),
 			straight_to_hell, pos) != 0) {
 		char buf[256];
 		if (pos->modname)
@@ -7415,7 +7410,6 @@ static void oscar_set_icon(PurpleConnection *gc, PurpleStoredImage *img)
 
 	if (img == NULL) {
 		aim_ssi_delicon(od->sess);
-<<<<<<< ours
 	} else {
 		gconstpointer data;
 		size_t len;
@@ -7429,32 +7423,6 @@ static void oscar_set_icon(PurpleConnection *gc, PurpleStoredImage *img)
 		md5_finish(&state, md5);
 		aim_ssi_seticon(sess, md5, 16);
 	}
-=======
-	} else if (!g_stat(iconfile, &st)) {
-		char *buf = g_malloc(st.st_size);
-		PurpleCipher *cipher;
-		PurpleCipherContext *context;
-		file = g_fopen(iconfile, "rb");
-		if (file) {
-			char md5[16];
-			int len = fread(buf, 1, st.st_size, file);
-			fclose(file);
-			cipher = purple_ciphers_find_cipher("md5");
-			if (cipher != NULL) {
-				context = purple_cipher_context_new(cipher, NULL);
-				purple_cipher_context_append(context, (const guchar *)buf, len);
-				if (purple_cipher_context_digest(context, sizeof(md5), (guchar *)md5, NULL))
-					aim_ssi_seticon(sess, md5, 16);
-				purple_cipher_context_destroy(context);
-			}
-		} else
-			gaim_debug_error("oscar",
-				   "Can't open buddy icon file!\n");
-		g_free(buf);
-	} else
-		gaim_debug_error("oscar",
-			   "Can't stat buddy icon file!\n");
->>>>>>> theirs
 }
 
 
