@@ -4781,27 +4781,15 @@ static gboolean purple_icon_timerfunc(gpointer data) {
 	}
 
 	if (od->set_icon) {
-		struct stat st;
-		const char *iconfile = purple_account_get_buddy_icon(purple_connection_get_account(gc));
-		if (iconfile == NULL) {
+		PurpleStoredImage *img = purple_buddy_icons_find_account_icon(purple_connection_get_account(gc));
+		if (img == NULL) {
 			aim_ssi_delicon(od->sess);
-		} else if (!g_stat(iconfile, &st)) {
-			char *buf = g_malloc(st.st_size);
-			FILE *file = g_fopen(iconfile, "rb");
-			if (file) {
-				/* XXX - Use g_file_get_contents()? */
-				fread(buf, 1, st.st_size, file);
-				fclose(file);
-				purple_debug_info("oscar",
-					   "Uploading icon to icon server\n");
-				aim_bart_upload(od->sess, buf, st.st_size);
-			} else
-				purple_debug_error("oscar",
-					   "Can't open buddy icon file!\n");
-			g_free(buf);
 		} else {
-			purple_debug_error("oscar",
-				   "Can't stat buddy icon file!\n");
+			gconstpointer data = purple_imgstore_get_data(img);
+			size_t len = purple_imgstore_get_size(img);
+			purple_debug_info("oscar", "Uploading icon to icon server\n");
+			aim_bart_upload(od->sess, data, len);
+			purple_imgstore_unref(img);
 		}
 		od->set_icon = FALSE;
 	}
@@ -6907,35 +6895,25 @@ static int oscar_icon_req(aim_session_t *sess, aim_frame_t *fr, ...) {
 					od->set_icon = TRUE;
 					aim_reqservice(od->sess, od->conn, AIM_CONN_TYPE_ICON);
 				} else {
-					struct stat st;
-					const char *iconfile = purple_account_get_buddy_icon(purple_connection_get_account(gc));
-					if (iconfile == NULL) {
+					PurpleStoredImage *img = purple_buddy_icons_find_account_icon(purple_connection_get_account(gc));
+					if (img == NULL) {
 						aim_ssi_delicon(od->sess);
-					} else if (!g_stat(iconfile, &st)) {
-						char *buf = g_malloc(st.st_size);
-						FILE *file = g_fopen(iconfile, "rb");
-						if (file) {
-							/* XXX - Use g_file_get_contents()? */
-							fread(buf, 1, st.st_size, file);
-							fclose(file);
-							purple_debug_info("oscar",
-								   "Uploading icon to icon server\n");
-							aim_bart_upload(od->sess, buf, st.st_size);
-						} else
-							purple_debug_error("oscar",
-								   "Can't open buddy icon file!\n");
-						g_free(buf);
 					} else {
-						purple_debug_error("oscar",
-							   "Can't stat buddy icon file!\n");
+						gconstpointer data = purple_imgstore_get_data(img);
+						size_t len = purple_imgstore_get_size(img);
+						purple_debug_info("oscar", "Uploading icon to icon server\n");
+						aim_bart_upload(od->sess, data, len);
+						purple_imgstore_unref(img);
 					}
 				}
 			} else if (flags == 0x81) {
-				const char *iconfile = purple_account_get_buddy_icon(purple_connection_get_account(gc));
-				if (iconfile == NULL)
+				PurpleStoredImage *img = purple_buddy_icons_find_account_icon(purple_connection_get_account(gc));
+				if (img == NULL)
 					aim_ssi_delicon(od->sess);
-				else
+				else {
 					aim_ssi_seticon(od->sess, md5, length);
+					purple_imgstore_unref(img);
+				}
 			}
 		} break;
 
