@@ -1,5 +1,9 @@
 Purple, Pidgin and Finch
 ========================
+
+[![build](https://github.com/deepend-tildeclub/pidgin/actions/workflows/build.yml/badge.svg)](https://github.com/deepend-tildeclub/pidgin/actions/workflows/build.yml)
+
+
 See AUTHORS and COPYRIGHT for the list of contributors.
 
 libpurple is a library intended to be used by programmers seeking
