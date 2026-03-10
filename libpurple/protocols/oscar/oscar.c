@@ -2517,9 +2517,14 @@ static void straight_to_hell(gpointer data, gint source, PurpleInputCondition co
 
 int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	va_list ap;
+	PurpleConnection *gc;
+	PurpleAccount *account;
 	struct pieceofcrap *pos;
 	fu32_t offset, len;
 	char *modname;
+	const char *host;
+	const char *path;
+	int port;
 
 	va_start(ap, fr);
 	offset = va_arg(ap, fu32_t);
@@ -2537,7 +2542,6 @@ int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 				AIM_SENDMEMBLOCK_FLAG_ISREQUEST);
 		return 1;
 	}
-	/* uncomment this when you're convinced it's right. remember, it's been wrong before. */
 #if 0
 	if (offset > AIM_MAX_FILE_SIZE || len > AIM_MAX_FILE_SIZE) {
 		char *buf;
@@ -2566,27 +2570,24 @@ int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 	}
 #endif
 
-	pos = g_new0(struct pieceofcrap, 1);
-	pos->gc = sess->aux_data;
-	pos->conn = fr->conn;
+	gc = sess->aux_data;
+	account = purple_connection_get_account(gc);
+	if (!purple_account_get_bool(account, "allow_legacy_hash_lookup", FALSE))
+		return 1;
 
+	host = purple_account_get_string(account, "legacy_hash_lookup_host", "gaim.sourceforge.net");
+	port = purple_account_get_int(account, "legacy_hash_lookup_port", 80);
+	path = purple_account_get_string(account, "legacy_hash_lookup_path", "/aim_data.php3");
+
+	pos = g_new0(struct pieceofcrap, 1);
+	pos->gc = gc;
+	pos->conn = fr->conn;
 	pos->offset = offset;
 	pos->len = len;
 	pos->modname = modname ? g_strdup(modname) : NULL;
+	pos->path = g_strdup(path);
 
-	if (!purple_account_get_bool(pos->gc->account, "allow_legacy_hash_lookup", FALSE)) {
-		if (pos->modname)
-			g_free(pos->modname);
-		g_free(pos);
-		return 1;
-	}
-
-	pos->path = g_strdup(purple_account_get_string(pos->gc->account, "legacy_hash_lookup_path", "/aim_data.php3"));
-
-	if (purple_proxy_connect(pos->gc->account,
-			purple_account_get_string(pos->gc->account, "legacy_hash_lookup_host", "gaim.sourceforge.net"),
-			purple_account_get_int(pos->gc->account, "legacy_hash_lookup_port", 80),
-			straight_to_hell, pos) != 0) {
+	if (purple_proxy_connect(account, host, port, straight_to_hell, pos) != 0) {
 		char buf[256];
 		if (pos->modname)
 			g_free(pos->modname);
@@ -2594,7 +2595,7 @@ int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 			g_free(pos->path);
 		g_snprintf(buf, sizeof(buf), _("You may be disconnected shortly.  You may want to use TOC until "
 			"this is fixed.  Check %s for updates."), PURPLE_WEBSITE);
-		purple_notify_warning(pos->gc, NULL,
+		purple_notify_warning(gc, NULL,
 							_("Purple was unable to get a valid login hash."),
 							buf);
 		g_free(pos);
