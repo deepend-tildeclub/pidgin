@@ -6284,7 +6284,7 @@ static int purple_ssi_parselist(aim_session_t *sess, aim_frame_t *fr, ...) {
 			   "ssi: syncing local list and server list\n");
 
 	if ((timestamp == 0) || (numitems == 0)) {
-		purple_debug_info("oscar", "Got AIM SSI with a 0 timestamp or 0 numitems--not syncing.  This probably means your buddy list is empty.", NULL);
+		purple_debug_info("oscar", "Got AIM SSI with a 0 timestamp or 0 numitems--not syncing.  This probably means your buddy list is empty.");
 		return 1;
 	}
 
