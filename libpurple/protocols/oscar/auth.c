@@ -226,7 +226,7 @@ static int goddamnicq2(aim_session_t *sess, aim_conn_t *conn, const char *sn, co
  *   serverstore = 0x01
  *
  */
-faim_export int aim_send_login(aim_session_t *sess, aim_conn_t *conn, const char *sn, const char *password, struct client_info_s *ci, const char *key)
+faim_export int oscar_auth_backend_legacy_send_login(aim_session_t *sess, aim_conn_t *conn, const char *sn, const char *password, struct client_info_s *ci, const char *key)
 {
 	aim_frame_t *fr;
 	aim_tlvlist_t *tl = NULL;
@@ -508,6 +508,16 @@ faim_export int aim_request_login(aim_session_t *sess, aim_conn_t *conn, const c
 	aim_tx_enqueue(sess, fr);
 
 	return 0;
+}
+
+faim_export int oscar_auth_backend_legacy_request_login(aim_session_t *sess, aim_conn_t *conn, const char *sn)
+{
+	return aim_request_login(sess, conn, sn);
+}
+
+faim_export int aim_send_login(aim_session_t *sess, aim_conn_t *conn, const char *sn, const char *password, struct client_info_s *ci, const char *key)
+{
+	return oscar_auth_backend_legacy_send_login(sess, conn, sn, password, ci, key);
 }
 
 /*

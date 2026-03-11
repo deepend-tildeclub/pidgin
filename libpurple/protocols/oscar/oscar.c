@@ -70,9 +70,36 @@ static fu8_t features_icq_offline[] = {0x01};
 static fu8_t ck[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 typedef struct _OscarData OscarData;
+typedef struct _OscarAuthResult OscarAuthResult;
+typedef struct _OscarAuthBackend OscarAuthBackend;
+
+struct _OscarAuthResult {
+	fu16_t errorcode;
+	char *errorurl;
+	char *bosip;
+	fu16_t cookielen;
+	fu8_t *cookie;
+	char *sn;
+	fu16_t regstatus;
+	char *email;
+};
+
+struct _OscarAuthBackend {
+	const char *name;
+	fu16_t login_challenge_family;
+	fu16_t login_challenge_subtype;
+	fu16_t auth_response_family;
+	fu16_t auth_response_subtype;
+	int (*request_login)(OscarData *od, aim_conn_t *conn, const char *sn);
+	int (*send_login)(OscarData *od, aim_conn_t *conn, const char *key);
+	int (*extract_result)(OscarData *od, void *response, OscarAuthResult *result);
+	void (*clear_result)(OscarAuthResult *result);
+};
+
 struct _OscarData {
 	aim_session_t *sess;
 	aim_conn_t *conn;
+	const OscarAuthBackend *auth_backend;
 
 	guint cnpa;
 	guint paspa;
@@ -116,6 +143,10 @@ struct _OscarData {
 		guint maxawaymsglen; /* max size (bytes) of posted away message */
 	} rights;
 };
+
+#ifndef OSCAR_DEFAULT_AUTH_BACKEND
+#define OSCAR_DEFAULT_AUTH_BACKEND "legacy"
+#endif
 
 struct create_room {
 	char *name;
@@ -216,6 +247,8 @@ static int msgerrreasonlen = 25;
 /* All the libfaim->gaim callback functions */
 static int purple_parse_auth_resp  (aim_session_t *, aim_frame_t *, ...);
 static int purple_parse_login      (aim_session_t *, aim_frame_t *, ...);
+static int oscar_auth_response_to_result(OscarData *od, void *response, OscarAuthResult *result);
+static void oscar_auth_result_clear(OscarAuthResult *result);
 static int purple_parse_auth_securid_request(aim_session_t *, aim_frame_t *, ...);
 static int purple_handle_redirect  (aim_session_t *, aim_frame_t *, ...);
 static int purple_info_change      (aim_session_t *, aim_frame_t *, ...);
@@ -312,6 +345,84 @@ static void oscar_free_buddyinfo(void *data) {
 	struct buddyinfo *bi = data;
 	g_free(bi->availmsg);
 	g_free(bi);
+}
+
+static int oscar_auth_backend_legacy_request(OscarData *od, aim_conn_t *conn, const char *sn)
+{
+	return oscar_auth_backend_legacy_request_login(od->sess, conn, sn);
+}
+
+static int oscar_auth_backend_legacy_login(OscarData *od, aim_conn_t *conn, const char *key)
+{
+	PurpleConnection *gc = od->sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
+	struct client_info_s info;
+
+	if (od->icq)
+		info = CLIENTINFO_ICQ_KNOWNGOOD;
+	else
+		info = CLIENTINFO_AIM_KNOWNGOOD;
+
+	return oscar_auth_backend_legacy_send_login(od->sess, conn,
+			purple_account_get_username(account),
+			purple_account_get_password(account), &info, key);
+}
+
+static int oscar_auth_response_to_result(OscarData *od, void *response, OscarAuthResult *result)
+{
+	struct aim_authresp_info *info = response;
+
+	(void)od;
+
+	memset(result, 0, sizeof(*result));
+	if (info == NULL)
+		return -1;
+
+	result->errorcode = info->errorcode;
+	result->errorurl = g_strdup(info->errorurl);
+	result->bosip = g_strdup(info->bosip);
+	result->cookielen = info->cookielen;
+	if (info->cookie && info->cookielen > 0)
+		result->cookie = g_memdup(info->cookie, info->cookielen);
+	result->sn = g_strdup(info->sn);
+	result->regstatus = info->regstatus;
+	result->email = g_strdup(info->email);
+
+	return 0;
+}
+
+static void oscar_auth_result_clear(OscarAuthResult *result)
+{
+	if (result == NULL)
+		return;
+	g_free(result->errorurl);
+	g_free(result->bosip);
+	g_free(result->cookie);
+	g_free(result->sn);
+	g_free(result->email);
+	memset(result, 0, sizeof(*result));
+}
+
+static OscarAuthBackend oscar_auth_backend_legacy = {
+	"legacy",
+	0x0017,
+	0x0007,
+	0x0017,
+	0x0003,
+	oscar_auth_backend_legacy_request,
+	oscar_auth_backend_legacy_login,
+	oscar_auth_response_to_result,
+	oscar_auth_result_clear,
+};
+
+static const OscarAuthBackend *oscar_auth_backend_for_account(PurpleAccount *account)
+{
+	const char *backend;
+
+	backend = purple_account_get_string(account, "auth_backend", OSCAR_DEFAULT_AUTH_BACKEND);
+	if (g_ascii_strcasecmp(backend, oscar_auth_backend_legacy.name) == 0)
+		return &oscar_auth_backend_legacy;
+	return &oscar_auth_backend_legacy;
 }
 
 static fu32_t oscar_charset_check(const char *utf8)
@@ -1694,7 +1805,8 @@ static void oscar_login_connect(gpointer data, gint source, PurpleInputCondition
 
 	aim_conn_completeconnect(sess, conn);
 	gc->inpa = purple_input_add(conn->fd, PURPLE_INPUT_READ, oscar_callback, conn);
-	aim_request_login(sess, conn, purple_account_get_username(purple_connection_get_account(gc)));
+	if (od->auth_backend && od->auth_backend->request_login)
+		od->auth_backend->request_login(od, conn, purple_account_get_username(purple_connection_get_account(gc)));
 
 	purple_debug_info("oscar",
 			   "Screen name sent, waiting for response\n");
@@ -1724,6 +1836,7 @@ static void oscar_login(PurpleAccount *account) {
 		gc->flags |= PURPLE_CONNECTION_AUTO_RESP;
 	}
 	od->buddyinfo = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, oscar_free_buddyinfo);
+	od->auth_backend = oscar_auth_backend_for_account(account);
 
 	sess = g_new0(aim_session_t, 1);
 	aim_session_init(sess, TRUE, 0);
@@ -1745,8 +1858,8 @@ static void oscar_login(PurpleAccount *account) {
 	}
 
 	aim_conn_addhandler(sess, conn, AIM_CB_FAM_SPECIAL, AIM_CB_SPECIAL_CONNERR, purple_connerr, 0);
-	aim_conn_addhandler(sess, conn, 0x0017, 0x0007, purple_parse_login, 0);
-	aim_conn_addhandler(sess, conn, 0x0017, 0x0003, purple_parse_auth_resp, 0);
+	aim_conn_addhandler(sess, conn, od->auth_backend->login_challenge_family, od->auth_backend->login_challenge_subtype, purple_parse_login, 0);
+	aim_conn_addhandler(sess, conn, od->auth_backend->auth_response_family, od->auth_backend->auth_response_subtype, purple_parse_auth_resp, 0);
 	aim_conn_addhandler(sess, conn, AIM_CB_FAM_ATH, AIM_CB_ATH_SECURID_REQUEST, purple_parse_auth_securid_request, 0);
 
 	conn->status |= AIM_CONN_STATUS_INPROGRESS;
@@ -2231,44 +2344,46 @@ static int purple_parse_auth_resp(aim_session_t *sess, aim_frame_t *fr, ...) {
 	OscarData *od = gc->proto_data;
 	PurpleAccount *account = gc->account;
 	aim_conn_t *bosconn;
-	char *host; int port;
-	int i, rc;
+	char *host;
+	int port;
+	int i;
+	int rc;
 	va_list ap;
-	struct aim_authresp_info *info;
+	void *response;
+	OscarAuthResult result;
 
 	port = purple_account_get_int(account, "port", FAIM_LOGIN_PORT);
 
 	va_start(ap, fr);
-	info = va_arg(ap, struct aim_authresp_info *);
+	response = va_arg(ap, void *);
 	va_end(ap);
 
-	purple_debug_info("oscar",
-			   "inside auth_resp (Screen name: %s)\n", info->sn);
+	if (!od->auth_backend || !od->auth_backend->extract_result)
+		return 0;
+	if (od->auth_backend->extract_result(od, response, &result) != 0)
+		return 0;
 
-	if (info->errorcode || !info->bosip || !info->cookielen || !info->cookie) {
+	purple_debug_info("oscar", "inside auth_resp (Screen name: %s)\n", result.sn);
+
+	if (result.errorcode || !result.bosip || !result.cookielen || !result.cookie) {
 		char buf[256];
-		switch (info->errorcode) {
+		switch (result.errorcode) {
 		case 0x05:
-			/* Incorrect nick/password */
 			gc->wants_to_die = TRUE;
 			purple_connection_error(gc, _("Incorrect nickname or password."));
 			break;
 		case 0x11:
-			/* Suspended account */
 			gc->wants_to_die = TRUE;
 			purple_connection_error(gc, _("Your account is currently suspended."));
 			break;
 		case 0x14:
-			/* service temporarily unavailable */
 			purple_connection_error(gc, _("The AOL Instant Messenger service is temporarily unavailable."));
 			break;
 		case 0x18:
-			/* connecting too frequently */
 			gc->wants_to_die = TRUE;
 			purple_connection_error(gc, _("You have been connecting and disconnecting too frequently. Wait ten minutes and try again. If you continue to try, you will need to wait even longer."));
 			break;
 		case 0x1c:
-			/* client too old */
 			gc->wants_to_die = TRUE;
 			g_snprintf(buf, sizeof(buf), _("The client version you are using is too old. Please upgrade at %s"), PURPLE_WEBSITE);
 			purple_connection_error(gc, buf);
@@ -2277,33 +2392,28 @@ static int purple_parse_auth_resp(aim_session_t *sess, aim_frame_t *fr, ...) {
 			purple_connection_error(gc, _("Authentication failed"));
 			break;
 		}
-		purple_debug_error("oscar",
-				   "Login Error Code 0x%04hx\n", info->errorcode);
-		purple_debug_error("oscar",
-				   "Error URL: %s\n", info->errorurl);
+		purple_debug_error("oscar", "Login Error Code 0x%04hx\n", result.errorcode);
+		purple_debug_error("oscar", "Error URL: %s\n", result.errorurl);
 		od->killme = TRUE;
+		od->auth_backend->clear_result(&result);
 		return 1;
 	}
 
-
-	purple_debug_misc("oscar",
-			   "Reg status: %hu\n", info->regstatus);
-
-	if (info->email) {
-		purple_debug_misc("oscar", "Email: %s\n", info->email);
-	} else {
+	purple_debug_misc("oscar", "Reg status: %hu\n", result.regstatus);
+	if (result.email)
+		purple_debug_misc("oscar", "Email: %s\n", result.email);
+	else
 		purple_debug_misc("oscar", "Email is NULL\n");
-	}
-	
-	purple_debug_misc("oscar", "BOSIP: %s\n", info->bosip);
-	purple_debug_info("oscar",
-			   "Closing auth connection...\n");
+
+	purple_debug_misc("oscar", "BOSIP: %s\n", result.bosip);
+	purple_debug_info("oscar", "Closing auth connection...\n");
 	aim_conn_kill(sess, &fr->conn);
 
 	bosconn = aim_newconn(sess, AIM_CONN_TYPE_BOS, NULL);
 	if (bosconn == NULL) {
 		purple_connection_error(gc, _("Internal Error"));
 		od->killme = TRUE;
+		od->auth_backend->clear_result(&result);
 		return 0;
 	}
 
@@ -2356,22 +2466,24 @@ static int purple_parse_auth_resp(aim_session_t *sess, aim_frame_t *fr, ...) {
 #endif
 
 	od->conn = bosconn;
-	for (i = 0; i < (int)strlen(info->bosip); i++) {
-		if (info->bosip[i] == ':') {
-			port = atoi(&(info->bosip[i+1]));
+	for (i = 0; i < (int)strlen(result.bosip); i++) {
+		if (result.bosip[i] == ':') {
+			port = atoi(&(result.bosip[i + 1]));
 			break;
 		}
 	}
-	host = g_strndup(info->bosip, i);
+	host = g_strndup(result.bosip, i);
 	bosconn->status |= AIM_CONN_STATUS_INPROGRESS;
 	rc = purple_proxy_connect(gc->account, host, port, oscar_bos_connect, gc);
 	g_free(host);
 	if (rc < 0) {
 		purple_connection_error(gc, _("Could Not Connect"));
 		od->killme = TRUE;
+		od->auth_backend->clear_result(&result);
 		return 0;
 	}
-	aim_sendcookie(sess, bosconn, info->cookielen, info->cookie);
+	aim_sendcookie(sess, bosconn, result.cookielen, result.cookie);
+	od->auth_backend->clear_result(&result);
 	purple_input_remove(gc->inpa);
 
 	purple_connection_update_progress(gc, _("Received authorization"), 3, OSCAR_CONNECT_STEPS);
@@ -2607,11 +2719,6 @@ int purple_memrequest(aim_session_t *sess, aim_frame_t *fr, ...) {
 static int purple_parse_login(aim_session_t *sess, aim_frame_t *fr, ...) {
 	PurpleConnection *gc = sess->aux_data;
 	OscarData *od = gc->proto_data;
-	PurpleAccount *account = purple_connection_get_account(gc);
-	PurpleAccount *ac = purple_connection_get_account(gc);
-#if 0
-	struct client_info_s info = {"gaim", 7, 3, 2003, "us", "en", 0x0004, 0x0000, 0x04b};
-#endif
 	va_list ap;
 	char *key;
 
@@ -2619,15 +2726,8 @@ static int purple_parse_login(aim_session_t *sess, aim_frame_t *fr, ...) {
 	key = va_arg(ap, char *);
 	va_end(ap);
 
-	if (od->icq) {
-		struct client_info_s info = CLIENTINFO_ICQ_KNOWNGOOD;
-		aim_send_login(sess, fr->conn, purple_account_get_username(ac),
-					   purple_account_get_password(account), &info, key);
-	} else {
-		struct client_info_s info = CLIENTINFO_AIM_KNOWNGOOD;
-		aim_send_login(sess, fr->conn, purple_account_get_username(ac),
-					   purple_account_get_password(account), &info, key);
-	}
+	if (od->auth_backend && od->auth_backend->send_login)
+		od->auth_backend->send_login(od, fr->conn, key);
 
 	purple_connection_update_progress(gc, _("Password sent"), 2, OSCAR_CONNECT_STEPS);
 	ck[2] = 0x6c;
@@ -7675,6 +7775,9 @@ _init_plugin(PurplePlugin *plugin)
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
 	option = purple_account_option_int_new(_("Auth port"), "port", FAIM_LOGIN_PORT);
+	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
+
+	option = purple_account_option_string_new(_("Auth backend"), "auth_backend", OSCAR_DEFAULT_AUTH_BACKEND);
 	prpl_info.protocol_options = g_list_append(prpl_info.protocol_options, option);
 
 	option = purple_account_option_string_new(_("Encoding"), "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
