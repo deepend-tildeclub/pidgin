@@ -61,6 +61,19 @@
 /* Seconds each file transfer ip address will be given to make a connection */
 #define FT_IP_TIMEOUT	15
 
+#if GLIB_CHECK_VERSION(2, 68, 0)
+#define oscar_memdup2 g_memdup2
+#else
+static gpointer
+oscar_memdup2(gconstpointer mem, gsize byte_size)
+{
+	if (mem == NULL)
+		return NULL;
+
+	return g_memdup(mem, byte_size);
+}
+#endif
+
 static int caps_aim = AIM_CAPS_CHAT | AIM_CAPS_BUDDYICON | AIM_CAPS_DIRECTIM | AIM_CAPS_SENDFILE | AIM_CAPS_INTEROPERATE | AIM_CAPS_ICHAT;
 static int caps_icq = AIM_CAPS_BUDDYICON | AIM_CAPS_DIRECTIM | AIM_CAPS_SENDFILE | AIM_CAPS_ICQUTF8 | AIM_CAPS_INTEROPERATE | AIM_CAPS_ICHAT;
 
@@ -383,7 +396,7 @@ static int oscar_auth_response_to_result(OscarData *od, void *response, OscarAut
 	result->bosip = g_strdup(info->bosip);
 	result->cookielen = info->cookielen;
 	if (info->cookie && info->cookielen > 0)
-		result->cookie = g_memdup(info->cookie, info->cookielen);
+		result->cookie = oscar_memdup2(info->cookie, info->cookielen);
 	result->sn = g_strdup(info->sn);
 	result->regstatus = info->regstatus;
 	result->email = g_strdup(info->email);
