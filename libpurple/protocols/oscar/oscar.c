@@ -459,6 +459,15 @@ static fu32_t oscar_charset_check(const char *utf8)
 	return charset;
 }
 
+static const gchar *
+oscar_get_custom_encoding(PurpleAccount *account)
+{
+	if (account == NULL)
+		return OSCAR_DEFAULT_CUSTOM_ENCODING;
+
+	return purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+}
+
 /*
  * Take a string of the form charset="bleh" where bleh is
  * one of us-ascii, utf-8, iso-8859-1, or unicode-2-0, and 
@@ -490,39 +499,75 @@ static gchar *oscar_encoding_extract(const char *encoding)
 }
 
 static gchar *
+oscar_try_encoding_to_utf8(const char *encoding, const char *text, int textlen)
+{
+	gchar *utf8 = NULL;
+	const gchar *effective_encoding;
+
+	if ((encoding == NULL) || encoding[0] == '\0')
+		effective_encoding = "UTF-8";
+	else
+		effective_encoding = encoding;
+
+	if (!strcasecmp(effective_encoding, "iso-8859-1")) {
+		utf8 = g_convert(text, textlen, "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
+	} else if (!strcasecmp(effective_encoding, "ISO-8859-1-Windows-3.1-Latin-1")) {
+		utf8 = g_convert(text, textlen, "UTF-8", "Windows-1252", NULL, NULL, NULL);
+	} else if (!strcasecmp(effective_encoding, "unicode-2-0")) {
+		utf8 = g_convert(text, textlen, "UTF-8", "UCS-2BE", NULL, NULL, NULL);
+	} else if (strcasecmp(effective_encoding, "us-ascii") && strcasecmp(effective_encoding, "utf-8")) {
+		purple_debug_warning("oscar", "Unrecognized character encoding \"%s\", "
+						   "attempting to convert to UTF-8 anyway\n", effective_encoding);
+		utf8 = g_convert(text, textlen, "UTF-8", effective_encoding, NULL, NULL, NULL);
+	} else if (g_utf8_validate(text, textlen, NULL)) {
+		utf8 = g_strndup(text, textlen);
+	}
+
+	return utf8;
+}
+
+static gchar *
 oscar_encoding_to_utf8(const char *encoding, const char *text, int textlen)
 {
 	gchar *utf8 = NULL;
 
-	if ((encoding == NULL) || encoding[0] == '\0') {
-		purple_debug_info("oscar", "Empty encoding, assuming UTF-8\n");
-	} else if (!strcasecmp(encoding, "iso-8859-1")) {
-		utf8 = g_convert(text, textlen, "UTF-8", "ISO-8859-1", NULL, NULL, NULL);
-	} else if (!strcasecmp(encoding, "ISO-8859-1-Windows-3.1-Latin-1")) {
-		utf8 = g_convert(text, textlen, "UTF-8", "Windows-1252", NULL, NULL, NULL);
-	} else if (!strcasecmp(encoding, "unicode-2-0")) {
-		utf8 = g_convert(text, textlen, "UTF-8", "UCS-2BE", NULL, NULL, NULL);
-	} else if (strcasecmp(encoding, "us-ascii") && strcmp(encoding, "utf-8")) {
-		purple_debug_warning("oscar", "Unrecognized character encoding \"%s\", "
-						   "attempting to convert to UTF-8 anyway\n", encoding);
-		utf8 = g_convert(text, textlen, "UTF-8", encoding, NULL, NULL, NULL);
-	}
+	utf8 = oscar_try_encoding_to_utf8(encoding, text, textlen);
+	if (utf8 != NULL)
+		return utf8;
 
-	/*
-	 * If utf8 is still NULL then either the encoding is us-ascii/utf-8 or
-	 * we have been unable to convert the text to utf-8 from the encoding
-	 * that was specified.  So we check if the text is valid utf-8 then
-	 * just copy it.
-	 */
-	if (utf8 == NULL) {
-		if (textlen != 0 && *text != '\0'
-                    && !g_utf8_validate(text, textlen, NULL))
-			utf8 = g_strdup(_("(There was an error receiving this message.  The buddy you are speaking to most likely has a buggy client.)"));
-		else
-			utf8 = g_strndup(text, textlen);
-	}
+	if (textlen != 0 && *text != '\0' && !g_utf8_validate(text, textlen, NULL))
+		return g_strdup(_("(There was an error receiving this message.  The buddy you are speaking to most likely has a buggy client.)"));
 
-	return utf8;
+	return g_strndup(text, textlen);
+}
+
+static gchar *
+oscar_decode_to_utf8(PurpleAccount *account, const char *sourcesn, const char *encoding, const char *text, int textlen)
+{
+	gchar *utf8 = NULL;
+	const gchar *fallback;
+
+	if ((text == NULL) || (textlen == 0))
+		return g_strdup("");
+
+	utf8 = oscar_try_encoding_to_utf8(encoding, text, textlen);
+	if (utf8 != NULL)
+		return utf8;
+
+	if ((sourcesn != NULL) && isdigit(sourcesn[0]))
+		fallback = oscar_get_custom_encoding(account);
+	else
+		fallback = "ISO-8859-1";
+
+	utf8 = oscar_try_encoding_to_utf8(fallback, text, textlen);
+	if (utf8 != NULL)
+		return utf8;
+
+	utf8 = oscar_try_encoding_to_utf8("ISO-8859-1", text, textlen);
+	if (utf8 != NULL)
+		return utf8;
+
+	return g_strdup(_("(There was an error receiving this message.  The buddy you are speaking to most likely has a buggy client.)"));
 }
 
 static gchar *
@@ -578,31 +623,43 @@ purple_plugin_oscar_decode_im_part(PurpleAccount *account, const char *sourcesn,
 		charsetstr2 = "UTF-8";
 	} else if (charset == AIM_CHARSET_CUSTOM) {
 		if ((sourcesn != NULL) && isdigit(sourcesn[0]))
-			charsetstr1 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+			charsetstr1 = oscar_get_custom_encoding(account);
 		else
 			charsetstr1 = "ISO-8859-1";
 		charsetstr2 = "UTF-8";
 	} else if (charset == AIM_CHARSET_ASCII) {
 		/* Should just be "ASCII" */
 		charsetstr1 = "ASCII";
-		charsetstr2 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr2 = oscar_get_custom_encoding(account);
 	} else if (charset == 0x000d) {
 		/* Mobile AIM client on a Nokia 3100 and an LG VX6000 */
 		charsetstr1 = "ISO-8859-1";
-		charsetstr2 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr2 = oscar_get_custom_encoding(account);
 	} else {
 		/* Unknown, hope for valid UTF-8... */
 		charsetstr1 = "UTF-8";
-		charsetstr2 = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr2 = oscar_get_custom_encoding(account);
 	}
 
 	ret = purple_plugin_oscar_convert_to_utf8(data, datalen, charsetstr1, FALSE);
 	if (ret == NULL)
 		ret = purple_plugin_oscar_convert_to_utf8(data, datalen, charsetstr2, TRUE);
 	if (ret == NULL)
-		ret = g_strdup(_("(There was an error receiving this message.  The buddy you are speaking to most likely has a buggy client.)"));
+		ret = oscar_decode_to_utf8(account, sourcesn, NULL, (const char *)data, datalen);
 
 	return ret;
+}
+
+static const char *
+oscar_charset_to_label(fu16_t charset, PurpleAccount *account)
+{
+	if (charset == AIM_CHARSET_ASCII)
+		return "us-ascii";
+	if (charset == AIM_CHARSET_UNICODE)
+		return "unicode-2-0";
+	if (charset == AIM_CHARSET_CUSTOM)
+		return oscar_get_custom_encoding(account);
+	return "utf-8";
 }
 
 static void
@@ -655,7 +712,7 @@ purple_plugin_oscar_convert_to_best_encoding(PurpleConnection *gc, const char *d
 	 */
 	charsetstr = "ISO-8859-1";
 	if ((destsn != NULL) && isdigit(destsn[0]))
-		charsetstr = purple_account_get_string(account, "encoding", OSCAR_DEFAULT_CUSTOM_ENCODING);
+		charsetstr = oscar_get_custom_encoding(account);
 
 	*msg = g_convert(from, strlen(from), charsetstr, "UTF-8", NULL, msglen, NULL);
 	if (*msg != NULL) {
@@ -1302,6 +1359,7 @@ static int purple_odc_update_ui(aim_session_t *sess, aim_frame_t *fr, ...) {
  */
 static int purple_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	PurpleConnection *gc = sess->aux_data;
+	PurpleAccount *account = purple_connection_get_account(gc);
 	PurpleMessageFlags imflags = 0;
 	gchar *utf8;
 	GString *newmsg = g_string_new("");
@@ -1363,14 +1421,10 @@ static int purple_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 			if (data + (size = atoi(datasize)) <= msgend)
 				imgid = purple_imgstore_add(data, size, src);
 
-			/*
-			 * XXX - The code below contains some calls to oscar_encoding_to_utf8
-			 * The hardcoded "us-ascii" value REALLY needs to be removed.
-			 */
 			/* if we have a stored image... */
 			if (imgid) {
 				/* append the message up to the tag */
-				utf8 = oscar_encoding_to_utf8("us-ascii", tmp, start - tmp);
+				utf8 = oscar_decode_to_utf8(account, sn, oscar_charset_to_label((fu16_t)encoding, account), tmp, start - tmp);
 				if (utf8 != NULL) {
 					newmsg = g_string_append(newmsg, utf8);
 					g_free(utf8);
@@ -1383,7 +1437,7 @@ static int purple_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 				images = g_slist_append(images, GINT_TO_POINTER(imgid));
 			} else {
 				/* otherwise, copy up to the end of the tag */
-				utf8 = oscar_encoding_to_utf8("us-ascii", tmp, (end + 1) - tmp);
+				utf8 = oscar_decode_to_utf8(account, sn, oscar_charset_to_label((fu16_t)encoding, account), tmp, (end + 1) - tmp);
 				if (utf8 != NULL) {
 					newmsg = g_string_append(newmsg, utf8);
 					g_free(utf8);
@@ -1405,10 +1459,13 @@ static int purple_odc_incoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 		if (images)
 			imflags |= PURPLE_CONV_IM_IMAGES;
 	} else {
-		g_string_append_len(newmsg, msg, len);
+		utf8 = oscar_decode_to_utf8(account, sn, oscar_charset_to_label((fu16_t)encoding, account), msg, len);
+		if (utf8 != NULL) {
+			g_string_append(newmsg, utf8);
+			g_free(utf8);
+		}
 	}
 
-	/* XXX - I imagine Paco-Paco will want to do some voodoo with the encoding here */
 	serv_got_im(gc, sn, newmsg->str, imflags, time(NULL));
 
 	/* free up the message */
@@ -1525,11 +1582,10 @@ static int purple_odc_send_im(aim_session_t *sess, aim_conn_t *conn, const char 
 	g_string_free(data, TRUE);
 
 
-	/* XXX - The last parameter below is the encoding.  Let Paco-Paco do something with it. */
 	if (imflags & PURPLE_CONV_IM_AUTO_RESP)
-		ret =  aim_odc_send_im(sess, conn, buf, len, 0, 1);
+		ret =  aim_odc_send_im(sess, conn, buf, len, oscar_charset_check(message), 1);
 	else
-		ret =  aim_odc_send_im(sess, conn, buf, len, 0, 0);
+		ret =  aim_odc_send_im(sess, conn, buf, len, oscar_charset_check(message), 0);
 
 	g_free(buf);
 
@@ -3190,7 +3246,7 @@ static int purple_parse_oncoming(aim_session_t *sess, aim_frame_t *fr, ...) {
 	{
 		free(bi->availmsg);
 		if (info->avail[0] != '\0')
-			bi->availmsg = oscar_encoding_to_utf8(info->avail_encoding, info->avail, info->avail_len);
+			bi->availmsg = oscar_decode_to_utf8(account, info->sn, info->avail_encoding, info->avail, info->avail_len);
 		else
 			bi->availmsg = NULL;
 	}
@@ -3604,36 +3660,34 @@ static int incomingim_chan2(aim_session_t *sess, aim_conn_t *conn, aim_userinfo_
 
 	if (args->msg != NULL)
 	{
+		char *encoding = NULL;
 		if (args->encoding != NULL)
-		{
-			char *encoding = NULL;
 			encoding = oscar_encoding_extract(args->encoding);
-			message = oscar_encoding_to_utf8(encoding, args->msg, args->msglen);
-			g_free(encoding);
-		} else {
-			if (g_utf8_validate(args->msg, args->msglen, NULL))
-				message = g_strdup(args->msg);
-		}
+		message = oscar_decode_to_utf8(account, userinfo->sn, encoding, args->msg, args->msglen);
+		g_free(encoding);
 	}
 
 	if (args->reqclass & AIM_CAPS_CHAT) {
 		char *name;
+		char *chatroom_name;
 		GHashTable *components;
 
 		if (!args->info.chat.roominfo.name || !args->info.chat.roominfo.exchange) {
 			g_free(message);
 			return 1;
 		}
+		chatroom_name = oscar_decode_to_utf8(account, userinfo->sn, NULL, args->info.chat.roominfo.name, strlen(args->info.chat.roominfo.name));
 		components = g_hash_table_new_full(g_str_hash, g_str_equal, g_free,
 				g_free);
-		name = extract_name(args->info.chat.roominfo.name);
-		g_hash_table_replace(components, g_strdup("room"), g_strdup(name ? name : args->info.chat.roominfo.name));
+		name = extract_name(chatroom_name);
+		g_hash_table_replace(components, g_strdup("room"), g_strdup(name ? name : chatroom_name));
 		g_hash_table_replace(components, g_strdup("exchange"), g_strdup_printf("%d", args->info.chat.roominfo.exchange));
 		serv_got_chat_invite(gc,
-				     name ? name : args->info.chat.roominfo.name,
+				     name ? name : chatroom_name,
 				     userinfo->sn,
 				     message,
 				     components);
+		g_free(chatroom_name);
 		if (name)
 			g_free(name);
 	} else if (args->reqclass & AIM_CAPS_SENDFILE) {
@@ -4502,7 +4556,7 @@ static int purple_parse_userinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	if ((userinfo->flags & AIM_FLAG_AWAY) && (userinfo->away_len > 0) && (userinfo->away != NULL) && (userinfo->away_encoding != NULL)) {
 		tmp = oscar_encoding_extract(userinfo->away_encoding);
-		away_utf8 = oscar_encoding_to_utf8(tmp, userinfo->away, userinfo->away_len);
+		away_utf8 = oscar_decode_to_utf8(account, userinfo->sn, tmp, userinfo->away, userinfo->away_len);
 		g_free(tmp);
 		if (away_utf8 != NULL) {
 			g_string_append_printf(str, "\n<hr>%s", away_utf8);
@@ -4512,7 +4566,7 @@ static int purple_parse_userinfo(aim_session_t *sess, aim_frame_t *fr, ...) {
 
 	if ((userinfo->info_len > 0) && (userinfo->info != NULL) && (userinfo->info_encoding != NULL)) {
 		tmp = oscar_encoding_extract(userinfo->info_encoding);
-		info_utf8 = oscar_encoding_to_utf8(tmp, userinfo->info, userinfo->info_len);
+		info_utf8 = oscar_decode_to_utf8(account, userinfo->sn, tmp, userinfo->info, userinfo->info_len);
 		g_free(tmp);
 		if (info_utf8 != NULL) {
 			g_string_append_printf(str, "\n<hr>%s", info_utf8);
@@ -4756,7 +4810,7 @@ static int purple_conv_chat_incoming_msg(aim_session_t *sess, aim_frame_t *fr, .
 	charset = va_arg(ap, char *);
 	va_end(ap);
 
-	utf8 = oscar_encoding_to_utf8(charset, msg, len);
+	utf8 = oscar_decode_to_utf8(purple_connection_get_account(gc), info->sn, charset, msg, len);
 	if (utf8 == NULL)
 		/* The conversion failed! */
 		utf8 = g_strdup(_("[Unable to display a message from this user because it contained invalid characters.]"));
@@ -5792,10 +5846,12 @@ static void oscar_set_idle(PurpleConnection *gc, int time) {
 
 static void oscar_set_info(PurpleConnection *gc, const char *text) {
 	OscarData *od = (OscarData *)gc->proto_data;
-	int charset = 0;
+	fu16_t charset = AIM_CHARSET_ASCII;
+	fu16_t charsubset = 0x0000;
 	char *text_html = NULL;
 	char *msg = NULL;
 	gsize msglen = 0;
+	const char *encoding = NULL;
 
 	if (od->rights.maxsiglen == 0)
 		purple_notify_warning(gc, NULL, _("Unable to set AIM profile."),
@@ -5808,21 +5864,12 @@ static void oscar_set_info(PurpleConnection *gc, const char *text) {
 		aim_locate_setprofile(od->sess, NULL, "", 0, NULL, NULL, 0);
 		return;
 	}
-		
+
 	text_html = purple_strdup_withhtml(text);
-	charset = oscar_charset_check(text_html);
-	if (charset == AIM_CHARSET_UNICODE) {
-		msg = g_convert(text_html, strlen(text_html), "UCS-2BE", "UTF-8", NULL, &msglen, NULL);
-		aim_locate_setprofile(od->sess, "unicode-2-0", msg, (msglen > od->rights.maxsiglen ? od->rights.maxsiglen : msglen), NULL, NULL, 0);
-		g_free(msg);
-	} else if (charset == AIM_CHARSET_CUSTOM) {
-		msg = g_convert(text_html, strlen(text_html), "ISO-8859-1", "UTF-8", NULL, &msglen, NULL);
-		aim_locate_setprofile(od->sess, "iso-8859-1", msg, (msglen > od->rights.maxsiglen ? od->rights.maxsiglen : msglen), NULL, NULL, 0);
-		g_free(msg);
-	} else {
-		msglen = strlen(text_html);
-		aim_locate_setprofile(od->sess, "us-ascii", text_html, (msglen > od->rights.maxsiglen ? od->rights.maxsiglen : msglen), NULL, NULL, 0);
-	}
+	purple_plugin_oscar_convert_to_best_encoding(gc, NULL, text_html, &msg, &msglen, &charset, &charsubset);
+	encoding = oscar_charset_to_label(charset, purple_connection_get_account(gc));
+	aim_locate_setprofile(od->sess, encoding, msg, (msglen > od->rights.maxsiglen ? od->rights.maxsiglen : msglen), NULL, NULL, 0);
+	g_free(msg);
 
 	if (msglen > od->rights.maxsiglen) {
 		gchar *errstr;
@@ -5842,10 +5889,12 @@ static void oscar_set_info(PurpleConnection *gc, const char *text) {
 
 static void oscar_set_away_aim(PurpleConnection *gc, OscarData *od, const char *state, const char *text)
 {
-	int charset = 0;
+	fu16_t charset = AIM_CHARSET_ASCII;
+	fu16_t charsubset = 0x0000;
 	gchar *text_html = NULL;
 	char *msg = NULL;
 	gsize msglen = 0;
+	const char *encoding = NULL;
 
 	if (!strcmp(state, _("Visible"))) {
 		aim_setextstatus(od->sess, AIM_ICQ_STATE_NORMAL);
@@ -5883,25 +5932,15 @@ static void oscar_set_away_aim(PurpleConnection *gc, OscarData *od, const char *
 	}
 
 	text_html = purple_strdup_withhtml(text);
-	charset = oscar_charset_check(text_html);
-	if (charset == AIM_CHARSET_UNICODE) {
-		msg = g_convert(text_html, strlen(text_html), "UCS-2BE", "UTF-8", NULL, &msglen, NULL);
-		aim_locate_setprofile(od->sess, NULL, NULL, 0, "unicode-2-0", msg, 
-			(msglen > od->rights.maxawaymsglen ? od->rights.maxawaymsglen : msglen));
-		g_free(msg);
-		gc->away = g_strndup(text, od->rights.maxawaymsglen/2);
-	} else if (charset == AIM_CHARSET_CUSTOM) {
-		msg = g_convert(text_html, strlen(text_html), "ISO-8859-1", "UTF-8", NULL, &msglen, NULL);
-		aim_locate_setprofile(od->sess, NULL, NULL, 0, "iso-8859-1", msg, 
-			(msglen > od->rights.maxawaymsglen ? od->rights.maxawaymsglen : msglen));
-		g_free(msg);
+	purple_plugin_oscar_convert_to_best_encoding(gc, NULL, text_html, &msg, &msglen, &charset, &charsubset);
+	encoding = oscar_charset_to_label(charset, purple_connection_get_account(gc));
+	aim_locate_setprofile(od->sess, NULL, NULL, 0, encoding, msg,
+		(msglen > od->rights.maxawaymsglen ? od->rights.maxawaymsglen : msglen));
+	g_free(msg);
+	if (charset == AIM_CHARSET_UNICODE)
+		gc->away = g_strndup(text, od->rights.maxawaymsglen / 2);
+	else
 		gc->away = g_strndup(text_html, od->rights.maxawaymsglen);
-	} else {
-		msglen = strlen(text_html);
-		aim_locate_setprofile(od->sess, NULL, NULL, 0, "us-ascii", text_html, 
-			(msglen > od->rights.maxawaymsglen ? od->rights.maxawaymsglen : msglen));
-		gc->away = g_strndup(text_html, od->rights.maxawaymsglen);
-	}
 
 	if (msglen > od->rights.maxawaymsglen) {
 		gchar *errstr;
@@ -6795,7 +6834,7 @@ static int oscar_send_chat(PurpleConnection *gc, int id, const char *message, Pu
 	struct chat_connection *c = NULL;
 	char *buf, *buf2;
 	fu16_t charset, charsubset;
-	char *charsetstr = NULL;
+	const char *charsetstr = NULL;
 	gsize len;
 
 	if (!(conv = purple_find_chat(gc, id)))
@@ -6819,12 +6858,7 @@ static int oscar_send_chat(PurpleConnection *gc, int id, const char *message, Pu
 		return -E2BIG;
 	}
 
-	if (charset == AIM_CHARSET_ASCII)
-		charsetstr = "us-ascii";
-	else if (charset == AIM_CHARSET_UNICODE)
-		charsetstr = "unicode-2-0";
-	else if (charset == AIM_CHARSET_CUSTOM)
-		charsetstr = "iso-8859-1";
+	charsetstr = oscar_charset_to_label(charset, purple_connection_get_account(gc));
 	aim_chat_send_im(od->sess, c->conn, 0, buf2, len, charsetstr, "en");
 	g_free(buf2);
 
@@ -6925,7 +6959,7 @@ static char *oscar_tooltip_text(PurpleBuddy *b) {
 
 		if ((userinfo != NULL) && (userinfo->flags & AIM_FLAG_AWAY) && (userinfo->away_len > 0) && (userinfo->away != NULL) && (userinfo->away_encoding != NULL)) {
 			gchar *charset = oscar_encoding_extract(userinfo->away_encoding);
-			gchar *away_utf8 = oscar_encoding_to_utf8(charset, userinfo->away, userinfo->away_len);
+			gchar *away_utf8 = oscar_decode_to_utf8(purple_connection_get_account(gc), userinfo->sn, charset, userinfo->away, userinfo->away_len);
 			g_free(charset);
 			if (away_utf8 != NULL) {
 				gchar *tmp1, *tmp2;
