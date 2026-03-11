@@ -7,13 +7,11 @@
 
 #define FAIM_INTERNAL
 #define FAIM_NEED_CONN_INTERNAL
-#include <aim.h> 
+#include <aim.h>
 
-#ifndef _WIN32
-#include <netdb.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#endif
+#include "account.h"
+#include "connection.h"
+#include "proxy.h"
 
 #ifdef _WIN32
 #include "win32dep.h"
@@ -385,158 +383,56 @@ faim_export aim_conn_t *aim_getconn_fd(aim_session_t *sess, int fd)
  * @param port Port to connect to.
  * @param statusret Return value of the connection.
  */
-static int aim_proxyconnect(aim_session_t *sess, const char *host, fu16_t port, fu32_t *statusret)
+typedef struct {
+	gboolean done;
+	int fd;
+	fu32_t status;
+} AimProxyConnectResult;
+
+static void
+aim_proxyconnect_cb(gpointer data, gint source, const gchar *error_message)
 {
-	int fd = -1;
+	AimProxyConnectResult *result = data;
 
-	if (strlen(sess->socksproxy.server)) { /* connecting via proxy */
-		int i;
-		unsigned char buf[512];
-		struct sockaddr_in sa;
-		struct hostent *hp;
-		char *proxy;
-		unsigned short proxyport = 1080;
+	result->fd = source;
+	result->done = TRUE;
 
-		for(i=0;i<(int)strlen(sess->socksproxy.server);i++) {
-			if (sess->socksproxy.server[i] == ':') {
-				proxyport = atoi(&(sess->socksproxy.server[i+1]));
-				break;
-			}
-		}
-
-		proxy = (char *)malloc(i+1);
-		strncpy(proxy, sess->socksproxy.server, i);
-		proxy[i] = '\0';
-
-		if (!(hp = gethostbyname(proxy))) {
-			faimdprintf(sess, 0, "proxyconnect: unable to resolve proxy name\n");
-			*statusret = (h_errno | AIM_CONN_STATUS_RESOLVERR);
-			return -1;
-		}
-		free(proxy);
-
-		memset(&sa.sin_zero, 0, 8);
-		sa.sin_port = htons(proxyport);
-		memcpy(&sa.sin_addr, hp->h_addr, hp->h_length);
-		sa.sin_family = hp->h_addrtype;
-
-		fd = socket(hp->h_addrtype, SOCK_STREAM, 0);
-		if (connect(fd, (struct sockaddr *)&sa, sizeof(struct sockaddr_in)) < 0) {
-			faimdprintf(sess, 0, "proxyconnect: unable to connect to proxy\n");
-			close(fd);
-			return -1;
-		}
-
-		i = 0;
-		buf[0] = 0x05; /* SOCKS version 5 */
-		if (strlen(sess->socksproxy.username)) {
-			buf[1] = 0x02; /* two methods */
-			buf[2] = 0x00; /* no authentication */
-			buf[3] = 0x02; /* username/password authentication */
-			i = 4;
-		} else {
-			buf[1] = 0x01;
-			buf[2] = 0x00;
-			i = 3;
-		}
-		if (write(fd, buf, i) < i) {
-			*statusret = errno;
-			close(fd);
-			return -1;
-		}
-		if (read(fd, buf, 2) < 2) {
-			*statusret = errno;
-			close(fd);
-			return -1;
-		}
-
-		if ((buf[0] != 0x05) || (buf[1] == 0xff)) {
-			*statusret = EINVAL;
-			close(fd);
-			return -1;
-		}
-
-		/* check if we're doing username authentication */
-		if (buf[1] == 0x02) {
-			i  = aimutil_put8(buf, 0x01); /* version 1 */
-			i += aimutil_put8(buf+i, strlen(sess->socksproxy.username));
-			i += aimutil_putstr(buf+i, sess->socksproxy.username, strlen(sess->socksproxy.username));
-			i += aimutil_put8(buf+i, strlen(sess->socksproxy.password));
-			i += aimutil_putstr(buf+i, sess->socksproxy.password, strlen(sess->socksproxy.password));
-			if (write(fd, buf, i) < i) {
-				*statusret = errno;
-				close(fd);
-				return -1;
-			}
-			if (read(fd, buf, 2) < 2) {
-				*statusret = errno;
-				close(fd);
-				return -1;
-			}
-			if ((buf[0] != 0x01) || (buf[1] != 0x00)) {
-				*statusret = EINVAL;
-				close(fd);
-				return -1;
-			}
-		}
-
-		i  = aimutil_put8(buf, 0x05);
-		i += aimutil_put8(buf+i, 0x01); /* CONNECT */
-		i += aimutil_put8(buf+i, 0x00); /* reserved */
-		i += aimutil_put8(buf+i, 0x03); /* address type: host name */
-		i += aimutil_put8(buf+i, strlen(host));
-		i += aimutil_putstr(buf+i, host, strlen(host));
-		i += aimutil_put16(buf+i, port);
-
-		if (write(fd, buf, i) < i) {
-			*statusret = errno;
-			close(fd);
-			return -1;
-		}
-
-		if (read(fd, buf, 10) < 10) {
-			*statusret = errno;
-			close(fd);
-			return -1;
-		}
-		if ((buf[0] != 0x05) || (buf[1] != 0x00)) {
-			*statusret = EINVAL;
-			close(fd);
-			return -1;
-		}
-
-	} else { /* connecting directly */
-		struct sockaddr_in sa;
-		struct hostent *hp;
-
-		if (!(hp = gethostbyname(host))) {
-			*statusret = (h_errno | AIM_CONN_STATUS_RESOLVERR);
-			return -1;
-		}
-
-		memset(&sa, 0, sizeof(struct sockaddr_in));
-		sa.sin_port = htons(port);
-		memcpy(&sa.sin_addr, hp->h_addr, hp->h_length);
-		sa.sin_family = hp->h_addrtype;
-
-		fd = socket(hp->h_addrtype, SOCK_STREAM, 0);
-
-		if (sess->nonblocking)
-			fcntl(fd, F_SETFL, O_NONBLOCK); /* XXX save flags */
-
-		if (connect(fd, (struct sockaddr *)&sa, sizeof(struct sockaddr_in)) < 0) {
-			if (sess->nonblocking) {
-				if ((errno == EINPROGRESS) || (errno == EINTR)) {
-					if (statusret)
-						*statusret |= AIM_CONN_STATUS_INPROGRESS;
-					return fd;
-				}
-			}
-			close(fd);
-			fd = -1;
-		}
+	if (source < 0) {
+		if (error_message && strstr(error_message, "resolve"))
+			result->status |= AIM_CONN_STATUS_RESOLVERR;
+		else
+			result->status |= AIM_CONN_STATUS_CONNERR;
 	}
-	return fd;
+}
+
+static int
+aim_proxyconnect(aim_session_t *sess, const char *host, fu16_t port, fu32_t *statusret)
+{
+	AimProxyConnectResult result;
+	PurpleConnection *gc;
+	PurpleAccount *account;
+	PurpleProxyConnectData *connect_data;
+
+	memset(&result, 0, sizeof(result));
+	result.fd = -1;
+
+	gc = sess->aux_data;
+	account = gc ? purple_connection_get_account(gc) : NULL;
+
+	connect_data = purple_proxy_connect(sess, account, host, port, aim_proxyconnect_cb, &result);
+	if (connect_data == NULL) {
+		if (statusret)
+			*statusret = AIM_CONN_STATUS_CONNERR;
+		return -1;
+	}
+
+	while (!result.done)
+		g_main_context_iteration(NULL, TRUE);
+
+	if (statusret)
+		*statusret = result.status;
+
+	return result.fd;
 }
 
 /**
@@ -635,7 +531,8 @@ faim_export aim_conn_t *aim_newconn(aim_session_t *sess, int type, const char *d
 
 	if ((ret = aim_proxyconnect(sess, host, port, &connstruct->status)) < 0) {
 		connstruct->fd = -1;
-		connstruct->status = (errno | AIM_CONN_STATUS_CONNERR);
+		if (!(connstruct->status & (AIM_CONN_STATUS_CONNERR | AIM_CONN_STATUS_RESOLVERR)))
+			connstruct->status |= AIM_CONN_STATUS_CONNERR;
 		free(host);
 		return connstruct;
 	} else
