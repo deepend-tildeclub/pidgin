@@ -390,6 +390,71 @@ typedef struct {
 } AimProxyConnectResult;
 
 static void
+aim_copy_bounded(char *dest, size_t dest_size, const char *src)
+{
+	size_t copy_len;
+
+	if (dest_size == 0)
+		return;
+
+	if (src == NULL) {
+		dest[0] = '\0';
+		return;
+	}
+
+	copy_len = strlen(src);
+	if (copy_len >= dest_size)
+		copy_len = dest_size - 1;
+
+	memcpy(dest, src, copy_len);
+	dest[copy_len] = '\0';
+}
+
+static gboolean
+aim_extract_hostport(const char *input, char *host, size_t host_size, fu16_t *port, fu16_t default_port)
+{
+	const char *colon;
+	char *endptr;
+	unsigned long parsed_port;
+	size_t host_len;
+
+	if (!input || !input[0] || !host || host_size == 0)
+		return FALSE;
+
+	colon = strchr(input, ':');
+	if (!colon) {
+		host_len = strlen(input);
+		if (host_len >= host_size)
+			return FALSE;
+		memcpy(host, input, host_len);
+		host[host_len] = '\0';
+		if (port)
+			*port = default_port;
+		return TRUE;
+	}
+
+	if (colon == input || colon[1] == '\0')
+		return FALSE;
+
+	host_len = (size_t)(colon - input);
+	if (host_len >= host_size)
+		return FALSE;
+
+	memcpy(host, input, host_len);
+	host[host_len] = '\0';
+
+	errno = 0;
+	parsed_port = strtoul(colon + 1, &endptr, 10);
+	if (errno != 0 || *endptr != '\0' || parsed_port == 0 || parsed_port > 65535)
+		return FALSE;
+
+	if (port)
+		*port = (fu16_t)parsed_port;
+
+	return TRUE;
+}
+
+static void
 aim_proxyconnect_cb(gpointer data, gint source, const gchar *error_message)
 {
 	AimProxyConnectResult *result = data;
@@ -409,9 +474,27 @@ static int
 aim_proxyconnect(aim_session_t *sess, const char *host, fu16_t port, fu32_t *statusret)
 {
 	AimProxyConnectResult result;
+	char proxy_host[sizeof(sess->socksproxy.server)];
+	fu16_t proxy_port;
 	PurpleConnection *gc;
 	PurpleAccount *account;
 	PurpleProxyConnectData *connect_data;
+
+	if (!host || !host[0] || port == 0) {
+		if (statusret)
+			*statusret = AIM_CONN_STATUS_CONNERR;
+		return -1;
+	}
+
+	if (sess->socksproxy.server[0]) {
+		if (!aim_extract_hostport(sess->socksproxy.server,
+				proxy_host, sizeof(proxy_host), &proxy_port, 1080) ||
+				!proxy_host[0] || proxy_port == 0) {
+			if (statusret)
+				*statusret = AIM_CONN_STATUS_CONNERR;
+			return -1;
+		}
+	}
 
 	memset(&result, 0, sizeof(result));
 	result.fd = -1;
@@ -495,7 +578,8 @@ faim_export aim_conn_t *aim_newconn(aim_session_t *sess, int type, const char *d
 	aim_conn_t *connstruct;
 	fu16_t port = FAIM_LOGIN_PORT;
 	char *host;
-	int i, ret;
+	int ret;
+	size_t host_buf_size;
 
 	if (!(connstruct = aim_conn_getnext(sess)))
 		return NULL;
@@ -518,16 +602,20 @@ faim_export aim_conn_t *aim_newconn(aim_session_t *sess, int type, const char *d
 	 *
 	 */
 
-	for(i = 0; i < (int)strlen(dest); i++) {
-		if (dest[i] == ':') {
-			port = atoi(&(dest[i+1]));
-			break;
-		}
+	host_buf_size = strlen(dest) + 1;
+	host = (char *)malloc(host_buf_size);
+	if (!host) {
+		connstruct->fd = -1;
+		connstruct->status |= AIM_CONN_STATUS_CONNERR;
+		return connstruct;
 	}
 
-	host = (char *)malloc(i+1);
-	strncpy(host, dest, i);
-	host[i] = '\0';
+	if (!aim_extract_hostport(dest, host, host_buf_size, &port, FAIM_LOGIN_PORT)) {
+		connstruct->fd = -1;
+		connstruct->status |= AIM_CONN_STATUS_CONNERR;
+		free(host);
+		return connstruct;
+	}
 
 	if ((ret = aim_proxyconnect(sess, host, port, &connstruct->status)) < 0) {
 		connstruct->fd = -1;
@@ -693,11 +781,15 @@ faim_export void aim_setupproxy(aim_session_t *sess, const char *server, const c
 		return;
 	}
 
-	strncpy(sess->socksproxy.server, server, sizeof(sess->socksproxy.server));
-	if (username && strlen(username)) 
-		strncpy(sess->socksproxy.username, username, sizeof(sess->socksproxy.username));
-	if (password && strlen(password))
-		strncpy(sess->socksproxy.password, password, sizeof(sess->socksproxy.password));
+	memset(sess->socksproxy.server, 0, sizeof(sess->socksproxy.server));
+	memset(sess->socksproxy.username, 0, sizeof(sess->socksproxy.username));
+	memset(sess->socksproxy.password, 0, sizeof(sess->socksproxy.password));
+
+	aim_copy_bounded(sess->socksproxy.server, sizeof(sess->socksproxy.server), server);
+	if (username && username[0])
+		aim_copy_bounded(sess->socksproxy.username, sizeof(sess->socksproxy.username), username);
+	if (password && password[0])
+		aim_copy_bounded(sess->socksproxy.password, sizeof(sess->socksproxy.password), password);
 
 	return;
 }
