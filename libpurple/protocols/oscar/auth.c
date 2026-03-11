@@ -483,12 +483,15 @@ faim_export int aim_request_login(aim_session_t *sess, aim_conn_t *conn, const c
 	aim_frame_t *fr;
 	aim_snacid_t snacid;
 	aim_tlvlist_t *tl = NULL;
+	const fu8_t *sn_bytes;
 	
 	if (!sess || !conn || !sn)
 		return -EINVAL;
 
 	if (isdigit(sn[0]))
 		return goddamnicq(sess, conn, sn);
+
+	sn_bytes = (const fu8_t *)sn;
 
 	aim_sendflapver(sess, conn);
 
@@ -498,7 +501,7 @@ faim_export int aim_request_login(aim_session_t *sess, aim_conn_t *conn, const c
 	snacid = aim_cachesnac(sess, 0x0017, 0x0006, 0x0000, NULL, 0);
 	aim_putsnac(&fr->data, 0x0017, 0x0006, 0x0000, snacid);
 
-	aim_tlvlist_add_raw(&tl, 0x0001, strlen(sn), sn);
+	aim_tlvlist_add_raw(&tl, 0x0001, strlen(sn), sn_bytes);
 
 	/*
 	 * These are sent in logins for recent WinAIM clients.  Maybe tells
@@ -583,11 +586,13 @@ faim_export int aim_auth_securid_send(aim_session_t *sess, const char *securid)
 	aim_frame_t *fr;
 	aim_snacid_t snacid;
 	int len;
+	const fu8_t *securid_bytes;
 
 	if (!sess || !(conn = aim_getconn_type_all(sess, AIM_CONN_TYPE_AUTH)) || !securid)
 		return -EINVAL;
 
 	len = strlen(securid);
+	securid_bytes = (const fu8_t *)securid;
 
 	if (!(fr = aim_tx_new(sess, conn, AIM_FRAMETYPE_FLAP, 0x02, 10+2+len)))
 		return -ENOMEM;
@@ -596,7 +601,7 @@ faim_export int aim_auth_securid_send(aim_session_t *sess, const char *securid)
 	aim_putsnac(&fr->data, AIM_CB_FAM_ATH, AIM_CB_ATH_SECURID_RESPONSE, 0x0000, 0);
 
 	aimbs_put16(&fr->data, len);
-	aimbs_putraw(&fr->data, securid, len);
+	aimbs_putraw(&fr->data, securid_bytes, len);
 
 	aim_tx_enqueue(sess, fr);
 

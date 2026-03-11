@@ -227,11 +227,14 @@ faim_internal fu8_t *aimbs_getraw(aim_bstream_t *bs, int len)
 faim_internal char *aimbs_getstr(aim_bstream_t *bs, int len)
 {
 	char *ob;
+	fu8_t *ob_bytes;
 
 	if (!(ob = malloc(len+1)))
 		return NULL;
 
-	if (aimbs_getrawbuf(bs, ob, len) < len) {
+	ob_bytes = (fu8_t *)ob;
+
+	if (aimbs_getrawbuf(bs, ob_bytes, len) < len) {
 		free(ob);
 		return NULL;
 	}

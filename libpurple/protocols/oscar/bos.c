@@ -97,6 +97,7 @@ faim_export int aim_bos_changevisibility(aim_session_t *sess, aim_conn_t *conn, 
 	int packlen = 0;
 	fu16_t subtype;
 	char *localcpy = NULL, *tmpptr = NULL;
+	const fu8_t *tmpptr_bytes;
 	int i;
 	int listcount;
 	aim_snacid_t snacid;
@@ -130,9 +131,10 @@ faim_export int aim_bos_changevisibility(aim_session_t *sess, aim_conn_t *conn, 
 
 	for (i = 0; (i < (listcount - 1)) && (i < 99); i++) {
 		tmpptr = aimutil_itemindex(localcpy, i, '&');
+		tmpptr_bytes = (const fu8_t *)tmpptr;
 
 		aimbs_put8(&fr->data, strlen(tmpptr));
-		aimbs_putraw(&fr->data, tmpptr, strlen(tmpptr));
+		aimbs_putraw(&fr->data, tmpptr_bytes, strlen(tmpptr));
 
 		free(tmpptr);
 	}
