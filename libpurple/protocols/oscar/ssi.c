@@ -107,8 +107,7 @@ static struct aim_ssi_item *aim_ssi_itemlist_add(struct aim_ssi_item **list, con
 
 	/* Set the name */
 	if (name) {
-		new->name = (char *)malloc((strlen(name)+1)*sizeof(char));
-		strcpy(new->name, name);
+		new->name = g_strdup(name);
 	} else
 		new->name = NULL;
 
@@ -1007,8 +1006,7 @@ faim_export int aim_ssi_rename_group(aim_session_t *sess, const char *oldgn, con
 		return -EINVAL;
 
 	free(group->name);
-	group->name = (char *)malloc((strlen(newgn)+1)*sizeof(char));
-	strcpy(group->name, newgn);
+	group->name = g_strdup(newgn);
 
 	/* Sync our local list with the server list */
 	aim_ssi_sync(sess);
@@ -1441,8 +1439,7 @@ static int parsemod(aim_session_t *sess, aim_module_t *mod, aim_frame_t *rx, aim
 			item->type = type;
 			free(item->name);
 			if (name) {
-				item->name = (char *)malloc((strlen(name)+1)*sizeof(char));
-				strcpy(item->name, name);
+				item->name = g_strdup(name);
 			} else
 				item->name = NULL;
 			aim_tlvlist_free(&item->data);
@@ -1453,8 +1450,7 @@ static int parsemod(aim_session_t *sess, aim_module_t *mod, aim_frame_t *rx, aim
 			item->type = type;
 			free(item->name);
 			if (name) {
-				item->name = (char *)malloc((strlen(name)+1)*sizeof(char));
-				strcpy(item->name, name);
+				item->name = g_strdup(name);
 			} else
 				item->name = NULL;
 			aim_tlvlist_free(&item->data);
@@ -1535,8 +1531,7 @@ static int parseack(aim_session_t *sess, aim_module_t *mod, aim_frame_t *rx, aim
 				/* Make sure cur->item is still valid memory */
 				if (aim_ssi_itemlist_valid(sess->ssi.local, cur->item)) {
 					if (cur->item->name) {
-						cur->name = (char *)malloc((strlen(cur->item->name)+1)*sizeof(char));
-						strcpy(cur->name, cur->item->name);
+						cur->name = g_strdup(cur->item->name);
 					}
 					aim_ssi_itemlist_del(&sess->ssi.local, cur->item);
 				}
@@ -1549,8 +1544,7 @@ static int parseack(aim_session_t *sess, aim_module_t *mod, aim_frame_t *rx, aim
 					if ((cur1 = aim_ssi_itemlist_find(sess->ssi.official, cur->item->gid, cur->item->bid))) {
 						free(cur->item->name);
 						if (cur1->name) {
-							cur->item->name = (char *)malloc((strlen(cur1->name)+1)*sizeof(char));
-							strcpy(cur->item->name, cur1->name);
+							cur->item->name = g_strdup(cur1->name);
 						} else
 							cur->item->name = NULL;
 						aim_tlvlist_free(&cur->item->data);
@@ -1583,8 +1577,7 @@ static int parseack(aim_session_t *sess, aim_module_t *mod, aim_frame_t *rx, aim
 					if ((cur1 = aim_ssi_itemlist_find(sess->ssi.official, cur->item->gid, cur->item->bid))) {
 						free(cur1->name);
 						if (cur->item->name) {
-							cur1->name = (char *)malloc((strlen(cur->item->name)+1)*sizeof(char));
-							strcpy(cur1->name, cur->item->name);
+							cur1->name = g_strdup(cur->item->name);
 						} else
 							cur1->name = NULL;
 						aim_tlvlist_free(&cur1->data);

@@ -110,8 +110,7 @@ faim_export char *aimutil_itemindex(char *toSearch, int theindex, char dl)
 		*toReturn = '\0';
 	} else {
 		if (next == NULL) {
-			toReturn = malloc((strlen(last) + 1) * sizeof(char));
-			strcpy(toReturn, last);
+			toReturn = g_strdup(last);
 		} else {
 			toReturn = malloc((next - last + 1) * sizeof(char));
 			memcpy(toReturn, last, (next - last));

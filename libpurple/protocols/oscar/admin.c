@@ -74,8 +74,10 @@ static int infochange(aim_session_t *sess, aim_module_t *mod, aim_frame_t *rx, a
 
 			case 0x0011: {
 				if (length == 0) {
-					email = (char*)malloc(13*sizeof(char));
-					strcpy(email, "*suppressed*");
+					char suppressed[13];
+
+					g_strlcpy(suppressed, "*suppressed*", sizeof(suppressed));
+					email = g_strdup(suppressed);
 				} else
 					email = aimbs_getstr(bs, length);
 			} break;
