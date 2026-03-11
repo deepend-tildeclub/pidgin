@@ -1830,7 +1830,7 @@ static void oscar_debug(aim_session_t *sess, int level, const char *format, va_l
 	gchar *buf;
 
 	buf = g_strdup_printf("%s %d: %s", purple_account_get_username(purple_connection_get_account(gc)), level, s);
-	purple_debug_info("oscar", buf);
+	purple_debug_info("oscar", "%s", buf);
 	if (buf[strlen(buf)-1] != '\n')
 		purple_debug_info(NULL, "\n");
 	g_free(buf);
